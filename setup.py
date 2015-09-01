@@ -29,11 +29,10 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
     ],
-    licence='BSD',
-    platform='Linux, FreeBSD',
+
     install_requires=[
         'pyasn1',
-        'Twisted>=15.2.0',
+        # 'Twisted>=15.3.0',
         'autobahn>=0.10.5',
         'crossbar==0.10.4',
         'lxml==3.4.4',

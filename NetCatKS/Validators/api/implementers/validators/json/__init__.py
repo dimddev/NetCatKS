@@ -3,6 +3,7 @@ __author__ = 'dimd'
 import json
 
 from ..default import BaseValidator
+from NetCatKS.Logger import Logger
 
 from zope.component import getGlobalSiteManager
 
@@ -20,6 +21,8 @@ class JSONValidator(BaseValidator):
         """
         super(JSONValidator, self).__init__(validate_msg)
 
+        self.__logger = Logger()
+
     def validate(self):
 
         try:
@@ -27,7 +30,7 @@ class JSONValidator(BaseValidator):
 
         except Exception as e:
 
-            print e.message
+            self.__logger.error('JSON Validator error: {}'.format(e.message))
 
             self.is_valid = False
             self.message_type = 'JSON'

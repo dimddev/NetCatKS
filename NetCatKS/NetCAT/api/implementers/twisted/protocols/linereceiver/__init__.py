@@ -38,6 +38,11 @@ class DefaultLineReceiver(LineReceiver):
 
         else:
 
-            self.__logger.info('Response: {}'.format(result))
+            if result is not False:
 
-            self.sendLine(result.to_json())
+                self.__logger.info('Response: {}'.format(result))
+
+                self.sendLine(result.to_json())
+
+            else:
+                self.transport.loseConnection()
