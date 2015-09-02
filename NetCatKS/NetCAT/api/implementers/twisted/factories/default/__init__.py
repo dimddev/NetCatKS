@@ -17,10 +17,10 @@ class DefaultFactory(Factory):
         :param kwargs:
         :return:
         """
-        self.protocol = kwargs.get('protocol', None)
-
-        if self.protocol is None:
-            self.protocol = DefaultLineReceiver
+        self.protocol = kwargs.get('protocol', DefaultLineReceiver)
 
         self.name = kwargs.get('name', 'DefaultService')
+
         self.port = kwargs.get('port', 9999)
+
+        self.belong_to = kwargs.get('belong_to', False)

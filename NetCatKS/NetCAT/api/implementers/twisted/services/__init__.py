@@ -19,18 +19,18 @@ class DefaultService(object):
 
         super(DefaultService, self).__init__()
 
-        self.__factory = factory
+        self.factory = factory
 
-        self.__application = service.Application(self.__factory.name, uid=1000, gid=1000)
-        self.__service_collection = service.IServiceCollection(self.__application)
+        self.__application = service.Application(self.factory.name, uid=1000, gid=1000)
+        self.service_collection = service.IServiceCollection(self.__application)
 
     def start(self):
 
         internet.TCPServer(
-            self.__factory.port,
-            self.__factory,
+            self.factory.port,
+            self.factory,
             50
-        ).setServiceParent(self.__service_collection)
+        ).setServiceParent(self.service_collection)
 
         return self.__application
 

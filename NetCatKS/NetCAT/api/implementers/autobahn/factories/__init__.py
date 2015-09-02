@@ -1,20 +1,19 @@
 __author__ = 'dimd'
 
-import sys
-
-#run
 from autobahn.wamp.types import ComponentConfig
 from autobahn.websocket.protocol import parseWsUrl
 from autobahn.twisted.websocket import WampWebSocketClientFactory
-from twisted.python import log
 from twisted.internet import reactor
 from twisted.internet.endpoints import clientFromString
 from twisted.application import service
 
 from NetCatKS.Logger import Logger
+from NetCatKS.NetCAT.api.public import IDefaultAutobahnFactory
 
-WEB_SERVICE_PROTO = 'wss'
-WEB_SERVICE_IP = '144.76.33.119'
+from zope.interface import implementer
+
+WEB_SERVICE_PROTO = 'ws'
+WEB_SERVICE_IP = 'localhost'
 WEB_SERVICE_PORT = '8080'
 WEB_SERVICE_REALM = 'realm1'
 WEB_SERVICE_PATH = 'ws'
@@ -38,7 +37,7 @@ class Reconnect(object):
         try:
 
             self.logger.info(
-                'TRY TO CONNECT TO {}://{}:{}/{}'.format(
+                'TRYING TO CONNECT TO {}://{}:{}/{}'.format(
                     WEB_SERVICE_PROTO,
                     WEB_SERVICE_IP,
                     WEB_SERVICE_PORT,
@@ -55,6 +54,7 @@ class Reconnect(object):
             self.logger.error('RECONNECTING ERROR: {}'.format(e.message))
 
 
+@implementer(IDefaultAutobahnFactory)
 class AutobahnDefaultFactory(service.Service):
     """
     This class is a convenience tool mainly for development and quick hosting
@@ -64,7 +64,7 @@ class AutobahnDefaultFactory(service.Service):
     connecting to a WAMP router.
     """
 
-    def __init__(self, url, realm, extra=None, debug=False, debug_wamp=False, debug_app=False):
+    def __init__(self, **kwargs):
         """
 
         :param url: The WebSocket URL of the WAMP router to connect to (e.g. `ws://somehost.com:8090/somepath`)
@@ -80,14 +80,25 @@ class AutobahnDefaultFactory(service.Service):
         :param debug_app: Turn on app-level debugging.
         :type debug_app: bool
         """
-        self.url = url
-        self.realm = realm
-        self.extra = extra or dict()
-        self.debug = debug
-        self.debug_wamp = debug_wamp
-        self.debug_app = debug_app
+        self.url = kwargs.get('url', u'127.0.0.1')
+        self.realm = kwargs.get('realm', 'realm1')
+        self.extra = kwargs.get('extra', dict())
+        self.debug = kwargs.get('debug', False)
+        self.debug_wamp = kwargs.get('debug_wamp', False)
+
+        self.debug_app = kwargs.get('debug_app', False)
+
+        self.belong_to = kwargs.get('belong_to', False)
+
         self.make = None
         self.logger = Logger()
+
+        self.protocol = kwargs.get('protocol', 'wss')
+        self.name = kwargs.get('name', 'Default Autobahn Service')
+        self.port = kwargs.get('port', 8080)
+        self.host = kwargs.get('host', self.url)
+        self.path = kwargs.get('path', 'ws')
+
 
     def run(self, make):
         """
@@ -102,7 +113,8 @@ class AutobahnDefaultFactory(service.Service):
 
         ## start logging to console
         if self.debug or self.debug_wamp or self.debug_app:
-            log.startLogging(sys.stdout)
+            pass
+            # log.startLogging(sys.stdout)
 
         ## factory for use ApplicationSession
         def create():
@@ -111,15 +123,14 @@ class AutobahnDefaultFactory(service.Service):
 
             try:
                 session = make(cfg)
-
+                print '--------------------------'
             except Exception as e:
 
                 ## the app component could not be created .. fatal
                 self.logger.critical('CREATE RUNNER EXCEPTION {}'.format(e.message))
-                log.err()
-                #reactor.stop()
 
             else:
+
                 session.debug_app = self.debug_app
                 return session
 
@@ -128,8 +139,7 @@ class AutobahnDefaultFactory(service.Service):
             create,
             url=self.url,
             debug=self.debug,
-            debug_wamp=
-            self.debug_wamp
+            debug_wamp=self.debug_wamp
         )
 
         if isSecure:
@@ -139,7 +149,7 @@ class AutobahnDefaultFactory(service.Service):
             endpoint_descriptor = "tcp:{0}:{1}".format(host, port)
 
         try:
-
+            self.logger.info('Trying to connect to: {}'.format(endpoint_descriptor))
             self.connect(endpoint_descriptor, transport_factory, make)
 
             return self
@@ -189,6 +199,8 @@ class AutobahnDefaultFactory(service.Service):
     def stopService(self):
         service.Service.stopService(self)
 
+
 __all__ = [
-    'AutobahnDefaultFactory'
+    'AutobahnDefaultFactory',
+    'Reconnect'
 ]

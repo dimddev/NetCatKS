@@ -32,7 +32,6 @@ setup(
 
     install_requires=[
         'pyasn1',
-        # 'Twisted>=15.3.0',
         'autobahn>=0.10.5',
         'crossbar==0.10.4',
         'lxml==3.4.4',
