@@ -19,5 +19,7 @@ __all__ = [
     'IStorageRegister',
     'AdapterProxyGetter',
     'get_factory_objects',
-    'BaseLoader'
+    'BaseLoader',
+    'IWAMPRegister',
+    'IWAMPResource'
 ]

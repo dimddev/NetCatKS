@@ -139,7 +139,7 @@ class AutobahnDefaultFactory(service.Service):
             cfg = ComponentConfig(self.realm, self.extra)
 
             try:
-                session = make(cfg)
+                session = make(config=cfg)
 
             except Exception as e:
 

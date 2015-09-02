@@ -1,13 +1,14 @@
 __author__ = 'dimd'
 
-from ...interfaces.virtual import IVirtualAdapter
-from ...interfaces.registration.adapters import IRegisterAdapters
-from ...interfaces.registration.factories import IRegisterFactory
+from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
+from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
+from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactory
 
-from ...implementers.default import DefaultAdapter
-from ...implementers.registration.adapters import RegisterAdapter, FileAdaptersLoader
-from ...implementers.registration.factories import RegisterFactory, FileFactoryLoader
-from ...implementers.registration.session import ProtocolRegister, FileProtocolsLoader
+from NetCatKS.Components.api.implementers.default import DefaultAdapter
+from NetCatKS.Components.api.implementers.registration.adapters import RegisterAdapter, FileAdaptersLoader
+from NetCatKS.Components.api.implementers.registration.factories import RegisterFactory, FileFactoryLoader
+from NetCatKS.Components.api.implementers.registration.session import ProtocolRegister, FileProtocolsLoader
+from NetCatKS.Components.api.implementers.registration.wamp import WampRegister, FileWampLoader
 
 from zope.component import adapts
 from zope.component import getGlobalSiteManager
@@ -34,13 +35,15 @@ class ComponentsRegistratorAdapter(DefaultAdapter):
         factories_source = kwargs.get('factories_source', 'components/factories')
         protocol_source = kwargs.get('protocol_source', 'components/protocols')
         utility_source = kwargs.get('utility_source', 'components/utility')
-        utility_source = kwargs.get('validators_source', 'components/validators')
+        validators_source = kwargs.get('validators_source', 'components/validators')
+        wamp_source = kwargs.get('wamp_source', 'components/wamp')
 
         factories_prefix = kwargs.get('factories_prefix', 'Factory')
         adapters_prefix = kwargs.get('adapters_prefix', 'Adapter')
         protocol_prefix = kwargs.get('protocol_prefix', 'Protocol')
         utility_prefix = kwargs.get('utility_prefix', 'Utility')
         validators_prefix = kwargs.get('validators_prefix', 'Validator')
+        wamp_prefix = kwargs.get('wamp_prefix', 'Wamp')
 
         if factories_source:
 
@@ -69,6 +72,15 @@ class ComponentsRegistratorAdapter(DefaultAdapter):
             )
 
             self.__proto.register_protocols()
+
+        if wamp_source:
+
+            self.__wamp = WampRegister(
+                FileWampLoader(factory_prefix=wamp_prefix),
+                wamp_source
+            )
+
+            self.__wamp.register_wamp()
 
     def init(self):
         """

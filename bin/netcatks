@@ -65,6 +65,9 @@ else:
             'components/protocols',
             'components/utility',
             'components/validators',
+            'components/wamp/rpc',
+            'components/wamp/pub',
+            'components/wamp/sub',
         ]
 
         for d in dirs:
@@ -79,6 +82,7 @@ else:
                 break
 
         open(d + '/../__init__.py', 'a').close()
+        open('components/__init__.py', 'a').close()
 
         try:
 

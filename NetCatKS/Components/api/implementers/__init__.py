@@ -5,6 +5,8 @@ from default import DefaultAdapter
 from registration.adapters import RegisterAdapter
 from registration.factories import RegisterFactory
 from registration.session import ProtocolRegister
+from registration.wamp import WampRegister
+from wamp import BaseWampComponent
 from registration import ComponentsRegistration
 from storages import StorageRegister
 
@@ -15,5 +17,7 @@ __all__ = [
     'RegisterFactory',
     'RegisterAdapter',
     'ProtocolRegister',
-    'StorageRegister'
+    'StorageRegister',
+    'WampRegister',
+    'BaseWampComponent'
 ]
