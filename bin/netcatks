@@ -5,11 +5,55 @@ import os
 import shutil
 import json
 
+
+def tcp_config(tcp_conf):
+
+    tcp_conf.update({'TCP': {
+        'TCP_PORT': 8484,
+        'TCP_BACK_LOG': 50,
+        'TCP_SERVICE_NAME': 'Default TCP Server'
+        }}
+     )
+
+    return tcp_conf
+
+
+def wamp_config(wamp_conf):
+
+    wamp_conf.update({
+
+        'WAMP': {
+            'WS_PROTO': 'ws',
+            'WS_IP': 'localhost',
+            'WS_PORT': 8080, # integer
+            'WS_REALM': 'realm1',
+            'WS_PATH': 'ws',
+            'WS_RETRY_INTERVAL': 2,  # in seconds
+            'WS_NAME': 'Default WAMP Component',
+            'WS_USER': 'wamp_ws_user',
+            'WS_PASS': 'wamp_ws_password'
+        }
+    })
+
+    wamp_conf.get('WAMP').update({'WS_URL': '{}://{}:{}/{}'.format(
+        wamp_conf.get('WAMP').get('WS_PROTO'),
+        wamp_conf.get('WAMP').get('WS_IP'),
+        wamp_conf.get('WAMP').get('WS_PORT'),
+        wamp_conf.get('WAMP').get('WS_PATH')
+        )}
+    )
+
+    return wamp_conf
+
+
 try:
     arg = sys.argv[1]
 
 except IndexError:
-    print 'the parameters can be: init'
+    print 'Usage:'
+    print '\tnetcatks init tcp - Will produce Defaut TCP Server'
+    print '\tnetcatks init mixin - Will produce Defaut TCP Server plus Default Wamp Component'
+    print '\tnetcatks init wamp - Will produce Default Wamp Component'
 
 else:
 
@@ -45,51 +89,109 @@ else:
             print e
             sys.exit()
 
-        else:
+__config = dict()
 
-            __config = dict()
+try:
 
-            try:
-                wamp_arg = sys.argv[2]
+    arg = sys.argv[2]
 
-            except IndexError:
-                pass
+except IndexError:
+    pass
 
-            else:
+else:
 
-                if wamp_arg == 'wamp':
+    if arg == 'wamp':
 
-                    __config.update({
+        __config.update(wamp_config(__config))
 
-                        'WAMP': {
-                            'WS_PROTO': 'ws',
-                            'WS_IP': 'localhost',
-                            'WS_PORT': 8080, # integer
-                            'WS_REALM': 'realm1',
-                            'WS_PATH': 'ws',
-                            'WS_RETRY_INTERVAL': 2,  # in seconds
-                            'WS_NAME': 'Default WAMP Component'
-                        }
-                    })
+        wamp_app = """
+from NetCatKS.Components import ComponentsRegistration
+from NetCatKS.NetCAT import IDefaultAutobahnService, AutobahnDefaultFactory
+from NetCatKS.Config import Config
 
-                    __config.get('WAMP').update({'WS_URL': '{}://{}:{}/{}'.format(
-                        __config.get('WAMP').get('WS_PROTO'),
-                        __config.get('WAMP').get('WS_IP'),
-                        __config.get('WAMP').get('WS_PORT'),
-                        __config.get('WAMP').get('WS_PATH')
-                        )}
-                    )
+components = ComponentsRegistration().init()
 
-            __config.update({'TCP': {
-                'TCP_PORT': 8484,
-                'TCP_BACK_LOG': 50,
-                'TCP_SERVICE_NAME': 'Default TCP Server'
-                }}
-             )
+application = IDefaultAutobahnService(
+    AutobahnDefaultFactory(config=Config().get('WAMP'))
+).start()
+        """
 
-            with open('config/config.py', 'a') as config:
-                config.write(json.dumps(__config, indent=4))
+        with open('app.py', 'a') as app:
 
-            #open('config/config.py', 'a').close()
+            app.write(wamp_app)
 
-            print 'Projects structures was created successfully'
+        app.close()
+
+    elif arg == 'tcp':
+
+        __config.update(tcp_config(__config))
+
+        tcp_app = """
+from NetCatKS.Components import ComponentsRegistration
+from NetCatKS.NetCAT import DefaultFactory, IDefaultService
+from NetCatKS.Config import Config
+
+components = ComponentsRegistration().init()
+application = IDefaultService(DefaultFactory(
+    config=Config().get('TCP')
+)).start()
+        """
+
+        with open('app.py', 'a') as app:
+
+            app.write(tcp_app)
+
+        app.close()
+
+    elif arg == 'mixin':
+
+        __config.update(wamp_config(__config))
+        __config.update(tcp_config(__config))
+
+        mixin_app = """
+from twisted.application import service
+
+from NetCatKS.Components import ComponentsRegistration
+from NetCatKS.NetCAT import DefaultFactory, IDefaultService
+from NetCatKS.NetCAT import IDefaultAutobahnService, AutobahnDefaultFactory
+from NetCatKS.Config import Config
+
+components = ComponentsRegistration().init()
+
+multi_service = service.MultiService()
+
+apps = [
+
+    IDefaultService(DefaultFactory(
+        config=Config().get('TCP'),
+        belong_to=multi_service
+    )),
+
+    IDefaultAutobahnService(AutobahnDefaultFactory(
+        config=Config().get('WAMP'),
+        belong_to=multi_service
+    ))
+]
+
+for app in apps:
+    app.start()
+
+application = service.Application("NetCatKS DEMO")
+multi_service.setServiceParent(application)
+"""
+
+        with open('app.py', 'a') as app:
+
+            app.write(mixin_app)
+
+        app.close()
+
+
+    else:
+        print 'Incorrect parameter'
+
+
+with open('config/config.py', 'a') as config:
+    config.write(json.dumps(__config, indent=4))
+
+print 'Projects structures was created successfully'
