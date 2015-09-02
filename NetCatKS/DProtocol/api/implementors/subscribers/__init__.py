@@ -22,6 +22,7 @@ class DProtocolSubscriber(object):
         :param adapter IValidatorResponse
         """
         self.adapter = adapter
+        super(DProtocolSubscriber, self).__init__()
 
     def compare(self):
 
