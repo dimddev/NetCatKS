@@ -5,20 +5,22 @@ from zope.interface import implementer
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
 from NetCatKS.Logger import Logger
+from NetCatKS.Config import Config
 
 from autobahn.twisted.wamp import ApplicationSession
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet import reactor
-
-WEB_SERVICE_RETRY_INTERVAL = 2
 
 
 @implementer(IWampDefaultComponent)
 class WampDefaultComponent(ApplicationSession):
 
     def __init__(self, config=None):
+
         super(WampDefaultComponent, self).__init__(config)
+
         self.__logger = Logger()
+        self.cfg = Config()
 
     @inlineCallbacks
     def onJoin(self, details):
@@ -31,10 +33,14 @@ class WampDefaultComponent(ApplicationSession):
 
         try:
 
-            reconnect = Reconnect(session=WampDefaultComponent, runner=AutobahnDefaultFactory)
+            reconnect = Reconnect(
+                session=WampDefaultComponent,
+                runner=AutobahnDefaultFactory,
+                config=self.cfg.get('WAMP')
+            )
 
             reactor.callLater(
-                WEB_SERVICE_RETRY_INTERVAL,
+                self.cfg.get('WAMP').get('WS_RETRY_INTERVAL'),
                 reconnect.start,
             )
 

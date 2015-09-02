@@ -1,23 +1,23 @@
 __author__ = 'dimd'
 
-from .....api.interfaces.registration.session import ISessionRegister
+from .....api.interfaces.registration.session import IProtocolRegister
 from .....api.implementers.registration.factories import RegisterFactory
 from .....common.loaders import BaseLoader
 
 from zope.interface import implementer
 
-@implementer(ISessionRegister)
-class SessionRegister(RegisterFactory):
+@implementer(IProtocolRegister)
+class ProtocolRegister(RegisterFactory):
 
     def __init__(self, file_loader, session_source):
-        super(SessionRegister, self).__init__(file_loader, session_source)
+        super(ProtocolRegister, self).__init__(file_loader, session_source)
 
-    def register_sessions(self):
+    def register_protocols(self):
 
         return self.register_factories()
 
 
-class FileSessionsLoader(BaseLoader):
+class FileProtocolsLoader(BaseLoader):
 
     def __init__(self, **kwargs):
         """
@@ -25,4 +25,4 @@ class FileSessionsLoader(BaseLoader):
         :param kwargs:
         :return:
         """
-        super(FileSessionsLoader, self).__init__(**kwargs)
+        super(FileProtocolsLoader, self).__init__(**kwargs)

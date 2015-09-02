@@ -7,7 +7,7 @@ from ...interfaces.registration.factories import IRegisterFactory
 from ...implementers.default import DefaultAdapter
 from ...implementers.registration.adapters import RegisterAdapter, FileAdaptersLoader
 from ...implementers.registration.factories import RegisterFactory, FileFactoryLoader
-from ...implementers.registration.session import SessionRegister, FileSessionsLoader
+from ...implementers.registration.session import ProtocolRegister, FileProtocolsLoader
 
 from zope.component import adapts
 from zope.component import getGlobalSiteManager
@@ -32,12 +32,15 @@ class ComponentsRegistratorAdapter(DefaultAdapter):
 
         adapters_source = kwargs.get('adapters_source', 'components/adapters')
         factories_source = kwargs.get('factories_source', 'components/factories')
-        sessions_source = kwargs.get('sessions_source', 'components/sessions')
+        protocol_source = kwargs.get('protocol_source', 'components/protocols')
         utility_source = kwargs.get('utility_source', 'components/utility')
+        utility_source = kwargs.get('validators_source', 'components/validators')
 
         factories_prefix = kwargs.get('factories_prefix', 'Factory')
         adapters_prefix = kwargs.get('adapters_prefix', 'Adapter')
-        sessions_prefix = kwargs.get('sessions_prefix', 'Protocol')
+        protocol_prefix = kwargs.get('protocol_prefix', 'Protocol')
+        utility_prefix = kwargs.get('utility_prefix', 'Utility')
+        validators_prefix = kwargs.get('validators_prefix', 'Validator')
 
         if factories_source:
 
@@ -58,14 +61,14 @@ class ComponentsRegistratorAdapter(DefaultAdapter):
 
             self.__radapter.register_adapters()
 
-        if sessions_source:
+        if protocol_source:
 
-            self.__session = SessionRegister(
-                FileSessionsLoader(factory_prefix=sessions_prefix),
-                sessions_source
+            self.__proto = ProtocolRegister(
+                FileProtocolsLoader(factory_prefix=protocol_prefix),
+                protocol_source
             )
 
-            self.__session.register_sessions()
+            self.__proto.register_protocols()
 
     def init(self):
         """

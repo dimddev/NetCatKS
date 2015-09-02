@@ -39,5 +39,6 @@ setup(
         'zope.event==4.0.3',
         'zope.interface==4.1.2'
 
-    ]
+    ],
+    scripts=['bin/netcatks']
 )

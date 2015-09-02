@@ -12,13 +12,6 @@ from NetCatKS.NetCAT.api.public import IDefaultAutobahnFactory
 
 from zope.interface import implementer
 
-WEB_SERVICE_PROTO = 'ws'
-WEB_SERVICE_IP = 'localhost'
-WEB_SERVICE_PORT = '8080'
-WEB_SERVICE_REALM = 'realm1'
-WEB_SERVICE_PATH = 'ws'
-WEB_SERVICE_RETRY_INTERVAL = 2  # in seconds
-
 
 class Reconnect(object):
 
@@ -31,23 +24,18 @@ class Reconnect(object):
         self.__runner = kwargs['runner']
 
         self.logger = Logger()
+        self.config = kwargs.get('config')
 
     def start(self):
 
         try:
 
             self.logger.info(
-                'TRYING TO CONNECT TO {}://{}:{}/{}'.format(
-                    WEB_SERVICE_PROTO,
-                    WEB_SERVICE_IP,
-                    WEB_SERVICE_PORT,
-                    WEB_SERVICE_PATH
+                'TRYING TO CONNECT TO {}'.format(
+                self.config
             ))
 
-            run = self.__runner(
-                url=u'{}://{}:{}/{}'.format(WEB_SERVICE_PROTO, WEB_SERVICE_IP, WEB_SERVICE_PORT, WEB_SERVICE_PATH),
-                realm=u'{}'.format(WEB_SERVICE_REALM)
-            )
+            run = self.__runner(config=self.config)
             run.run(self.__session)
 
         except Exception as e:
@@ -79,11 +67,37 @@ class AutobahnDefaultFactory(service.Service):
         :type debug_wamp: bool
         :param debug_app: Turn on app-level debugging.
         :type debug_app: bool
+
         """
-        self.url = kwargs.get('url', u'127.0.0.1')
-        self.realm = kwargs.get('realm', 'realm1')
+
+        self.logger = Logger()
+
+        self.config = kwargs.get('config', None)
+
+        if self.config is None:
+
+            self.config = {}
+
+            self.logger.warning('Config is not provided failback to defaults')
+
+            self.config.update({
+                'WS_PROTO': 'ws',
+                'WS_IP': 'localhost',
+                'WS_PORT': 8080, # integer
+                'WS_REALM': 'realm1',
+                'WS_PATH': 'ws',
+                'WS_RETRY_INTERVAL': 2,  # in seconds
+                'WS_URL': u'ws://localhost:8080/ws'
+            })
+
+        self.url = kwargs.get('url', self.config.get('WS_URL'))
+
+        self.realm = u'{}'.format(kwargs.get('realm', self.config.get('WS_REALM')))
+
         self.extra = kwargs.get('extra', dict())
+
         self.debug = kwargs.get('debug', False)
+
         self.debug_wamp = kwargs.get('debug_wamp', False)
 
         self.debug_app = kwargs.get('debug_app', False)
@@ -91,13 +105,16 @@ class AutobahnDefaultFactory(service.Service):
         self.belong_to = kwargs.get('belong_to', False)
 
         self.make = None
-        self.logger = Logger()
 
-        self.protocol = kwargs.get('protocol', 'wss')
+        self.protocol = kwargs.get('protocol', self.config.get('WS_PROTO'))
+
         self.name = kwargs.get('name', 'Default Autobahn Service')
-        self.port = kwargs.get('port', 8080)
-        self.host = kwargs.get('host', self.url)
-        self.path = kwargs.get('path', 'ws')
+
+        self.port = kwargs.get('port', self.config.get('WS_PORT'))
+
+        self.host = kwargs.get('host', self.config.get('WS_IP'))
+
+        self.path = kwargs.get('path', self.config.get('WS_PATH'))
 
 
     def run(self, make):
@@ -123,7 +140,7 @@ class AutobahnDefaultFactory(service.Service):
 
             try:
                 session = make(cfg)
-                print '--------------------------'
+
             except Exception as e:
 
                 ## the app component could not be created .. fatal
@@ -175,10 +192,14 @@ class AutobahnDefaultFactory(service.Service):
 
                 try:
 
-                    reconnect = Reconnect(session=session, runner=AutobahnDefaultFactory)
+                    reconnect = Reconnect(
+                        session=session,
+                        runner=AutobahnDefaultFactory,
+                        config=self.config
+                    )
 
                     reactor.callLater(
-                        WEB_SERVICE_RETRY_INTERVAL,
+                        self.config.get('WS_RETRY_INTERVAL', 2),
                         reconnect.start,
                     )
 

@@ -1,0 +1,95 @@
+#/usr/bin/env python
+
+import sys
+import os
+import shutil
+import json
+
+try:
+    arg = sys.argv[1]
+
+except IndexError:
+    print 'the parameters can be: init'
+
+else:
+
+    if arg == 'init':
+
+        dirs = [
+            'components/factories',
+            'components/adapters',
+            'components/protocols',
+            'components/utility',
+            'components/validators',
+        ]
+
+        for d in dirs:
+
+            try:
+
+                os.makedirs(d, 0755)
+                open(d + '/__init__.py', 'a').close()
+
+            except OSError as e:
+                print e
+                break
+
+        open(d + '/../__init__.py', 'a').close()
+
+        try:
+
+            os.mkdir('config')
+
+        except OSError as e:
+
+            print e
+            sys.exit()
+
+        else:
+
+            __config = dict()
+
+            try:
+                wamp_arg = sys.argv[2]
+
+            except IndexError:
+                pass
+
+            else:
+
+                if wamp_arg == 'wamp':
+
+                    __config.update({
+
+                        'WAMP': {
+                            'WS_PROTO': 'ws',
+                            'WS_IP': 'localhost',
+                            'WS_PORT': 8080, # integer
+                            'WS_REALM': 'realm1',
+                            'WS_PATH': 'ws',
+                            'WS_RETRY_INTERVAL': 2,  # in seconds
+                            'WS_NAME': 'Default WAMP Component'
+                        }
+                    })
+
+                    __config.get('WAMP').update({'WS_URL': '{}://{}:{}/{}'.format(
+                        __config.get('WAMP').get('WS_PROTO'),
+                        __config.get('WAMP').get('WS_IP'),
+                        __config.get('WAMP').get('WS_PORT'),
+                        __config.get('WAMP').get('WS_PATH')
+                        )}
+                    )
+
+            __config.update({'TCP': {
+                'TCP_PORT': 8484,
+                'TCP_BACK_LOG': 50,
+                'TCP_SERVICE_NAME': 'Default TCP Server'
+                }}
+             )
+
+            with open('config/config.py', 'a') as config:
+                config.write(json.dumps(__config, indent=4))
+
+            #open('config/config.py', 'a').close()
+
+            print 'Projects structures was created successfully'

@@ -21,18 +21,29 @@ class DefaultService(object):
 
         self.factory = factory
 
-        self.__application = service.Application(self.factory.name, uid=1000, gid=1000)
-        self.service_collection = service.IServiceCollection(self.__application)
+        if self.factory.belong_to is False:
+
+            self.__application = service.Application(self.factory.name, uid=1000, gid=1000)
+            self.service_collection = service.IServiceCollection(self.__application)
+
+        else:
+
+            self.service_collection = self.factory.belong_to
 
     def start(self):
 
-        internet.TCPServer(
+        tcp = internet.TCPServer(
             self.factory.port,
             self.factory,
             50
         ).setServiceParent(self.service_collection)
 
-        return self.__application
+        if self.factory.belong_to is False:
+
+            return self.__application
+
+        else:
+            return tcp
 
 
 gsm = getGlobalSiteManager()
