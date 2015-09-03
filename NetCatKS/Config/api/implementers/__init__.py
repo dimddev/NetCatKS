@@ -9,7 +9,9 @@ from zope.interface import implementer
 
 @implementer(IConfig)
 class Config(object):
-
+    """
+    Trying to load config/config.py file and then load as JSON
+    """
     __instance = None
 
     def __new__(cls):

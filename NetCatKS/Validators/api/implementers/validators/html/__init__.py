@@ -11,7 +11,13 @@ from lxml.html import document_fromstring
 
 
 class HTMLValidator(BaseValidator):
+    """
 
+    Class provide functionality do detect incoming data for html format. HTMLValidator inherit
+    from BaseValidator and it's self provide IValidator and adapter for IMessage
+
+    All sub validators must be registered as SubscriptionAdapter
+    """
     adapts(IMessage)
 
     def __init__(self, validate_msg):
@@ -19,6 +25,14 @@ class HTMLValidator(BaseValidator):
 
     def validate(self):
 
+        """
+
+        Will trying to load data as html, then will check for head and body tags, if they exist
+        is_valid will be true, message_type = 'HTML' and message = self.validate_msg.message
+
+        :return: self
+
+        """
         try:
             __html = document_fromstring(self.validate_msg.message)
 

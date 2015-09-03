@@ -16,21 +16,29 @@ from zope.interface import implementer
 
 @implementer(IValidator)
 class Validator(BaseValidator):
+
     """
     Our main validator will trying to resolve the type of incoming request
     """
-    def __init__(self, validate_msg):
 
+    def __init__(self, validate_msg):
+        """
+        Accept message that have to be validated
+
+        :param validate_msg: currently we support json, xml and html validators
+        """
         super(Validator, self).__init__(validate_msg)
 
         self.__msg = Message(validate_msg)
         self.__logger = Logger()
 
     def validate(self):
+
         """
-        will walk through all subscribers from IValidator type
+        Will walk through all subscribers from IValidator type
         the first one will be returned as valid type. In this way we can supporting a lot of types
         on the same port/service
+
         :return: matched IValidator subscriber
         """
         for sub in subscribers([self.__msg], IValidator):

@@ -30,7 +30,7 @@ class BaseValidator(object):
 
     def validate(self):
         """
-        Method wich hage to validate some data type
+        Method wich have to validate some data type
         :return: self
         """
         raise NotImplemented('Not implemented, must be sub classed')
