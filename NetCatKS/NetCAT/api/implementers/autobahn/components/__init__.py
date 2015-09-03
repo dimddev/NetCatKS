@@ -2,17 +2,94 @@ __author__ = 'dimd'
 
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager
-
+from zope.component import subscribers
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
+from NetCatKS.NetCAT.api.interfaces import IUserGlobalSubscriber, IGlobalSubscribeMessage
 from NetCatKS.Components import IWAMPResource
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
 
+from autobahn.wamp import auth
 from autobahn.twisted.wamp import ApplicationSession
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet import reactor
+
+
+def onConnect(self):
+
+    cfg = Config().get('WAMP')
+    log = Logger()
+
+    log.info('Connecting to router...')
+
+    self.join(self.config.realm, [u'wampcra'], cfg.get('WS_USER'))
+
+
+@implementer(IGlobalSubscribeMessage)
+class GlobalSubscribeMessage(object):
+
+    def __init__(self, message):
+        self.message = message
+
+
+def onChallenge(self, challenge):
+
+    log = Logger()
+    log.info('On Challenge...')
+
+    if challenge.method == u"wampcra":
+
+        cfg = Config().get('WAMP')
+
+        password = {
+            u'%s' % cfg.get('WS_USER'): u'%s' % cfg.get('WS_PASS')
+        }
+
+        if u'salt' in challenge.extra:
+
+            key = auth.derive_key(
+                password[cfg.get('WS_USER')].encode('utf8'),
+                challenge.extra['salt'].encode('utf8'),
+                challenge.extra.get('iterations', None),
+                challenge.extra.get('keylen', None)
+            )
+
+        else:
+            key = password[cfg.get('WS_USER')].encode('utf8')
+
+        signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
+
+        return signature.decode('ascii')
+
+    else:
+
+        raise Exception("don't know how to compute challenge for authmethod {}".format(challenge.method))
+
+
+def subscriber_dispatcher(sub_data):
+
+    """
+    Callback function for our global subscriber
+    will pass sub_data to GlobalSubscribeMessage and then will trying to
+    get wamp component which implements IUserGlobalSubscriber and adapts
+    IGlobalSubscribeMessage
+    :param sub_data:
+    """
+    log = Logger()
+    msg = GlobalSubscribeMessage(sub_data)
+    fac = None
+
+    for sub in subscribers([msg], IUserGlobalSubscriber):
+
+        sub.subscribe()
+        fac = True
+
+        break
+
+    if not fac:
+        log.warning('There are no user defined implementation for IUserGlobalSubscriber, message was skiped')
 
 
 @implementer(IWampDefaultComponent)
@@ -29,12 +106,23 @@ class WampDefaultComponent(ApplicationSession):
 
         self.__gsm = getGlobalSiteManager()
 
+        if self.cfg.get('WAMP').get('WS_PROTO') == 'wss':
+
+            self.__logger.info('WAMP is secure, switch to wss...')
+
+            WampDefaultComponent.onConnect = onConnect
+            WampDefaultComponent.onChallenge = onChallenge
+
     @inlineCallbacks
     def onJoin(self, details):
 
         self.__logger.info('WAMP Session is ready')
 
+        # registration of all classes which ends with Wamp into shared wamp session
         for x in list(self.__gsm.registeredSubscriptionAdapters()):
+
+            # only if class implements IWAMPResource will be register as RPC
+            # IWAMPResource means RPC
 
             if IWAMPResource in x.required:
 
@@ -44,7 +132,17 @@ class WampDefaultComponent(ApplicationSession):
 
                 yield self.register(f)
 
+                # here we provide wamp session to each wamp component,
+                # in this way every component can access methods like publish, call etc
+
                 f.set_session(self)
+
+        sub_topic = 'netcatks_global_subscriber_{}'.format(
+            self.cfg.get('WAMP').get('WS_NAME').lower().replace(' ', '_')
+        )
+
+        yield self.subscribe(subscriber_dispatcher, sub_topic)
+        self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
 
     def onDisconnect(self):
 
