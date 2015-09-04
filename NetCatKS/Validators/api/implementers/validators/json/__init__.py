@@ -2,7 +2,7 @@ __author__ = 'dimd'
 
 import json
 
-from ..default import BaseValidator
+from NetCatKS.Validators.api.implementers.validators.default import BaseValidator
 from NetCatKS.Logger import Logger
 
 from zope.component import getGlobalSiteManager
@@ -39,7 +39,7 @@ class JSONValidator(BaseValidator):
 
         except Exception as e:
 
-            self.__logger.error('JSON Validator error: {}'.format(e.message))
+            # self.__logger.error('JSON Validator error: {}'.format(e.message))
 
             self.is_valid = False
             self.message_type = 'JSON'

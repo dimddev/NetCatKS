@@ -10,6 +10,8 @@ from NetCatKS.NetCAT.api.interfaces import IUserGlobalSubscriber, IGlobalSubscri
 from NetCatKS.Components import IWAMPResource
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
+from NetCatKS.Dispatcher import IDispatcher
+from NetCatKS.Validators import Validator, IValidator
 
 from autobahn.wamp import auth
 from autobahn.twisted.wamp import ApplicationSession
@@ -77,19 +79,33 @@ def subscriber_dispatcher(sub_data):
     IGlobalSubscribeMessage
     :param sub_data:
     """
+
     log = Logger()
-    msg = GlobalSubscribeMessage(sub_data)
-    fac = None
 
-    for sub in subscribers([msg], IUserGlobalSubscriber):
+    result = IDispatcher(Validator(sub_data)).dispatch()
 
-        sub.subscribe()
-        fac = True
+    if IValidator.providedBy(result):
+        log.warning('Message is invalid: {}'.format(result.message))
 
-        break
+    else:
 
-    if not fac:
-        log.warning('There are no user defined implementation for IUserGlobalSubscriber, message was skiped')
+        if result is not False:
+
+            msg = GlobalSubscribeMessage(result.message)
+
+            log.info('Incoming message to global subscriber: {}'.format(result))
+
+            fac = None
+
+            for sub in subscribers([msg], IUserGlobalSubscriber):
+
+                sub.subscribe()
+                fac = True
+
+                break
+
+            if not fac:
+                log.warning('There are no user defined implementation for IUserGlobalSubscriber, message was skiped')
 
 
 @implementer(IWampDefaultComponent)

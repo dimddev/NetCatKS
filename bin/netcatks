@@ -23,7 +23,7 @@ def wamp_config(wamp_conf):
     wamp_conf.update({
 
         'WAMP': {
-            'WS_PROTO': 'ws',
+            'WS_PROTO': 'wss',
             'WS_IP': 'localhost',
             'WS_PORT': 8080, # integer
             'WS_REALM': 'realm1',
@@ -44,6 +44,34 @@ def wamp_config(wamp_conf):
     )
 
     return wamp_conf
+
+
+def global_sub():
+
+    gsub = """
+from NetCatKS.NetCAT.api.interfaces import IUserGlobalSubscriber, IGlobalSubscribeMessage
+
+from zope.interface import implementer
+from zope.component import adapts
+
+
+@implementer(IUserGlobalSubscriber)
+class GlobalSubscriberCallBackWamp(object):
+
+    adapts(IGlobalSubscribeMessage)
+
+    def __init__(self, adapt=None):
+        self.adapt = adapt
+
+    def subscribe(self):
+        print self.adapt.message
+    """
+
+    with open('components/wamp/sub/__init__.py', 'a') as app:
+
+        app.write(gsub)
+
+    app.close()
 
 
 try:
@@ -126,6 +154,8 @@ application = IDefaultAutobahnService(
 
         app.close()
 
+        global_sub()
+
     elif arg == 'tcp':
 
         __config.update(tcp_config(__config))
@@ -190,6 +220,7 @@ multi_service.setServiceParent(application)
 
         app.close()
 
+        global_sub()
 
     else:
         print 'Incorrect parameter'

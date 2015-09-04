@@ -57,11 +57,10 @@ class Validator(BaseValidator):
                 self.__logger.info('Matched type is: {}'.format(self.message_type))
 
                 return self
-        else:
 
-            self.__logger.info('There are no subscribers from type IValidator')
+        self.__logger.warning('Main Validator - There are no subscribers from type IValidator')
 
-            return False
+        return False
 
 __all__ = [
     'Validator',

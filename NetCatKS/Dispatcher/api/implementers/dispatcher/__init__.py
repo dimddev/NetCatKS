@@ -11,13 +11,16 @@ from NetCatKS.Logger import Logger
 
 @implementer(IDispatcher)
 class Dispatcher(object):
+
     """
     Our Main dispatcher, Will trying to dispatch the request to API which provides functionality for it.
     The Dispatcher also adapts IValidator
     """
+
     adapts(IValidator)
 
     def __init__(self, validator):
+
         self.validator = validator
         self.__logger = Logger()
 
@@ -27,6 +30,7 @@ class Dispatcher(object):
         if valid_dispatch is False means we do not support this data type. You have to write your custom
         validator(s) inside components/validators
         Otherwise
+
         :return:
         """
         valid_dispatch = self.validator.validate()
@@ -50,13 +54,13 @@ class Dispatcher(object):
 
                     return comp
 
-            else:
+            # if there are no one subsciber from IJSONResource
 
-                self.__logger.warning('There are no API subscribers for type: {}'.format(
-                    valid_dispatch.message_type
-                ))
+            self.__logger.warning('There are no API subscribers for type: {}'.format(
+                valid_dispatch.message_type
+            ))
 
-                return False
+            return False
 
 gsm = getGlobalSiteManager()
 gsm.registerAdapter(Dispatcher)
