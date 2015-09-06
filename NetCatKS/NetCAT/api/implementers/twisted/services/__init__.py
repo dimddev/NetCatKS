@@ -2,21 +2,28 @@ __author__ = 'dimd'
 
 from twisted.application import internet, service
 
-from zope.interface import implementer
+from zope.interface import classImplementsOnly
 from zope.component import adapts
 from zope.component import getGlobalSiteManager
 
 from NetCatKS.NetCAT.api.interfaces.twisted.services import IDefaultService
 from NetCatKS.NetCAT.api.interfaces.twisted.factories import IDefaultFactory
+from NetCatKS.NetCAT.api.implementers.twisted.services.web import DefaultWebService
 
 
-@implementer(IDefaultService)
-class DefaultService(object):
-
+class DefaultService(service.Service):
+    """
+    Provides functionality for starting default TCP Server as single app or as part of many services
+    """
     adapts(IDefaultFactory)
 
     def __init__(self, factory):
+        """
 
+        :param factory:
+        :type IDefaultFactory
+
+        """
         super(DefaultService, self).__init__()
 
         self.factory = factory
@@ -32,7 +39,12 @@ class DefaultService(object):
 
     def start(self):
 
-        tcp = internet.TCPServer(
+        """
+        Starting a TCP server and put to the right service collection
+
+        :return:
+        """
+        internet.TCPServer(
             self.factory.port,
             self.factory,
             50
@@ -42,14 +54,14 @@ class DefaultService(object):
 
             return self.__application
 
-        else:
-            return tcp
 
+classImplementsOnly(DefaultService, IDefaultService)
 
 gsm = getGlobalSiteManager()
 gsm.registerAdapter(DefaultService)
 
 
 __all__ = [
-    'DefaultService'
+    'DefaultService',
+    'DefaultWebService'
 ]

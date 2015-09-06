@@ -1,7 +1,8 @@
 __author__ = 'dimd'
 
-from ...implementors.actions import BaseProtocolActionsImplementor
-from ...interfaces.dymanic import IDynamicProtocolInterface
+from NetCatKS.DProtocol.api.implementors.actions import BaseProtocolActionsImplementor
+from NetCatKS.DProtocol.api.interfaces.dymanic import IDynamicProtocolInterface
+
 from zope.interface import implementer
 
 

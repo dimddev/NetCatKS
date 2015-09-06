@@ -6,7 +6,7 @@ import os
 from zope.interface import implementer
 from zope.component import createObject
 
-from ...api.interfaces import IBaseLoader
+from NetCatKS.Components.api.interfaces import IBaseLoader
 
 
 @implementer(IBaseLoader)
@@ -22,6 +22,7 @@ class BaseLoader(object):
         self.__storage = createObject('storageregister')
 
     def load(self, factories_source):
+
         """
 
         :param factories_source:
@@ -41,6 +42,7 @@ class BaseLoader(object):
                         continue
 
                     mod_path = root.replace('/', '.')
+
                     load = imp.load_source(mod_path, root + '/' + f)
 
                     for klass in dir(load):

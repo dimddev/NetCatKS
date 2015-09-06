@@ -1,7 +1,7 @@
 __author__ = 'dimd'
 
-from ....interfaces.validators import IValidator, IValidatorResponse
-from ....interfaces.message import IMessage
+from NetCatKS.Validators.api.interfaces.validators import IValidator
+from NetCatKS.Validators.api.interfaces.message import IMessage
 
 from zope.component import adapts
 from zope.interface import implementer
@@ -34,13 +34,3 @@ class BaseValidator(object):
         :return: self
         """
         raise NotImplemented('Not implemented, must be sub classed')
-
-
-@implementer(IValidatorResponse)
-class ValidatorResponse(object):
-
-    def __init__(self, response):
-        self.response = response
-
-
-

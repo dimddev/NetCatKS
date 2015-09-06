@@ -2,7 +2,6 @@
 
 import sys
 import os
-import shutil
 import json
 
 
@@ -16,6 +15,19 @@ def tcp_config(tcp_conf):
      )
 
     return tcp_conf
+
+
+def web_config(web_conf):
+
+    web_conf.update({'WEB': {
+        'WEB_PORT': 8000,
+        'WEB_ROOT': '',
+        'WEB_NAME': 'Default WEB Server',
+        'WEB_METHODS': ['GET']
+        }}
+     )
+
+    return web_conf
 
 
 def wamp_config(wamp_conf):
@@ -177,14 +189,38 @@ application = IDefaultService(DefaultFactory(
 
         app.close()
 
+    elif arg == 'web':
+
+        __config.update(web_config(__config))
+
+        web_app = """
+from NetCatKS.Components import ComponentsRegistration
+from NetCatKS.Config import Config
+from NetCatKS.NetCAT import IDefaultWebService, DefaultWebFactory
+
+components = ComponentsRegistration().init()
+
+application = IDefaultWebService(
+    DefaultWebFactory(config=Config().get('WEB'))
+).start()
+        """
+
+        with open('app.py', 'a') as app:
+
+            app.write(web_app)
+
+        app.close()
+
     elif arg == 'mixin':
 
         __config.update(wamp_config(__config))
         __config.update(tcp_config(__config))
+        __config.update(web_config(__config))
 
         mixin_app = """
 from twisted.application import service
 
+from NetCatKS.NetCAT import IDefaultWebService, DefaultWebFactory
 from NetCatKS.Components import ComponentsRegistration
 from NetCatKS.NetCAT import DefaultFactory, IDefaultService
 from NetCatKS.NetCAT import IDefaultAutobahnService, AutobahnDefaultFactory
@@ -203,6 +239,11 @@ apps = [
 
     IDefaultAutobahnService(AutobahnDefaultFactory(
         config=Config().get('WAMP'),
+        belong_to=multi_service
+    )),
+
+    IDefaultWebService(DefaultWebFactory(
+        config=Config().get('WEB'),
         belong_to=multi_service
     ))
 ]
@@ -226,7 +267,7 @@ multi_service.setServiceParent(application)
         print 'Incorrect parameter'
 
 
-with open('config/config.py', 'a') as config:
+with open('config/config.json', 'a') as config:
     config.write(json.dumps(__config, indent=4))
 
 print 'Projects structures was created successfully'

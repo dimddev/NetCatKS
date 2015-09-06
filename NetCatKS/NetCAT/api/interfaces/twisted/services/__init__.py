@@ -1,6 +1,7 @@
 __author__ = 'dimd'
 
 from zope.interface import Interface
+from NetCatKS.NetCAT.api.interfaces.twisted.services.web import IDefaultWebService
 
 
 class IDefaultService(Interface):
@@ -12,6 +13,7 @@ class IDefaultService(Interface):
         """
 
 __all__ = [
-    'IDefaultService'
+    'IDefaultService',
+    'IDefaultWebService'
 ]
 

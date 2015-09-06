@@ -1,2 +1,2 @@
 __author__ = 'dimd'
-from public import *
+from NetCatKS.DProtocol.api.public import *

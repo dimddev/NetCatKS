@@ -1,39 +1,97 @@
 __author__ = 'dimd'
 
+import xmltodict
+import json
+
 from zope.component import adapts
-from zope.interface import implementer
+from zope.interface import implementer, classImplementsOnly
+
+from NetCatKS.Dispatcher import IJSONResourceSubscriber, IXMLResourceSubscriber, IBaseResourceSubscriber
+from NetCatKS.Validators import IValidatorResponse
 
 
-from .....Validators import IValidatorResponse
-from .....Dispatcher import IJSONResource
-
-
-@implementer(IJSONResource)
-class DProtocolSubscriber(object):
-
-    """
-    This class is designed to be subclassed not for directly usage
-    """
-    adapts(IValidatorResponse)
+@implementer(IBaseResourceSubscriber)
+class BaseProtocolSubscriber(object):
 
     def __init__(self, adapter):
         """
 
-        :param adapter IValidatorResponse
+        :param adapter IJSONResource
         """
-        self.adapter = adapter
-        super(DProtocolSubscriber, self).__init__()
+
+        try:
+
+            getattr(self, 'protocol')
+
+        except AttributeError:
+            raise AttributeError('Wrong implementation, you must subclass the protocol attribute')
+
+        else:
+
+            self.adapter = adapter
+
+        super(BaseProtocolSubscriber, self).__init__()
 
     def compare(self):
 
-        self.adapter.response.keys().sort()
+        # xml
+        if type(self.adapter.response) is str:
 
-        # the protocol comes from our subclass
-        self.protocol.to_dict().keys().sort()
+            try:
 
-        if ''.join(self.adapter.response.keys()) == ''.join(self.protocol.to_dict().keys()):
+                self.adapter.response = xmltodict.parse(self.adapter.response)
+
+                # this dirty trick will make convert OrderedDict to normal
+                # because our DProtocol API currently does not support OrderDict
+                # when we starting to support XML with name spaces have to be extended
+
+                self.adapter.response = json.dumps(self.adapter.response)
+                self.adapter.response = json.loads(self.adapter.response)
+
+            except Exception as e:
+                print e.message
+
+        # normal case
+
+        in_dict = self.protocol.get_all_keys(self.adapter.response)
+        host_proto = self.protocol.get_all_keys(self.protocol.to_dict())
+
+        in_dict.sort()
+        host_proto.sort()
+
+        if ''.join(in_dict) == ''.join(host_proto):
             return self.protocol.to_object(self.adapter.response)
 
         else:
 
             return False
+
+
+class DProtocolSubscriber(BaseProtocolSubscriber):
+
+    """
+    This class is designed to be subclassed not for directly usage
+    """
+
+    adapts(IValidatorResponse)
+
+    def __init__(self, adapter):
+        """
+        :param adapter IJSONResource
+        """
+        super(DProtocolSubscriber, self).__init__(adapter)
+
+
+classImplementsOnly(DProtocolSubscriber, IJSONResourceSubscriber)
+
+
+class DProtocolXMLSubscriber(BaseProtocolSubscriber):
+
+    adapts(IValidatorResponse)
+
+    def __init__(self, adapter):
+        super(DProtocolXMLSubscriber, self).__init__(adapter)
+
+classImplementsOnly(DProtocolXMLSubscriber, IXMLResourceSubscriber)
+
+

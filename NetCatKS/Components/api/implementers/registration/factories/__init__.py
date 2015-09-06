@@ -6,8 +6,8 @@ from zope.component import getGlobalSiteManager
 from zope.component.factory import Factory
 from zope.component.interfaces import IFactory
 
-from .....api.interfaces.registration.factories import IRegisterFactory
-from .....common.loaders import BaseLoader
+from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactory
+from NetCatKS.Components.common.loaders import BaseLoader
 
 
 @implementer(IRegisterFactory)

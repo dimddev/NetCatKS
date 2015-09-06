@@ -1,6 +1,6 @@
 __author__ = 'dimd'
 
-from ...implementors.storage import SessionStorageImplementor
+from NetCatKS.DProtocol.api.implementors.storage import SessionStorageImplementor
 
 
 class ProtocolStorage(SessionStorageImplementor):

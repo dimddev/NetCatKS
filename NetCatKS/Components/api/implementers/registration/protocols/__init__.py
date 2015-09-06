@@ -1,6 +1,6 @@
 __author__ = 'dimd'
 
-from .....api.interfaces.registration.session import IProtocolRegister
+from .....api.interfaces.registration.protocols import IProtocolRegister
 from .....api.implementers.registration.factories import RegisterFactory
 from .....common.loaders import BaseLoader
 

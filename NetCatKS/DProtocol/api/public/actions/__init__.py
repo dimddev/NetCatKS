@@ -1,8 +1,8 @@
 __author__ = 'dimd'
 
-from ...implementors.actions import BaseProtocolActionsImplementor
+from NetCatKS.DProtocol.api.implementors.actions import BaseProtocolActionsImplementor
 
 
 class BaseProtocolActions(BaseProtocolActionsImplementor):
-    def __init__(self):
-        super(BaseProtocolActions, self).__init__()
+    def __init__(self, **kwargs):
+        super(BaseProtocolActions, self).__init__(**kwargs)

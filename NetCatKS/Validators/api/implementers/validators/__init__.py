@@ -1,12 +1,12 @@
 __author__ = 'dimd'
 
-from ...interfaces.validators import IValidator
-from ...implementers.message import Message
+from NetCatKS.Validators.api.interfaces.validators import IValidator, IValidatorResponse
+from NetCatKS.Validators.api.implementers.message import Message
 
-from default import BaseValidator, ValidatorResponse
-from html import HTMLValidator
-from json import JSONValidator
-from xml import XMLValidator
+from NetCatKS.Validators.api.implementers.validators.default import BaseValidator
+from NetCatKS.Validators.api.implementers.validators.html import HTMLValidator
+from NetCatKS.Validators.api.implementers.validators.json import JSONValidator
+from NetCatKS.Validators.api.implementers.validators.xml import XMLValidator
 
 from NetCatKS.Logger import Logger
 
@@ -41,6 +41,7 @@ class Validator(BaseValidator):
 
         :return: matched IValidator subscriber
         """
+
         for sub in subscribers([self.__msg], IValidator):
 
             msg = sub.validate()
@@ -61,6 +62,14 @@ class Validator(BaseValidator):
         self.__logger.warning('Main Validator - There are no subscribers from type IValidator')
 
         return False
+
+
+@implementer(IValidatorResponse)
+class ValidatorResponse(object):
+
+    def __init__(self, valid_message):
+        self.response = valid_message
+
 
 __all__ = [
     'Validator',

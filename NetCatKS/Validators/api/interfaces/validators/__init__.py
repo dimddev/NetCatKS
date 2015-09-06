@@ -17,4 +17,9 @@ class IValidator(Interface):
 
 class IValidatorResponse(Interface):
 
-    response = Attribute('Response message which is validated')
+    response = Attribute(
+        """
+        Helper interface that provides attribute to hold a valid response from our main validator
+        """
+    )
+

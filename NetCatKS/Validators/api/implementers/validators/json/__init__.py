@@ -18,7 +18,7 @@ class JSONValidator(BaseValidator):
     def __init__(self, validate_msg):
 
         """
-        :param validate_msg: IValidatorResponse
+        :param validate_msg: IMessage
         """
 
         super(JSONValidator, self).__init__(validate_msg)
@@ -33,13 +33,12 @@ class JSONValidator(BaseValidator):
         :return: self
 
         """
-
         try:
             __json = json.loads(self.validate_msg.message)
 
         except Exception as e:
 
-            # self.__logger.error('JSON Validator error: {}'.format(e.message))
+            self.__logger.error('JSON Validator error: {}'.format(e.message))
 
             self.is_valid = False
             self.message_type = 'JSON'

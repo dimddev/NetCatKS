@@ -3,12 +3,7 @@ __author__ = 'dimd'
 from zope.interface import Interface, Attribute
 
 
-class IGlobalSubscribeMessage(Interface):
-
-    message = Attribute('This attribute will represent the message via all subscribers')
-
-
-class IUserGlobalSubscriber(Interface):
+class IGlobalSubscriberCallback(Interface):
 
     """
 

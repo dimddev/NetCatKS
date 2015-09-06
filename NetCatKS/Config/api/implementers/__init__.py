@@ -26,7 +26,7 @@ class Config(object):
 
         try:
 
-            with open('config/config.py', 'r') as config:
+            with open('config/config.json', 'r') as config:
 
                 self.__config = json.loads(config.read(), encoding='utf-8')
 

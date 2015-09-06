@@ -1,6 +1,6 @@
 __author__ = 'dimd'
 
-from ...interfaces.storage import IProtocolStogareInterface
+from NetCatKS.DProtocol.api.interfaces.storage import IProtocolStogareInterface
 from zope.interface import implementer
 
 

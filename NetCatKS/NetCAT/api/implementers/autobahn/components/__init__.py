@@ -6,7 +6,7 @@ from zope.component import subscribers
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
-from NetCatKS.NetCAT.api.interfaces import IUserGlobalSubscriber, IGlobalSubscribeMessage
+from NetCatKS.NetCAT.api.interfaces import IGlobalSubscriberCallback
 from NetCatKS.Components import IWAMPResource
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
@@ -27,13 +27,6 @@ def onConnect(self):
     log.info('Connecting to router...')
 
     self.join(self.config.realm, [u'wampcra'], cfg.get('WS_USER'))
-
-
-@implementer(IGlobalSubscribeMessage)
-class GlobalSubscribeMessage(object):
-
-    def __init__(self, message):
-        self.message = message
 
 
 def onChallenge(self, challenge):
@@ -75,8 +68,9 @@ def subscriber_dispatcher(sub_data):
     """
     Callback function for our global subscriber
     will pass sub_data to GlobalSubscribeMessage and then will trying to
-    get wamp component which implements IUserGlobalSubscriber and adapts
+    get wamp component which implements IGlobalSubscriberCallback and adapts
     IGlobalSubscribeMessage
+
     :param sub_data:
     """
 
@@ -85,19 +79,17 @@ def subscriber_dispatcher(sub_data):
     result = IDispatcher(Validator(sub_data)).dispatch()
 
     if IValidator.providedBy(result):
-        log.warning('Message is invalid: {}'.format(result.message))
+        log.warning('WAMP Message is invalid: {}'.format(result.message))
 
     else:
 
         if result is not False:
 
-            msg = GlobalSubscribeMessage(result.message)
-
-            log.info('Incoming message to global subscriber: {}'.format(result))
+            log.info('Incoming message to global subscriber: {}'.format(result.to_dict()))
 
             fac = None
 
-            for sub in subscribers([msg], IUserGlobalSubscriber):
+            for sub in subscribers([result], IGlobalSubscriberCallback):
 
                 sub.subscribe()
                 fac = True
@@ -105,7 +97,7 @@ def subscriber_dispatcher(sub_data):
                 break
 
             if not fac:
-                log.warning('There are no user defined implementation for IUserGlobalSubscriber, message was skiped')
+                log.warning('There are no user definition for IGlobalSubscriberCallback, message was skipped')
 
 
 @implementer(IWampDefaultComponent)
@@ -149,7 +141,8 @@ class WampDefaultComponent(ApplicationSession):
                 yield self.register(f)
 
                 # here we provide wamp session to each wamp component,
-                # in this way every component can access methods like publish, call etc
+                # in this way every component can access methods like publish, call etc,
+                # which are hosted by default inside wamp session.
 
                 f.set_session(self)
 
@@ -161,7 +154,10 @@ class WampDefaultComponent(ApplicationSession):
         self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
 
     def onDisconnect(self):
+        """
 
+        :return:
+        """
         self.__logger.warning('Disconnected...')
 
         try:

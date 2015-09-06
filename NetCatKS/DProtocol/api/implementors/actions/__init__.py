@@ -1,14 +1,16 @@
 __author__ = 'dimd'
 import json
+import xmltodict
 from zope.interface import implementer
 from zope.interface.verify import verifyObject
 from zope.interface.exceptions import DoesNotImplement
 
-from ...interfaces.actions import IBaseProtocolActionsInterface
-from ...interfaces.storage import IProtocolStogareInterface
-from ...interfaces.dymanic import IDynamicProtocolInterface
-from ...public.storage import ProtocolStorage
-from ...implementors.filters import ProtocolFiltersImplementor
+
+from NetCatKS.DProtocol.api.interfaces.actions import IBaseProtocolActionsInterface
+from NetCatKS.DProtocol.api.interfaces.storage import IProtocolStogareInterface
+from NetCatKS.DProtocol.api.interfaces.dymanic import IDynamicProtocolInterface
+from NetCatKS.DProtocol.api.public.storage import ProtocolStorage
+from NetCatKS.DProtocol.api.implementors.filters import ProtocolFiltersImplementor
 
 
 @implementer(IBaseProtocolActionsInterface)
@@ -181,15 +183,21 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         """
         return json.dumps(self.to_dict())
 
-    def get_ticket(self, **kwargs):
-        """
-        deprecated
-        alias of get_session
-        :param kwargs:
-        :return:
+    def to_xml(self, in_dict=None):
         """
 
-        return self.get_session(**kwargs)
+        Convert dict to xml
+
+        :param in_dict:
+
+        :return: xml
+        """
+        try:
+
+            return xmltodict.unparse(in_dict or self.to_dict())
+
+        except Exception as e:
+            print e.message
 
     def get_session(self, **kwargs):
 
@@ -217,16 +225,6 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         else:
 
             return False
-
-    def add_ticket(self, **kwargs):
-        """
-        deprecated
-        Alias of add_session
-        :param kwargs:
-        :return:
-        """
-        kwargs['session'] = kwargs['ticket']
-        return self.add_session(**kwargs)
 
     def add_session(self, **kwargs):
         """
@@ -317,3 +315,39 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         # if user are passed correct service attributes, they are set
         # otherwise just return requested service without changes
         return service
+
+
+    # original from http://www.saltycrane.com/blog/2011/10/some-more-python-recursion-examples/
+    # modified by dimd
+    def get_all_keys(self, data):
+
+        """
+        This function gets all keys from dict recursively
+        :param data:
+        :type data: dict
+
+        :return: list of keys
+        """
+
+        keys = []
+
+        def inner(data):
+
+            if isinstance(data, dict):
+
+                for k, v in data.iteritems():
+                    if (isinstance(v, dict) or
+                        isinstance(v, list) or
+                        isinstance(v, tuple)
+                        ):
+                        keys.append(k)
+                        inner(v)
+                    else:
+                        keys.append(k)
+
+            elif isinstance(data, list) or isinstance(data, tuple):
+                for item in data:
+                    inner(item)
+
+        inner(data)
+        return keys

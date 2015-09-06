@@ -23,13 +23,14 @@ class XMLValidator(BaseValidator):
             __xml = etree.fromstring(self.validate_msg.message)
 
         except Exception as e:
+            print e.message
             return self
 
         else:
 
             self.is_valid = True
             self.message_type = 'XML'
-            self.message = __xml
+            self.message = self.validate_msg.message
 
             return self
 

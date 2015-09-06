@@ -6,11 +6,11 @@ from ..interfaces import *
 __all__ = [
     'Validator',
     'ValidatorResponse',
+    'IValidatorResponse',
     'BaseValidator',
     'HTMLValidator',
     'JSONValidator',
     'XMLValidator',
     'IMessage',
-    'IValidator',
-    'IValidatorResponse'
+    'IValidator'
 ]

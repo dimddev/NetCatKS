@@ -1,6 +1,6 @@
 __author__ = 'dimd'
 
-from ...implementors.filters import ProtocolFiltersImplementor
+from NetCatKS.DProtocol.api.implementors.filters import ProtocolFiltersImplementor
 
 
 class ProtocolFilters(ProtocolFiltersImplementor):

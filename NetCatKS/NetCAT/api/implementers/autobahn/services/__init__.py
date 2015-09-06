@@ -6,13 +6,12 @@ from NetCatKS.NetCAT.api.implementers.autobahn.components import WampDefaultComp
 from NetCatKS.NetCAT.api.interfaces.autobahn.services import IDefaultAutobahnService
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultAutobahnFactory
 
-from zope.interface import implementer
+from zope.interface import classImplementsOnly
 from zope.component import adapts
 from zope.component import getGlobalSiteManager
 
 
-@implementer(IDefaultAutobahnService)
-class DefaultAutobahnService(object):
+class DefaultAutobahnService(service.Service):
 
     """
 
@@ -48,9 +47,11 @@ class DefaultAutobahnService(object):
         Will attach WampDefaultComponent component through AutobahnDefaultFactory
         to our service parent, if self.factory.belong_to is not False will be multi service,
         otherwise - single service
+
         :return: if service is multi will return the AutobahnDefaultFactory instance otherwise
         twisted application instance
         """
+
         adf = self.factory.run(WampDefaultComponent)
 
         if self.factory.belong_to is False:
@@ -64,6 +65,8 @@ class DefaultAutobahnService(object):
             adf.setServiceParent(self.factory.belong_to)
             return adf
 
+
+classImplementsOnly(DefaultAutobahnService, IDefaultAutobahnService)
 
 gsm = getGlobalSiteManager()
 gsm.registerAdapter(DefaultAutobahnService)

@@ -7,7 +7,7 @@ from NetCatKS.Components.api.interfaces.registration.factories import IRegisterF
 from NetCatKS.Components.api.implementers.default import DefaultAdapter
 from NetCatKS.Components.api.implementers.registration.adapters import RegisterAdapter, FileAdaptersLoader
 from NetCatKS.Components.api.implementers.registration.factories import RegisterFactory, FileFactoryLoader
-from NetCatKS.Components.api.implementers.registration.session import ProtocolRegister, FileProtocolsLoader
+from NetCatKS.Components.api.implementers.registration.protocols import ProtocolRegister, FileProtocolsLoader
 from NetCatKS.Components.api.implementers.registration.wamp import WampRegister, FileWampLoader
 
 from zope.component import adapts

@@ -39,7 +39,7 @@ class WampRegister(object):
 
         for obj in self.__objects:
 
-            if obj.__name__.endswith('Wamp') and not obj.__name__.startswith('I'):
+            if obj.__name__.endswith(self.file_loader.prefix) and not obj.__name__.startswith('I'):
 
                 self.__gsm.registerSubscriptionAdapter(obj)
 

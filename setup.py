@@ -37,7 +37,8 @@ setup(
         'lxml==3.4.4',
         'zope.component==4.2.2',
         'zope.event==4.0.3',
-        'zope.interface==4.1.2'
+        'zope.interface==4.1.2',
+        'xmltodict'
 
     ],
     scripts=['bin/netcatks']
