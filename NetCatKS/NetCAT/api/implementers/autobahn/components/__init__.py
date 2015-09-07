@@ -85,8 +85,6 @@ def subscriber_dispatcher(sub_data):
 
         if result is not False:
 
-            log.info('Incoming message to global subscriber: {}'.format(result.to_dict()))
-
             fac = None
 
             for sub in subscribers([result], IGlobalSubscriberCallback):
