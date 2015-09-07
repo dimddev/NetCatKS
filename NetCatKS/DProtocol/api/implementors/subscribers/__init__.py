@@ -56,6 +56,8 @@ class BaseProtocolSubscriber(object):
         in_dict = self.protocol.get_all_keys(self.adapter.response)
         host_proto = self.protocol.get_all_keys(self.protocol.to_dict())
 
+        print in_dict, host_proto
+
         in_dict.sort()
         host_proto.sort()
 
@@ -64,6 +66,15 @@ class BaseProtocolSubscriber(object):
 
         else:
 
+            in_dict = self.adapter.response.keys()
+            host_proto = self.protocol.to_dict().keys()
+
+            in_dict.sort()
+            host_proto.sort()
+
+            if ''.join(in_dict) == ''.join(host_proto):
+                return self.protocol.to_object(self.adapter.response)
+            
             return False
 
 
