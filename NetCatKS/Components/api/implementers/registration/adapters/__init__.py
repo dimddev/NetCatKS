@@ -1,11 +1,11 @@
 __author__ = 'dimd'
 
-from .....api.interfaces.virtual import IVirtualAdapter
-from .....api.interfaces.registration.adapters import IRegisterAdapters
-from .....api.implementers.adapters import DynamicAdapterFactory
+from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
+from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
+from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory
 
-from .....common.loaders import BaseLoader
-from .....common.factory import get_factory_objects
+from NetCatKS.Components.common.loaders import BaseLoader
+from NetCatKS.Components.common.factory import get_factory_objects
 
 from zope.component import getMultiAdapter
 from zope.component import ComponentLookupError

@@ -92,7 +92,7 @@ try:
 except IndexError:
     print 'Usage:'
     print '\tnetcatks init tcp - Will produce Defaut TCP Server'
-    print '\tnetcatks init mixin - Will produce Defaut TCP Server plus Default Wamp Component'
+    print '\tnetcatks init mixin - Will produce Defaut TCP and WEB Server plus Default Wamp Component'
     print '\tnetcatks init wamp - Will produce Default Wamp Component'
 
 else:
