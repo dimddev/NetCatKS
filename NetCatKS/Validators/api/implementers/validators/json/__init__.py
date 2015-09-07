@@ -38,7 +38,7 @@ class JSONValidator(BaseValidator):
 
         except Exception as e:
 
-            self.__logger.error('JSON Validator error: {}'.format(e.message))
+            # self.__logger.error('JSON Validator error: {}'.format(e.message))
 
             self.is_valid = False
             self.message_type = 'JSON'
