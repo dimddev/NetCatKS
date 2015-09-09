@@ -8,6 +8,7 @@ from zope.interface import implementer, classImplementsOnly
 
 from NetCatKS.Dispatcher import IJSONResourceSubscriber, IXMLResourceSubscriber, IBaseResourceSubscriber
 from NetCatKS.Validators import IValidatorResponse
+from NetCatKS.Logger import Logger
 
 
 @implementer(IBaseResourceSubscriber)
@@ -31,6 +32,14 @@ class BaseProtocolSubscriber(object):
             self.adapter = adapter
 
         super(BaseProtocolSubscriber, self).__init__()
+
+    def compare_debug(self, level, in_dict, host_proto):
+
+        logger = Logger()
+        logger.debug('COMPARE LEVEL {}'.format(level))
+        logger.debug('IN_DICT: {}'.format(in_dict))
+        logger.debug('HOST_PROTO: {}'.format(host_proto))
+        logger.debug('END COMPARE LEVEL {}'.format(level))
 
     def compare(self):
 
@@ -59,6 +68,8 @@ class BaseProtocolSubscriber(object):
         in_dict.sort()
         host_proto.sort()
 
+        # self.compare_debug(1, in_dict, host_proto)
+
         if ''.join(in_dict) == ''.join(host_proto):
             return self.protocol.to_object(self.adapter.response)
 
@@ -69,6 +80,8 @@ class BaseProtocolSubscriber(object):
 
             in_dict.sort()
             host_proto.sort()
+
+            # self.compare_debug(2, in_dict, host_proto)
 
             if ''.join(in_dict) == ''.join(host_proto):
                 return self.protocol.to_object(self.adapter.response)

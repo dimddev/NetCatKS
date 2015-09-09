@@ -96,3 +96,28 @@ class ProtocolFiltersImplementor(object):
 
         else:
             return True
+
+    @staticmethod
+    def if_list_auto_append(in_data, add_to):
+        """
+
+        :param in_data: data to be adding to list
+        :param add_to: add_to - list container
+
+        :return: add_to
+        :type: list
+        """
+        if in_data:
+
+            if type(in_data) is list:
+                # on update comes here
+                add_to = in_data
+
+            else:
+                if in_data not in add_to:
+                    add_to.append(in_data)
+
+            return add_to
+
+        else:
+            return add_to

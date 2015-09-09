@@ -171,7 +171,34 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                     temp[nice_name(members)] = self.to_dict(dob=self.__dict__[members])
 
             else:
-                temp[nice_name(members)] = self.__dict__[members]
+
+                # here we cover a case when we have a list and inside this list
+                # we have members from IBaseProtocolActionsInterface
+                # and convert all members to dict
+                # this is not usual case and to_object will not work
+
+                if isinstance(self.__dict__[members], list):
+
+                    tmp = []
+
+                    for mem in self.__dict__[members]:
+
+                        if IBaseProtocolActionsInterface.providedBy(mem):
+                            # print 1111
+                            # print mem.to_dict()
+                            tmp.append(mem.to_dict())
+
+                    if tmp:
+
+                        temp[nice_name(members)] = tmp
+
+                    else:
+
+                        temp[nice_name(members)] = self.__dict__[members]
+
+                else:
+
+                    temp[nice_name(members)] = self.__dict__[members]
 
         return temp
 
