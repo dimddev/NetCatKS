@@ -76,12 +76,20 @@ def subscriber_dispatcher(sub_data):
 
     log = Logger()
 
-    result = IDispatcher(Validator(sub_data)).dispatch()
+    try:
 
-    if IValidator.providedBy(result):
-        log.warning('WAMP Message is invalid: {}'.format(result.message))
+        result = IDispatcher(Validator(sub_data)).dispatch()
+
+    except Exception as e:
+
+        log.warning('subscriber_dispatcher exception: {}'.format(
+            e.message
+        ))
 
     else:
+
+        if IValidator.providedBy(result):
+            log.warning('WAMP Message is invalid: {}'.format(result.message))
 
         if result is not False:
 

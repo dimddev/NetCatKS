@@ -47,11 +47,8 @@ class BaseLoader(object):
 
                     for klass in dir(load):
 
-                        if klass.endswith(self.prefix) and klass not in __ignore:
-                            __klasses.append(getattr(load, klass))
-
                         if klass.startswith('I'):
-                            # print klass
+
                             if klass in __klasses or klass == 'Interface':
                                 continue
 
@@ -60,6 +57,8 @@ class BaseLoader(object):
                                 'origin_name': getattr(load, klass).__name__
                             }
 
+                        elif klass.endswith(self.prefix) and klass not in __ignore:
                             __klasses.append(getattr(load, klass))
+
 
         return __klasses

@@ -137,32 +137,41 @@ class Dispatcher(object):
         :return:
         """
         # validate for supporting types
-        valid_dispatch = self.validator.validate()
 
-        if valid_dispatch is False:
+        try:
+            valid_dispatch = self.validator.validate()
+
+        except Exception as e:
+
+            self.__logger.debug('validate error: {}'.format(e.message))
             return self.validator
 
-        valid_response = ValidatorResponse(valid_dispatch.message)
+        else:
 
-        if valid_dispatch.message_type == 'JSON':
+            if valid_dispatch is False:
+                return self.validator
 
-            return self.__api_processor(
-                valid_dispatch,
-                valid_response,
-                IJSONResourceSubscriber,
-                IJSONResourceAPI,
-                IJSONResource
-            )
+            valid_response = ValidatorResponse(valid_dispatch.message)
 
-        elif valid_dispatch.message_type == 'XML':
+            if valid_dispatch.message_type == 'JSON':
 
-            return self.__api_processor(
-                valid_dispatch,
-                valid_response,
-                IXMLResourceSubscriber,
-                IXMLResourceAPI,
-                IXMLResource
-            )
+                return self.__api_processor(
+                    valid_dispatch,
+                    valid_response,
+                    IJSONResourceSubscriber,
+                    IJSONResourceAPI,
+                    IJSONResource
+                )
+
+            elif valid_dispatch.message_type == 'XML':
+
+                return self.__api_processor(
+                    valid_dispatch,
+                    valid_response,
+                    IXMLResourceSubscriber,
+                    IXMLResourceAPI,
+                    IXMLResource
+                )
 
 gsm = getGlobalSiteManager()
 gsm.registerAdapter(Dispatcher)
