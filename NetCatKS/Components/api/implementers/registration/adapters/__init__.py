@@ -23,11 +23,12 @@ class RegisterAdapter(object):
 
         super(RegisterAdapter, self).__init__()
 
-        self.prefix = kwargs.get('factory_prefix', 'Adapter')
-        # self.prefix = 'Factory'
-
         self.gsm = getGlobalSiteManager()
-        self.__adapters = file_loader.load(adapters_source)
+
+        self.__adapters = file_loader.load(
+            adapters_source, [IVirtualAdapter]
+        )
+
         self.__storage = createObject('storageregister')
 
     def register_adapters(self):
@@ -88,7 +89,7 @@ class FileAdaptersLoader(BaseLoader):
 
     def __init__(self, **kwargs):
         """
-        Load all classes ending with kwargs['prefix'] default is 'Adapter"
+        Load all classes
         :param kwargs:
         :return:
         """

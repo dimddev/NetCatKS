@@ -2,9 +2,12 @@ __author__ = 'dimd'
 
 from NetCatKS.Components.api.interfaces.registration.wamp import IWAMPRegister
 from NetCatKS.Components.common.loaders import BaseLoader
+from NetCatKS.Components.api.interfaces import IUserWampComponent, IUserGlobalSubscriber
 
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager
+
+from datetime import datetime
 
 
 @implementer(IWAMPRegister)
@@ -25,7 +28,9 @@ class WampRegister(object):
         self.__gsm = getGlobalSiteManager()
         self.file_loader = file_loader
 
-        self.__objects = self.file_loader.load(wamp_source)
+        self.__objects = self.file_loader.load(
+            wamp_source, [IUserWampComponent, IUserGlobalSubscriber]
+        )
 
         super(WampRegister, self).__init__()
 
@@ -39,9 +44,11 @@ class WampRegister(object):
 
         for obj in self.__objects:
 
-            if obj.__name__.endswith(self.file_loader.prefix) and not obj.__name__.startswith('I'):
+            print('{} [ WampRegister ] Loading Wamp Component: {}'.format(
+                datetime.now(), obj.__name__
+            ))
 
-                self.__gsm.registerSubscriptionAdapter(obj)
+            self.__gsm.registerSubscriptionAdapter(obj)
 
 
 class FileWampLoader(BaseLoader):

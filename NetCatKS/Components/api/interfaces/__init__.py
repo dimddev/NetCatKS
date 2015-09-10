@@ -1,12 +1,13 @@
 __author__ = 'dimd'
 
-from adapters import IDynamicAdapterFactory
-from loaders import IBaseLoader
-from registration.adapters import IRegisterAdapters
-from registration.factories import IRegisterFactory
-from registration.protocols import IProtocolRegister
-from registration.wamp import IWAMPResource, IWAMPRegister, IWAMPComponent
-from storages import IStorageRegister
+from NetCatKS.Components.api.interfaces.adapters import IDynamicAdapterFactory
+from NetCatKS.Components.api.interfaces.loaders import IBaseLoader
+from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
+from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactory
+from NetCatKS.Components.api.interfaces.registration.protocols import IProtocolRegister
+from NetCatKS.Components.api.interfaces.registration.wamp import IWAMPResource, IWAMPRegister, IWAMPComponent
+from NetCatKS.Components.api.interfaces.storages import IStorageRegister
+from NetCatKS.Components.api.interfaces.loaders import IUserFactory, IUserStorage, IUserWampComponent, IUserGlobalSubscriber
 
 __all__ = [
     'IDynamicAdapterFactory',
@@ -17,5 +18,9 @@ __all__ = [
     'IStorageRegister',
     'IWAMPResource',
     'IWAMPRegister',
-    'IWAMPComponent'
+    'IWAMPComponent',
+    'IUserFactory',
+    'IUserStorage',
+    'IUserWampComponent',
+    'IUserGlobalSubscriber'
 ]

@@ -43,7 +43,7 @@ class Dispatcher(object):
         """
         for sub in subscribers([valid_response], isubscriber):
 
-            self.__logger.info('Matched subscribers: {}'.format(sub.__class__.__name__))
+            self.__logger.debug('Matched subscribers: {}'.format(sub.__class__.__name__))
 
             try:
 
@@ -59,7 +59,7 @@ class Dispatcher(object):
 
                 if comp is not False and iresource.providedBy(comp):
 
-                    self.__logger.info('Signature compare to {}'.format(comp.__class__.__name__))
+                    self.__logger.debug('Signature compare to {}'.format(comp.__class__.__name__))
 
                     # trying to resolve API that will deal with these request
 
@@ -70,7 +70,7 @@ class Dispatcher(object):
 
                             if api.__class__.__name__.lower() in comp.to_dict().keys():
 
-                                self.__logger.info('Candidate API {} for {}'.format(
+                                self.__logger.debug('Candidate API {} for {}'.format(
                                     api.__class__.__name__,
                                     comp.__class__.__name__
                                 ))
@@ -107,7 +107,7 @@ class Dispatcher(object):
                             # print api.__class__.__name__.lower() in comp.to_dict().keys()
                             if api.__class__.__name__.lower() in comp.to_dict().keys():
 
-                                self.__logger.info('Candidate API {} for {}'.format(
+                                self.__logger.debug('Candidate API {} for {}'.format(
                                     api.__class__.__name__,
                                     comp.__class__.__name__
                                 ))

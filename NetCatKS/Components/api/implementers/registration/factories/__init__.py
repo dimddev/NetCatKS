@@ -10,25 +10,33 @@ from zope.component.interfaces import IFactory
 
 from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactory
 from NetCatKS.Components.common.loaders import BaseLoader
+from NetCatKS.Components.api.interfaces import IUserStorage, IUserFactory
 from NetCatKS.Logger import Logger
 
 
 @implementer(IRegisterFactory)
 class RegisterFactory(object):
 
-    def __init__(self, file_loader, factories):
+    def __init__(self, file_loader, factories_source, out_filter=None):
         """
 
         :param file_loader:
-        :param factories:
+        :param factories_source:
         :return:
         """
 
         super(RegisterFactory, self).__init__()
 
         self.__gsm = getGlobalSiteManager()
+
         self.file_loader = file_loader
-        self.__objects = self.file_loader.load(factories)
+
+        self.default_filter = out_filter or [IUserStorage, IUserFactory]
+
+        self.__objects = self.file_loader.load(
+            factories_source, self.default_filter
+
+        )
 
         self.__storage = createObject('storageregister')
         self.__logger = Logger()
@@ -50,10 +58,14 @@ class RegisterFactory(object):
             if obj.__name__ in __ignore:
                 continue
 
-            print('{} [RegisterFactory] Load factory : {}'.format(str(datetime.now()), obj.__name__))
+            print('{} [ RegisterFactory ] Load: {} with filter: {}'.format(
+                str(datetime.now()), obj.__name__,
+                ', '.join([f.__name__ for f in self.default_filter])
+            ))
 
-            reg_name = obj.__name__.lower().replace(self.file_loader.prefix.lower(), '')
-            self.__storage.components[reg_name] = self.file_loader.prefix.lower()
+            # NETODO to be checked and removed is needed
+            # reg_name = obj.__name__.lower().replace(self.file_loader.prefix.lower(), '')
+            # self.__storage.components[reg_name] = self.file_loader.prefix.lower()
 
             factory = Factory(obj, obj.__name__)
             self.__gsm.registerUtility(factory, IFactory, obj.__name__.lower())

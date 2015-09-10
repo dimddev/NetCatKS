@@ -6,8 +6,7 @@ from zope.component import subscribers
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
-from NetCatKS.NetCAT.api.interfaces import IGlobalSubscriberCallback
-from NetCatKS.Components import IWAMPResource
+from NetCatKS.Components import IWAMPResource, IUserGlobalSubscriber
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
 from NetCatKS.Dispatcher import IDispatcher
@@ -68,7 +67,7 @@ def subscriber_dispatcher(sub_data):
     """
     Callback function for our global subscriber
     will pass sub_data to GlobalSubscribeMessage and then will trying to
-    get wamp component which implements IGlobalSubscriberCallback and adapts
+    get wamp component which implements IUserGlobalSubscriber and adapts
     IGlobalSubscribeMessage
 
     :param sub_data:
@@ -95,7 +94,7 @@ def subscriber_dispatcher(sub_data):
 
             fac = None
 
-            for sub in subscribers([result], IGlobalSubscriberCallback):
+            for sub in subscribers([result], IUserGlobalSubscriber):
 
                 sub.subscribe()
                 fac = True
@@ -103,7 +102,7 @@ def subscriber_dispatcher(sub_data):
                 break
 
             if not fac:
-                log.warning('There are no user definition for IGlobalSubscriberCallback, message was skipped')
+                log.warning('There are no user definition for IUserGlobalSubscriber, message was skipped')
 
 
 @implementer(IWampDefaultComponent)

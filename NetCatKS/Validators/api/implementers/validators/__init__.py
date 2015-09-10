@@ -55,7 +55,7 @@ class Validator(BaseValidator):
 
             if self.is_valid is True:
 
-                self.__logger.info('Matched type is: {}'.format(self.message_type))
+                self.__logger.debug('Matched type is: {}'.format(self.message_type))
 
                 return self
 

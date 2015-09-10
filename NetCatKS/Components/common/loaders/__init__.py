@@ -5,6 +5,7 @@ import os
 
 from zope.interface import implementer
 from zope.component import createObject
+from zope.interface import implementedBy
 
 from NetCatKS.Components.api.interfaces import IBaseLoader
 
@@ -18,14 +19,29 @@ class BaseLoader(object):
         :param kwargs:
         :return:
         """
-        self.prefix = kwargs.get('factory_prefix', 'Factory')
         self.__storage = createObject('storageregister')
 
-    def load(self, factories_source):
+    def is_register(self, obj, filter):
+
+        try:
+            is_reg = [candidate for candidate in filter if candidate in implementedBy(obj)][-1]
+
+        except IndexError:
+            return False
+
+        else:
+            return is_reg
+
+    def load(self, factories_source, filter_interface):
 
         """
 
         :param factories_source:
+        :type factories_source: str
+
+        :param filter_interface:
+        :type filter_interface: list
+
         :return:
         """
 
@@ -47,18 +63,28 @@ class BaseLoader(object):
 
                     for klass in dir(load):
 
+                        try:
+
+                            klass_obj = getattr(load, klass)
+                            candidate = self.is_register(klass_obj, filter_interface)
+
+                        except TypeError:
+                            pass
+
+                        else:
+
+                            if candidate and klass not in __ignore:
+
+                                __klasses.append(klass_obj)
+
                         if klass.startswith('I'):
 
                             if klass in __klasses or klass == 'Interface':
                                 continue
 
-                            self.__storage.interfaces[getattr(load, klass).__name__.lower()] = {
-                                'interface': getattr(load, klass),
-                                'origin_name': getattr(load, klass).__name__
+                            self.__storage.interfaces[klass_obj.__name__.lower()] = {
+                                'interface': klass_obj,
+                                'origin_name': klass_obj.__name__
                             }
-
-                        elif klass.endswith(self.prefix) and klass not in __ignore:
-                            __klasses.append(getattr(load, klass))
-
 
         return __klasses

@@ -62,15 +62,15 @@ def global_sub():
 
     gsub = """
 
-from NetCatKS.NetCAT.api.interfaces import IGlobalSubscriberCallback
+from NetCatKS.Components.api import IUserGlobalSubscriber
 from NetCatKS.Dispatcher import IJSONResource
 
 from zope.interface import implementer
 from zope.component import adapts
 
 
-@implementer(IGlobalSubscriberCallback)
-class GlobalSubscriberCallBackWamp(object):
+@implementer(IUserGlobalSubscriber)
+class GlobalSubscriberCallBack(object):
 
     adapts(IJSONResource)
 
@@ -78,7 +78,7 @@ class GlobalSubscriberCallBackWamp(object):
         self.adapt = adapt
 
     def subscribe(self):
-        print 'MESSAGE FROM GLOBAL SUB CALLBACK: {}'.format(self.adapt.to_json())
+        print 'MESSAGE FROM GLOBAL SUB CALLBACK: {}'.format(self.adapt)
     """
 
     with open('components/wamp/sub/__init__.py', 'a') as app:
