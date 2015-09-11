@@ -3,9 +3,9 @@ __author__ = 'dimd'
 from zope.interface import Interface
 
 
-class IProtocolRegister(Interface):
+class IRegisterProtocols(Interface):
 
-    def register_protocols(**kwargs):
+    def register(**kwargs):
         """
         Register Sessions inside zope GSM
         :param kwargs:

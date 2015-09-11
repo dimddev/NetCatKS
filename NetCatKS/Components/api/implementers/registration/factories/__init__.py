@@ -8,16 +8,16 @@ from zope.component import getGlobalSiteManager
 from zope.component.factory import Factory
 from zope.component.interfaces import IFactory
 
-from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactory
+from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactories
 from NetCatKS.Components.common.loaders import BaseLoader
 from NetCatKS.Components.api.interfaces import IUserStorage, IUserFactory
 from NetCatKS.Logger import Logger
 
 
-@implementer(IRegisterFactory)
-class RegisterFactory(object):
+@implementer(IRegisterFactories)
+class RegisterFactories(object):
 
-    def __init__(self, file_loader, factories_source, out_filter=None):
+    def __init__(self, factories_source, file_loader=None, out_filter=list()):
         """
 
         :param file_loader:
@@ -25,13 +25,13 @@ class RegisterFactory(object):
         :return:
         """
 
-        super(RegisterFactory, self).__init__()
+        super(RegisterFactories, self).__init__()
 
         self.__gsm = getGlobalSiteManager()
 
-        self.file_loader = file_loader
+        self.file_loader = file_loader or FileFactoryLoader()
 
-        self.default_filter = out_filter or [IUserStorage, IUserFactory]
+        self.default_filter = list(set(out_filter + [IUserStorage, IUserFactory]))
 
         self.__objects = self.file_loader.load(
             factories_source, self.default_filter
@@ -41,7 +41,10 @@ class RegisterFactory(object):
         self.__storage = createObject('storageregister')
         self.__logger = Logger()
 
-    def register_factories(self):
+    def get_object(self):
+        return self.__objects
+
+    def register(self):
         """
 
         :return:
@@ -51,16 +54,16 @@ class RegisterFactory(object):
 
         self.__objects = set(self.__objects)
 
-        for obj in self.__objects:
+        for obj, obj_interface in self.__objects:
 
             __ignore = ['Factory', 'IFactory']
 
             if obj.__name__ in __ignore:
                 continue
 
-            print('{} [ RegisterFactory ] Load: {} with filter: {}'.format(
+            print('{} [ RegisterFactories ] Load: {} with filter: {}'.format(
                 str(datetime.now()), obj.__name__,
-                ', '.join([f.__name__ for f in self.default_filter])
+                obj_interface.__name__
             ))
 
             # NETODO to be checked and removed is needed
@@ -80,3 +83,9 @@ class FileFactoryLoader(BaseLoader):
         :return:
         """
         super(FileFactoryLoader, self).__init__(**kwargs)
+
+
+gsm = getGlobalSiteManager()
+
+factory_ = Factory(RegisterFactories, RegisterFactories.__name__)
+gsm.registerUtility(factory_, IFactory, RegisterFactories.__name__.lower())

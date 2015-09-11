@@ -21,10 +21,13 @@ class BaseLoader(object):
         """
         self.__storage = createObject('storageregister')
 
-    def is_register(self, obj, filter):
+    def is_register(self, obj, filter_interfaces):
 
         try:
-            is_reg = [candidate for candidate in filter if candidate in implementedBy(obj)][-1]
+
+            is_reg = [
+                (obj, candidate) for candidate in filter_interfaces if candidate in implementedBy(obj)
+            ][-1]
 
         except IndexError:
             return False
@@ -75,7 +78,7 @@ class BaseLoader(object):
 
                             if candidate and klass not in __ignore:
 
-                                __klasses.append(klass_obj)
+                                __klasses.append(candidate)
 
                         if klass.startswith('I'):
 

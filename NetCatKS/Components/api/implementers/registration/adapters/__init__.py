@@ -1,8 +1,12 @@
 __author__ = 'dimd'
 
+from datetime import datetime
+
 from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
 from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
 from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory
+from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
+from NetCatKS.Dispatcher.api.interfaces import IJSONResourceAPI
 
 from NetCatKS.Components.common.loaders import BaseLoader
 from NetCatKS.Components.common.factory import get_factory_objects
@@ -11,43 +15,57 @@ from zope.component import getMultiAdapter
 from zope.component import ComponentLookupError
 from zope.component import getGlobalSiteManager, createObject
 from zope.interface import implementer
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
 
 
 @implementer(IRegisterAdapters)
-class RegisterAdapter(object):
+class RegisterAdapters(RegisterFactories):
     """
     This class provide functionality for registering adapters inside Zope Global Site Manager
      ( storage of kind )
     """
-    def __init__(self, file_loader, adapters_source, **kwargs):
+    def __init__(self, protocols_source, file_loader=None, out_filter=list()):
+        """
 
-        super(RegisterAdapter, self).__init__()
+        :param protocols_source:
 
-        self.gsm = getGlobalSiteManager()
+        :param file_loader:
 
-        self.__adapters = file_loader.load(
-            adapters_source, [IVirtualAdapter]
-        )
+        :param out_filter:
+
+        :return:
+        """
+        default_filters = list(set(out_filter + [IVirtualAdapter, IJSONResourceAPI]))
+
+        super(RegisterAdapters, self).__init__(protocols_source, file_loader, default_filters)
 
         self.__storage = createObject('storageregister')
 
-    def register_adapters(self):
+        self.__objects = self.get_object()
+
+        self.__gsm = getGlobalSiteManager()
+
+    def register(self):
         """
-        Registering of all adapters inside zope GSM each of them
-        have to be provided by IVirtualAdapter
-        :param adapters:
-        :return: True on success or raise Exception
+
+        :return:
         """
-        if type(self.__adapters) is not tuple and type(self.__adapters) is not list:
+
+        if type(self.__objects) is not tuple and type(self.__objects) is not list:
             raise TypeError('objects have to be tuple or list')
 
-        for adapter in self.__adapters:
+        for adapter, adapter_interface in self.__objects:
 
             if adapter.__name__.startswith('I'):
                 continue
 
-            print 'register adapter: {}'.format(adapter)
-            self.gsm.registerAdapter(adapter)
+            print('{} [ RegisterAdapters ] Load: {} with filter: {}'.format(
+                str(datetime.now()), adapter.__name__,
+                adapter_interface.__name__
+            ))
+
+            self.__gsm.registerAdapter(adapter)
 
         return True
 
@@ -94,3 +112,9 @@ class FileAdaptersLoader(BaseLoader):
         :return:
         """
         super(FileAdaptersLoader, self).__init__(**kwargs)
+
+
+gsm = getGlobalSiteManager()
+
+factory_ = Factory(RegisterAdapters, RegisterAdapters.__name__)
+gsm.registerUtility(factory_, IFactory, RegisterAdapters.__name__.lower())

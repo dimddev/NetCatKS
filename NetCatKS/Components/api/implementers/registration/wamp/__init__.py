@@ -1,8 +1,12 @@
+from __future__ import absolute_import
+
 __author__ = 'dimd'
 
-from NetCatKS.Components.api.interfaces.registration.wamp import IWAMPRegister
+from NetCatKS.Components.api.interfaces.registration.wamp import IRegisterWamp
 from NetCatKS.Components.common.loaders import BaseLoader
 from NetCatKS.Components.api.interfaces import IUserWampComponent, IUserGlobalSubscriber
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
 
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager
@@ -10,14 +14,14 @@ from zope.component import getGlobalSiteManager
 from datetime import datetime
 
 
-@implementer(IWAMPRegister)
-class WampRegister(object):
+@implementer(IRegisterWamp)
+class RegisterWamp(object):
 
     """
     Take care for registration of all wamp components
     """
 
-    def __init__(self, file_loader, wamp_source):
+    def __init__(self, wamp_source, file_loader=None, out_filter=None):
         """
 
         :param file_loader:
@@ -26,15 +30,18 @@ class WampRegister(object):
         """
 
         self.__gsm = getGlobalSiteManager()
-        self.file_loader = file_loader
+        self.file_loader = file_loader or FileWampLoader()
+
+        self.default_filter = out_filter or [IUserWampComponent, IUserGlobalSubscriber]
 
         self.__objects = self.file_loader.load(
-            wamp_source, [IUserWampComponent, IUserGlobalSubscriber]
+            wamp_source, self.default_filter
+
         )
 
-        super(WampRegister, self).__init__()
+        super(RegisterWamp, self).__init__()
 
-    def register_wamp(self):
+    def register(self):
         """
 
         :return:
@@ -42,10 +49,10 @@ class WampRegister(object):
         if type(self.__objects) is not tuple and type(self.__objects) is not list:
             raise TypeError('objects have to be tuple or list')
 
-        for obj in self.__objects:
+        for obj, obj_interface in self.__objects:
 
-            print('{} [ WampRegister ] Loading Wamp Component: {}'.format(
-                datetime.now(), obj.__name__
+            print('{} [ RegisterWamp ] Loading Wamp Component: {}, filter interface: {}'.format(
+                datetime.now(), obj.__name__, obj_interface.__name__
             ))
 
             self.__gsm.registerSubscriptionAdapter(obj)
@@ -60,3 +67,9 @@ class FileWampLoader(BaseLoader):
         :return:
         """
         super(FileWampLoader, self).__init__(**kwargs)
+
+
+gsm = getGlobalSiteManager()
+
+factory_ = Factory(RegisterWamp, RegisterWamp.__name__)
+gsm.registerUtility(factory_, IFactory, RegisterWamp.__name__.lower())

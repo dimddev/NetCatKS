@@ -1,88 +1,81 @@
 __author__ = 'dimd'
 
-from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
-from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
-from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactory
+from zope.component import createObject
+from zope.interface.interfaces import ComponentLookupError
 
-from NetCatKS.Components.api.implementers.default import DefaultAdapter
-from NetCatKS.Components.api.implementers.registration.adapters import RegisterAdapter, FileAdaptersLoader
-from NetCatKS.Components.api.implementers.registration.factories import RegisterFactory, FileFactoryLoader
-from NetCatKS.Components.api.implementers.registration.protocols import ProtocolRegister, FileProtocolsLoader
-from NetCatKS.Components.api.implementers.registration.wamp import WampRegister, FileWampLoader
+class ComponentsRegistratorAdapter(object):
 
-from zope.component import adapts
-from zope.component import getGlobalSiteManager
-from zope.component import getMultiAdapter
-
-
-class ComponentsRegistratorAdapter(DefaultAdapter):
     """
-    Adapt together RegisterFactory and RegisterAdapters
+    Adapt together RegisterFactories and RegisterAdapters
     """
-    adapts(IRegisterFactory, IRegisterAdapters)
 
     def __init__(self, *args, **kwargs):
-        """
 
-        :param args:
+        """
+        :param want_to_load:
+        :type want_to_load: list
+
         :param kwargs: adapters_source, factories_source, sessions_source, utility_source
+
         :return:
         """
 
-        super(ComponentsRegistratorAdapter, self).__init__(*args)
+        super(ComponentsRegistratorAdapter, self).__init__()
 
-        adapters_source = kwargs.get('adapters_source', 'components/adapters')
-        factories_source = kwargs.get('factories_source', 'components/factories')
-        protocol_source = kwargs.get('protocol_source', 'components/protocols')
-        utility_source = kwargs.get('utility_source', 'components/utility')
-        validators_source = kwargs.get('validators_source', 'components/validators')
-        wamp_source = kwargs.get('wamp_source', 'components/wamp')
+        self.__available_components = [
+            'adapters', 'factories',
+            'protocols', 'utility',
+            'validators', 'wamp'
+        ]
 
-        if factories_source:
+        self.adapters_source = kwargs.get('adapters_source', 'components/adapters')
+        self.factories_source = kwargs.get('factories_source', 'components/factories')
+        self.protocols_source = kwargs.get('protocols_source', 'components/protocols')
+        self.utility_source = kwargs.get('utility_source', 'components/utility')
+        self.validators_source = kwargs.get('validators_source', 'components/validators')
+        self.wamp_source = kwargs.get('wamp_source', 'components/wamp')
 
-            self.__factory = RegisterFactory(
-                FileFactoryLoader(),
-                factories_source
-            )
+        __a_comp = kwargs.get('components', None)
 
-            self.__factory.register_factories()
+        comp = []
 
-        if adapters_source:
+        if __a_comp is not None and type(__a_comp) is list:
 
-            self.__radapter = RegisterAdapter(
-                FileAdaptersLoader(),
-                adapters_source
-            )
+            comp = [c for c in __a_comp if c in self.__available_components]
 
-            self.__radapter.register_adapters()
+            if not comp:
 
-        if protocol_source:
+                raise AttributeError('Incorrect attribute an available are: {}'.format(
+                    ', '.join(self.__available_components)
+                ))
 
-            self.__proto = ProtocolRegister(
-                FileProtocolsLoader(),
-                protocol_source
-            )
-
-            self.__proto.register_protocols()
-
-        if wamp_source:
-
-            self.__wamp = WampRegister(
-                FileWampLoader(),
-                wamp_source
-            )
-
-            self.__wamp.register_wamp()
+        self.running_components = comp or self.__available_components
 
     def init(self):
-        """
 
-        :return:
-        """
-        return getMultiAdapter(
-            [self.__factory, self.__radapter],
-            IVirtualAdapter
-        )
+        for reg in self.running_components:
+
+            try:
+
+                source = getattr(self, '{}_source'.format(reg))
+
+                reg_component = createObject('register{}'.format(reg), source)
+
+            except AttributeError as e:
+                print e.message
+                pass
+
+            except TypeError as e:
+
+                print e.message, 'register{}'.format(reg)
+                return
+
+            except ComponentLookupError:
+                pass
+
+            else:
+
+                reg_component.register()
 
 
 class ComponentsRegistration(ComponentsRegistratorAdapter):
@@ -97,10 +90,6 @@ class ComponentsRegistration(ComponentsRegistratorAdapter):
         :return:
         """
         super(ComponentsRegistration, self).__init__(*args, **kwargs)
-
-
-gsm = getGlobalSiteManager()
-gsm.registerAdapter(ComponentsRegistration)
 
 
 __all__ = [

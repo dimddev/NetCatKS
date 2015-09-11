@@ -4,9 +4,9 @@ __author__ = 'dimd'
 from zope.interface import Interface, Attribute
 
 
-class IWAMPRegister(Interface):
+class IRegisterWamp(Interface):
 
-    def register_wamp():
+    def register():
         """
         Registering of all objects which ends with Wamp prefix and are located inside component/wamp directory
         :return:

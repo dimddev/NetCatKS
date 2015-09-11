@@ -180,6 +180,7 @@ from NetCatKS.NetCAT import DefaultFactory, IDefaultService
 from NetCatKS.Config import Config
 
 components = ComponentsRegistration().init()
+
 application = IDefaultService(DefaultFactory(
     config=Config().get('TCP')
 )).start()

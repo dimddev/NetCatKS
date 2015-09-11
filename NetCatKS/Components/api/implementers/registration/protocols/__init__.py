@@ -1,30 +1,25 @@
 __author__ = 'dimd'
 
-from NetCatKS.Components.api.interfaces.registration.protocols import IProtocolRegister
-from NetCatKS.Components.api.implementers.registration.factories import RegisterFactory
-from NetCatKS.Components.common.loaders import BaseLoader
+from NetCatKS.Components.api.interfaces.registration.protocols import IRegisterProtocols
+from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
 from NetCatKS.Dispatcher.api.interfaces import IJSONResource
 
 from zope.interface import implementer
-
-@implementer(IProtocolRegister)
-class ProtocolRegister(RegisterFactory):
-
-    def __init__(self, file_loader, session_source):
-
-        super(ProtocolRegister, self).__init__(file_loader, session_source, [IJSONResource])
-
-    def register_protocols(self):
-
-        return self.register_factories()
+from zope.component import getGlobalSiteManager
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
 
 
-class FileProtocolsLoader(BaseLoader):
+@implementer(IRegisterProtocols)
+class RegisterProtocols(RegisterFactories):
 
-    def __init__(self, **kwargs):
-        """
-        Load all classes ending with kwargs['prefix'] default is 'Adapter"
-        :param kwargs:
-        :return:
-        """
-        super(FileProtocolsLoader, self).__init__(**kwargs)
+    def __init__(self, protocols_source, file_loader=None, out_filter=list()):
+
+        default_filters = list(set(out_filter + [IJSONResource]))
+        super(RegisterProtocols, self).__init__(protocols_source, file_loader, default_filters)
+
+
+gsm = getGlobalSiteManager()
+
+factory_ = Factory(RegisterProtocols, RegisterProtocols.__name__)
+gsm.registerUtility(factory_, IFactory, RegisterProtocols.__name__.lower())
