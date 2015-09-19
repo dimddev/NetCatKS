@@ -4,7 +4,7 @@ __author__ = 'dimd'
 
 from NetCatKS.Components.api.interfaces.registration.wamp import IRegisterWamp
 from NetCatKS.Components.common.loaders import BaseLoader
-from NetCatKS.Components.api.interfaces import IUserWampComponent, IUserGlobalSubscriber
+from NetCatKS.Components.api.interfaces import IUserWampComponent, IUserGlobalSubscriber, IWAMPComponent
 from zope.component.factory import Factory
 from zope.component.interfaces import IFactory
 
@@ -32,7 +32,7 @@ class RegisterWamp(object):
         self.__gsm = getGlobalSiteManager()
         self.file_loader = file_loader or FileWampLoader()
 
-        self.default_filter = out_filter or [IUserWampComponent, IUserGlobalSubscriber]
+        self.default_filter = out_filter or [IUserWampComponent, IUserGlobalSubscriber, IWAMPComponent]
 
         self.__objects = self.file_loader.load(
             wamp_source, self.default_filter

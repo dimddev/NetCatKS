@@ -9,7 +9,7 @@ from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultCompo
 from NetCatKS.Components import IWAMPResource, IUserGlobalSubscriber
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
-from NetCatKS.Dispatcher import IDispatcher
+from NetCatKS.Dispatcher import IDispatcher, IJSONResource
 from NetCatKS.Validators import Validator, IValidator
 
 from autobahn.wamp import auth
@@ -61,50 +61,6 @@ def onChallenge(self, challenge):
 
         raise Exception("don't know how to compute challenge for authmethod {}".format(challenge.method))
 
-
-def subscriber_dispatcher(sub_data):
-
-    """
-    Callback function for our global subscriber
-    will pass sub_data to GlobalSubscribeMessage and then will trying to
-    get wamp component which implements IUserGlobalSubscriber and adapts
-    IGlobalSubscribeMessage
-
-    :param sub_data:
-    """
-
-    log = Logger()
-
-    try:
-
-        result = IDispatcher(Validator(sub_data)).dispatch()
-
-    except Exception as e:
-
-        log.warning('subscriber_dispatcher exception: {}'.format(
-            e.message
-        ))
-
-    else:
-
-        if IValidator.providedBy(result):
-            log.warning('WAMP Message is invalid: {}'.format(result.message))
-
-        if result is not False:
-
-            fac = None
-
-            for sub in subscribers([result], IUserGlobalSubscriber):
-
-                sub.subscribe()
-                fac = True
-
-                break
-
-            if not fac:
-                log.warning('There are no user definition for IUserGlobalSubscriber, message was skipped')
-
-
 @implementer(IWampDefaultComponent)
 class WampDefaultComponent(ApplicationSession):
 
@@ -125,6 +81,50 @@ class WampDefaultComponent(ApplicationSession):
 
             WampDefaultComponent.onConnect = onConnect
             WampDefaultComponent.onChallenge = onChallenge
+
+    def subscriber_dispatcher(self, sub_data):
+
+        """
+        Callback function for our global subscriber
+        will pass sub_data to GlobalSubscribeMessage and then will trying to
+        get wamp component which implements IUserGlobalSubscriber and adapts
+        IGlobalSubscribeMessage
+
+        :param sub_data:
+        """
+
+        log = Logger()
+
+        try:
+
+            result = IDispatcher(Validator(sub_data)).dispatch()
+
+        except Exception as e:
+
+            log.warning('subscriber_dispatcher exception: {}'.format(
+                e.message
+            ))
+
+        else:
+
+            if IValidator.providedBy(result):
+                log.warning('WAMP Message is invalid: {}'.format(result.message))
+
+            if result is not False and IJSONResource.providedBy(result):
+
+                fac = None
+
+                for sub in subscribers([result], IUserGlobalSubscriber):
+
+                    sub.subscribe(self)
+                    fac = True
+
+                    break
+
+                if not fac:
+                    log.warning('There are no user definition for IUserGlobalSubscriber, message was skipped')
+
+
 
     @inlineCallbacks
     def onJoin(self, details):
@@ -155,7 +155,7 @@ class WampDefaultComponent(ApplicationSession):
             self.cfg.get('WAMP').get('WS_NAME').lower().replace(' ', '_')
         )
 
-        yield self.subscribe(subscriber_dispatcher, sub_topic)
+        yield self.subscribe(self.subscriber_dispatcher, sub_topic)
         self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
 
     def onDisconnect(self):

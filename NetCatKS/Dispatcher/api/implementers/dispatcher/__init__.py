@@ -104,7 +104,7 @@ class Dispatcher(object):
                         else:
 
                             # root element
-                            # print api.__class__.__name__.lower() in comp.to_dict().keys()
+                            #print api.__class__.__name__.lower() in comp.to_dict().keys()
                             if api.__class__.__name__.lower() in comp.to_dict().keys():
 
                                 self.__logger.debug('Candidate API {} for {}'.format(
