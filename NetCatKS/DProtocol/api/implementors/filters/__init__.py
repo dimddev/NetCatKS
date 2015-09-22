@@ -98,7 +98,7 @@ class ProtocolFiltersImplementor(object):
             return True
 
     @staticmethod
-    def if_list_auto_append(in_data, add_to):
+    def if_list_auto_append(in_data, add_to, max_len=100000):
         """
 
         :param in_data: data to be adding to list
@@ -111,10 +111,19 @@ class ProtocolFiltersImplementor(object):
 
             if type(in_data) is list:
                 # on update comes here
-                add_to = in_data
+                if len(in_data) > max_len:
+                    raise OverflowError('the len of a in_date is bigger than max_len')
+
+                else:
+                    add_to = in_data
 
             else:
+
                 if in_data not in add_to:
+
+                    if len(add_to) == max_len:
+                        add_to.pop(0)
+
                     add_to.append(in_data)
 
             return add_to
