@@ -10,3 +10,5 @@ class IConfig(Interface):
         Load from json and accsess as dict
         :return: dict
         """
+
+from NetCatKS.Config.api.interfaces.confguration import *
