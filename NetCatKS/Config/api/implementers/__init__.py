@@ -3,6 +3,7 @@ __author__ = 'dimd'
 import json
 
 from NetCatKS.Config.api.interfaces import IConfig
+from NetCatKS.Config.api.implementers.configuration import *
 
 from zope.interface import implementer
 
@@ -40,3 +41,8 @@ class Config(object):
 
     def get(self, section):
         return self.__config.get(section, None)
+
+
+__all__ = [
+    'Config'
+]
