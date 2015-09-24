@@ -42,7 +42,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         :return:
         """
         if self.id is None:
-            raise Exception('The session id is not assigned')
+            raise AttributeError('The session id is not assigned')
 
         self.add_session(id=self.id, session=self)
         return True
@@ -57,7 +57,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         session = kwargs.get('session', None)
 
         if _id is None or session is None:
-            raise Exception('Incorrect configure, id and session are required args')
+            raise AttributeError('Incorrect configure, id and session are required args')
 
         try:
             verifyObject(IDynamicProtocolInterface, session)
@@ -202,13 +202,19 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         return temp
 
-    def to_json(self, dob=None):
+    def to_json(self, **kwargs):
         """
 
-        :param dob:
+        :param indent:
         :return:
         """
-        return json.dumps(self.to_dict())
+        indent = kwargs.get('indent', None)
+
+        if indent is not None and type(indent) is int:
+            return json.dumps(self.to_dict(), indent=indent)
+
+        else:
+            return json.dumps(self.to_dict())
 
     def to_xml(self, in_dict=None):
         """
@@ -240,7 +246,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
                 session = self.__storage.session.pop(kwargs.get('id'), False)
 
-            except Exception as e:
+            except KeyError as e:
 
                 print('TICKET WITH ID {} DOES NOT EXIST IN TICKET STORAGE'.format(e))
                 return False
@@ -270,7 +276,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                 session = kwargs.get('session')
 
                 if not IDynamicProtocolInterface.providedBy(session):
-                    raise Exception('Incorrect configure, you must pass TicketSession as ticket argument')
+                    raise Exception('Incorrect configure, you must pass DProtocol implementation as session argument')
 
                 self.__storage.session[kwargs.get('id')] = kwargs.get('session')
 
@@ -280,8 +286,10 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
             else:
                 return self
+
         else:
-            raise Exception('Incorrect configure, id and session are required argument')
+
+            raise AttributeError('Incorrect configure, id and session are required argument')
 
     def get_storage(self):
 
@@ -329,7 +337,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         # loop over them
         for k in keys:
 
-            search_key = service.__class__.__name__ + '__%s' % k
+            search_key = '_{}__{}'.format(service.__class__.__name__, k)
 
             # if these attribute are into this service dict
             if search_key in service.__dict__:
@@ -337,7 +345,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                 setattr(service, k, kwargs[k])
 
             else:
-                raise Exception('Incorrect configure for %s, key: %s' % (service, k))
+                raise Exception('Incorrect configure for {}, key: {}'.format(service, k))
 
         # if user are passed correct service attributes, they are set
         # otherwise just return requested service without changes
@@ -346,7 +354,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
     # original from http://www.saltycrane.com/blog/2011/10/some-more-python-recursion-examples/
     # modified by dimd
-    def get_all_keys(self, data):
+    def get_all_keys(self, data=None):
 
         """
         This function gets all keys from dict recursively
@@ -355,6 +363,8 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         :return: list of keys
         """
+
+        data = data or self.to_dict()
 
         keys = []
 

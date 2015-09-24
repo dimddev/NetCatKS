@@ -5,7 +5,7 @@ from zope.interface import implementer
 
 
 @implementer(IProtocolStogareInterface)
-class SessionStorageImplementor(object):
+class ProtocolStorageImplementor(object):
 
     session = {}
 
@@ -21,8 +21,8 @@ class SessionStorageImplementor(object):
             singleton instance
         """
 
-        if SessionStorageImplementor.__instance is None:
+        if ProtocolStorageImplementor.__instance is None:
 
-            SessionStorageImplementor.__instance = object.__new__(cls)
+            ProtocolStorageImplementor.__instance = object.__new__(cls)
 
-        return SessionStorageImplementor.__instance
+        return ProtocolStorageImplementor.__instance

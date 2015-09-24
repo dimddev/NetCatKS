@@ -56,7 +56,7 @@ class IBaseProtocolActionsInterface(Interface):
         :return: dict
         """
 
-    def to_json(dob=None):
+    def to_json(**kwargs):
         """
         This methods convert objects from type IBaseSessionActionsInterface to JSON, the method have using
         self.to_dict() as proxy
@@ -101,4 +101,14 @@ class IBaseProtocolActionsInterface(Interface):
         :param kwargs: dict of args (they must exist into child object)
         :param service: child obect
         :return: object
+        """
+
+    def if_list_auto_append(in_data, add_to, max_len):
+        """
+
+        :param in_data:
+        :param add_to:
+        :param max_len:
+
+        :return:
         """

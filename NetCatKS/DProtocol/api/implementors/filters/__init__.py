@@ -107,6 +107,10 @@ class ProtocolFiltersImplementor(object):
         :return: add_to
         :type: list
         """
+
+        if type(add_to) is not list:
+            raise TypeError('add_to must be a list')
+
         if in_data:
 
             if type(in_data) is list:
