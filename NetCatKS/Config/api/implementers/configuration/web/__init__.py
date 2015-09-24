@@ -1,6 +1,9 @@
 __author__ = 'dimd'
 
 from zope.interface import implementer
+from zope.component import getGlobalSiteManager
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
 
 from NetCatKS.DProtocol import BaseProtocolActions
 from NetCatKS.Config.api.interfaces import IWeb
@@ -46,3 +49,8 @@ class WEB(BaseProtocolActions):
     @www_root.setter
     def www_root(self, root):
         self.__www_root = root
+
+gsm = getGlobalSiteManager()
+
+factory = Factory(WEB, WEB.__name__)
+gsm.registerUtility(factory, IFactory, WEB.__name__.lower())

@@ -1,6 +1,9 @@
 __author__ = 'dimd'
 
 from zope.interface import implementer
+from zope.component import getGlobalSiteManager
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
 
 from NetCatKS.DProtocol import BaseProtocolActions
 from NetCatKS.Config.api.interfaces import IWamp
@@ -101,3 +104,8 @@ class WAMP(BaseProtocolActions):
     @hostname.setter
     def hostname(self, host):
         self.__hostname = host
+
+gsm = getGlobalSiteManager()
+
+factory = Factory(WAMP, WAMP.__name__)
+gsm.registerUtility(factory, IFactory, WAMP.__name__.lower())

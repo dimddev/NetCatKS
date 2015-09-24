@@ -3,6 +3,7 @@ __author__ = 'dimd'
 from zope.component import createObject
 from zope.interface.interfaces import ComponentLookupError
 
+
 class ComponentsRegistratorAdapter(object):
 
     """

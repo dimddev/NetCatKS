@@ -1,6 +1,9 @@
 __author__ = 'dimd'
 
 from zope.interface import implementer
+from zope.component import getGlobalSiteManager
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
 
 from NetCatKS.DProtocol import BaseProtocolActions
 from NetCatKS.Config.api.interfaces import ITcp
@@ -39,3 +42,8 @@ class TCP(BaseProtocolActions):
     def tcp_back_log(self, back_log):
         self.__tcp_back_log = back_log
 
+
+gsm = getGlobalSiteManager()
+
+factory = Factory(TCP, TCP.__name__)
+gsm.registerUtility(factory, IFactory, TCP.__name__.lower())
