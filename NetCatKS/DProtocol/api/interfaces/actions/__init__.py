@@ -16,15 +16,6 @@ class IBaseProtocolActionsInterface(Interface):
         :return: True on success and raise Exception if self.id is not provided
         """
 
-    def create(**kwargs):
-        """
-        Verify input object whether is from valid types, IDynamicSessionInterface and
-        IBaseSessionActionsInterface, if they belong to above interfaces, means, the object
-        cover all our requirements and will be stored into our session storage
-        :param kwargs: id and session - required keys
-        :return: checked session or raise exception
-        """
-
     def finish():
         """
         Session will be finished, this method will pop our session from session storage

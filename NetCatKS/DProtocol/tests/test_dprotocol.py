@@ -194,7 +194,7 @@ class TestDprotocol(unittest.TestCase):
 
     def test_add_session_get_session_many(self):
 
-        for x in range(1, 1000):
+        for x in range(1, 10000):
 
             self.init_user()
 

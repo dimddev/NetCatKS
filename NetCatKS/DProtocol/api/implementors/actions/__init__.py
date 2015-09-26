@@ -47,30 +47,6 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         self.add_session(id=self.id, session=self)
         return True
 
-    def create(self, **kwargs):
-        """
-
-        :param kwargs:
-        :return:
-        """
-        _id = kwargs.get('id', None)
-        session = kwargs.get('session', None)
-
-        if _id is None or session is None:
-            raise AttributeError('Incorrect configure, id and session are required args')
-
-        try:
-            verifyObject(IDynamicProtocolInterface, session)
-            verifyObject(IBaseProtocolActionsInterface, session)
-
-        except DoesNotImplement as e:
-            return False
-
-        else:
-
-            self.__storage.session[_id] = session
-            return session
-
     def finish(self):
 
         """
@@ -161,14 +137,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
             if IBaseProtocolActionsInterface.providedBy(self.__dict__[members]) is True:
 
-                try:
-                    verifyObject(IBaseProtocolActionsInterface, self.__dict__[members])
-
-                except DoesNotImplement as e:
-                    print 'to_dict: {}, {}'.format(e, self.__dict__[members])
-
-                else:
-                    temp[nice_name(members)] = self.to_dict(dob=self.__dict__[members])
+                temp[nice_name(members)] = self.to_dict(dob=self.__dict__[members])
 
             else:
 
@@ -350,7 +319,6 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         # if user are passed correct service attributes, they are set
         # otherwise just return requested service without changes
         return service
-
 
     # original from http://www.saltycrane.com/blog/2011/10/some-more-python-recursion-examples/
     # modified by dimd

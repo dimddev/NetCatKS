@@ -3,6 +3,181 @@
 import sys
 import os
 import json
+from datetime import datetime
+
+
+def save_config(__config__):
+
+    with open('config/config.json', 'a') as config_:
+        config_.write(json.dumps(__config__, indent=4))
+    config_.close()
+
+
+def make_protocols(protocol_name):
+
+    protocols = {'config': {}}
+
+    if not os.path.isdir('components/protocols'):
+
+        print 'Error: components/protocols does not exist...'
+        print 'You have to initialize first your project tree'
+        sys.exit(1)
+
+    def dir_exist(pname):
+
+        if os.path.isdir('components/protocols/{}'.format(pname)):
+
+            print 'Directory: "components/protocols/{}" exist'.format(pname)
+            return True
+
+        else:
+            return False
+
+    new_name_prompt = dir_exist(protocol_name)
+
+    if new_name_prompt:
+
+        new_name_prompt = raw_input('Enter your new protocol name: ')
+
+        if not new_name_prompt:
+            sys.exit(1)
+
+        else:
+            make_protocols(new_name_prompt)
+
+    else:
+
+        dir_ = 'components/protocols/{}'.format(proto_name)
+
+        print 'Creating directory: {}'.format(dir_)
+
+        try:
+
+            os.makedirs(dir_, 0755)
+
+        except OSError as e:
+
+            print e
+
+            sys.exit(1)
+
+    while True:
+        name = raw_input('Enter sub protocol name: ')
+
+        if not name:
+            break
+
+        new_name = {name: []}
+        protocols['config'].update(new_name)
+
+        while True:
+
+            attrib = raw_input('Enter attribute name: ')
+
+            if not attrib:
+                break
+
+            attrib_type = raw_input('Enter attribute type [None]: ')
+
+            protocols['config'][name].append((attrib, attrib_type or None, ))
+
+    __all = []
+
+    head = """
+from __future__ import absolute_import
+
+__author__ = 'NetCatKS auto generator at {}'
+
+from zope.interface import Interface, Attribute, implementer
+
+from NetCatKS.DProtocol import BaseProtocolActions
+from NetCatKS.Dispatcher import IJSONResource
+    """.format(str(datetime.now()))
+
+    __all.append(head)
+
+    __protos = []
+
+    for proto, attributes in protocols.get('config').iteritems():
+
+        __protos.append(proto)
+
+        __interface_base = """
+
+class I{}Interface(Interface):
+        """.format(proto)
+
+        __all.append(__interface_base)
+
+        for name, intype in attributes:
+            att_str = """
+    {} = Attribute("Comments going here")
+        """.format(name)
+
+            __all.append(att_str)
+
+        __cls_base = """
+
+@implementer(I{}Interface)
+class {}Implementer(BaseProtocolActions):
+
+    def __init__(self, **kwargs):
+        """.format(proto, proto)
+
+        __all.append(__cls_base)
+
+        __imp_base = ""
+        __prop_names = ""
+        __prop_names_set = ""
+
+        for name, intype in attributes:
+
+            if intype in __protos:
+                intype = '{}Implementer()'.format(intype)
+
+            __imp_base += """
+        self.__{} = {}
+        """.format(name, intype)
+
+            if intype != '[]':
+                __prop_names += """
+    @property
+    def {0}(self):
+        return self.__{0}
+
+    @{0}.setter
+    def {0}(self, {0}):
+        self.__{0} = {0}
+            """.format(name)
+            else:
+
+                __prop_names += """
+    @property
+    def {0}(self):
+        return self.__{0}
+
+    @{0}.setter
+    def {0}(self, {0}):
+        self.__{0} = self.if_list_auto_append({0}, self.__{0})
+                """.format(name)
+
+        __all.append(__imp_base)
+        __all.append(__prop_names)
+
+        if proto == protocols.get('config').keys()[-1]:
+            __main_proto = """
+
+@implementer(IJSONResource)
+class {0}Protocol({0}Implementer):
+    def __init__(self, **kwargs):
+        super({0}Protocol, self).__init__(**kwargs)
+            """.format(proto)
+
+            __all.append(__main_proto)
+
+    with open('{}/__init__.py'.format(dir_), 'a') as app:
+        app.write(''.join(__all))
+    return
 
 
 def tcp_config(tcp_conf):
@@ -99,7 +274,7 @@ except IndexError:
 
 else:
 
-    if arg == 'init':
+    if arg == 'init' and sys.argv[2] != 'protocol':
 
         dirs = [
             'components/factories',
@@ -167,8 +342,9 @@ application = IDefaultAutobahnService(
             app.write(wamp_app)
 
         app.close()
-
+        save_config(__config)
         global_sub()
+        print 'Projects structures was created successfully'
 
     elif arg == 'tcp':
 
@@ -191,6 +367,8 @@ application = IDefaultService(DefaultFactory(
             app.write(tcp_app)
 
         app.close()
+        save_config(__config)
+        print 'Projects structures was created successfully'
 
     elif arg == 'web':
 
@@ -213,6 +391,8 @@ application = IDefaultWebService(
             app.write(web_app)
 
         app.close()
+        save_config(__config)
+        print 'Projects structures was created successfully'
 
     elif arg == 'mixin':
 
@@ -265,12 +445,25 @@ multi_service.setServiceParent(application)
         app.close()
 
         global_sub()
+        save_config(__config)
+
+        print 'Projects structures was created successfully'
+
+    elif arg == 'protocol':
+
+        try:
+
+            proto_name = sys.argv[3]
+
+        except IndexError:
+
+            print 'Usage:'
+            print '\tnetcatks init protocol <protocol name> - Will produce a input screen'
+
+            sys.exit(1)
+
+        else:
+            make_protocols(proto_name)
 
     else:
         print 'Incorrect parameter'
-
-
-with open('config/config.json', 'a') as config:
-    config.write(json.dumps(__config, indent=4))
-
-print 'Projects structures was created successfully'
