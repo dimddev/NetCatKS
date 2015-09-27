@@ -22,6 +22,14 @@ class IBaseProtocolActionsInterface(Interface):
         :return: False if self.id does not exist into our storage else self
         """
 
+    def to_tdo(in_data):
+
+        """
+
+        :param in_data:
+        :return:
+        """
+
     def to_object(in_dict, in_obj, **kwargs):
         """
         One of the most used method of this API.

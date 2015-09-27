@@ -38,7 +38,8 @@ setup(
         'zope.component==4.2.2',
         'zope.event==4.0.3',
         'zope.interface==4.1.2',
-        'xmltodict'
+        'xmltodict',
+        'colorama'
 
     ],
     scripts=['bin/netcatks']

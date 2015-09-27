@@ -44,6 +44,17 @@ class BaseProtocolSubscriber(object):
     def compare(self):
 
         # xml
+
+        if type(self.adapter) is tuple:
+
+            try:
+                self.adapter = self.adapter[0]
+
+            except IndexError as e:
+
+                print e.message
+                pass
+
         if type(self.adapter.response) is str:
 
             try:

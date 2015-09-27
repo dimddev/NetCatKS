@@ -55,6 +55,8 @@ class RegisterAdapters(RegisterFactories):
         if type(self.__objects) is not tuple and type(self.__objects) is not list:
             raise TypeError('objects have to be tuple or list')
 
+        self.__objects = list(set(self.__objects))
+
         for adapter, adapter_interface in self.__objects:
 
             if adapter.__name__.startswith('I'):
@@ -87,20 +89,20 @@ class RegisterAdapters(RegisterFactories):
 
         except ComponentLookupError:
 
-                iface_collection = []
+            iface_collection = []
 
-                for obj in objects:
+            for obj in objects:
 
-                    iface_name = 'i{}{}'.format(obj, self.__storage.components.get(obj))
-                    iface = self.__storage.interfaces.get(iface_name, None)
+                iface_name = 'i{}{}'.format(obj, self.__storage.components.get(obj))
+                iface = self.__storage.interfaces.get(iface_name, None)
 
-                    if iface:
-                        iface_collection.append(iface.get('interface'))
+                if iface:
+                    iface_collection.append(iface.get('interface'))
 
-                # will trying to make dynamic adapter based on current request
+            # will trying to make dynamic adapter based on current request
 
-                DynamicAdapterFactory(iface_collection)
-                return getMultiAdapter(get_factory_objects(objects), belong_interface)
+            DynamicAdapterFactory(iface_collection)
+            return getMultiAdapter(get_factory_objects(objects), belong_interface)
 
 
 class FileAdaptersLoader(BaseLoader):
