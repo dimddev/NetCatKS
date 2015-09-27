@@ -3,7 +3,25 @@
 import sys
 import os
 import json
+import imp
+import shutil
 from datetime import datetime
+from colorama import Fore
+from collections import OrderedDict
+
+print Fore.RED + """
+
+_///     _//            _//      _//               _//  _//   _//    _// //
+_/ _//   _//            _//   _//   _//            _//  _//  _//   _//    _//
+_// _//  _//   _//    _/_/ _/_//          _//    _/_/ _/_// _//     _//
+_//  _// _// _/   _//   _//  _//        _//  _//   _//  _/ _/         _//
+_//   _/ _//_///// _//  _//  _//       _//   _//   _//  _//  _//         _//
+_//    _/ //_/          _//   _//   _//_//   _//   _//  _//   _//  _//    _//
+_//      _//  _////      _//    _////    _// _///   _// _//     _//  _// //
+"""
+print Fore.BLUE + "=" * 77
+
+# print '{}'.format(a)
 
 
 def save_config(__config__):
@@ -13,56 +31,78 @@ def save_config(__config__):
     config_.close()
 
 
-def make_protocols(protocol_name):
+def dir_exist(pname):
 
-    protocols = {'config': {}}
+    if os.path.isdir('components/protocols/{}'.format(pname)):
 
-    if not os.path.isdir('components/protocols'):
+        print Fore.RED + '[ NetCatKS ]: Directory: "components/protocols/{}" exist'.format(pname)
+        return True
 
-        print 'Error: components/protocols does not exist...'
-        print 'You have to initialize first your project tree'
-        sys.exit(1)
+    else:
+        return False
 
-    def dir_exist(pname):
 
-        if os.path.isdir('components/protocols/{}'.format(pname)):
+def __directory_checker(_protocol_name):
 
-            print 'Directory: "components/protocols/{}" exist'.format(pname)
-            return True
-
-        else:
-            return False
-
-    new_name_prompt = dir_exist(protocol_name)
+    new_name_prompt = dir_exist(_protocol_name)
 
     if new_name_prompt:
 
-        new_name_prompt = raw_input('Enter your new protocol name: ')
+        new_name_prompt = raw_input(Fore.CYAN + '[ NetCatKS ]: Enter your new protocol name: ')
 
         if not new_name_prompt:
-            sys.exit(1)
+            return False
 
         else:
-            make_protocols(new_name_prompt)
 
+            return __directory_checker(new_name_prompt)
     else:
 
-        dir_ = 'components/protocols/{}'.format(proto_name)
+        return _protocol_name
 
-        print 'Creating directory: {}'.format(dir_)
 
-        try:
+def cleaningup(clean_path):
 
-            os.makedirs(dir_, 0755)
+    print Fore.RED + '[ NetCatKS ]: Cleaning up... {}'.format(clean_path)
 
-        except OSError as e:
+    try:
 
-            print e
+        shutil.rmtree(clean_path)
 
-            sys.exit(1)
+    except IOError as ioe:
+
+        print Fore.RED + ioe.message
+        sys.exit(1)
+
+    else:
+        return True
+
+
+def create_protocol_dir(protocol_name):
+
+    dir_ = 'components/protocols/{}'.format(protocol_name)
+
+    print Fore.GREEN + '[ NetCatKS ]: Creating directory: {}'.format(dir_)
+
+    try:
+
+        os.makedirs(dir_, 0755)
+
+    except OSError as e:
+
+        print Fore.RED + e.message
+
+        sys.exit(1)
+
+    else:
+        return dir_
+
+
+def protocols_prompt(protocols):
 
     while True:
-        name = raw_input('Enter sub protocol name: ')
+
+        name = raw_input(Fore.CYAN + '[ NetCatKS ]: Enter sub protocol name: ')
 
         if not name:
             break
@@ -72,14 +112,37 @@ def make_protocols(protocol_name):
 
         while True:
 
-            attrib = raw_input('Enter attribute name: ')
+            attrib = raw_input(Fore.CYAN + '[ NetCatKS ]: Enter attribute name: ')
 
             if not attrib:
                 break
 
-            attrib_type = raw_input('Enter attribute type [None]: ')
+            attrib_type = raw_input(Fore.CYAN + '[ NetCatKS ]: Enter attribute type [None]: ')
 
             protocols['config'][name].append((attrib, attrib_type or None, ))
+
+    return protocols
+
+
+def make_protocols(protocol_name):
+
+    protocols = OrderedDict(config=OrderedDict())
+    main_protocol = None
+
+    if not os.path.isdir('components/protocols'):
+
+        print Fore.RED + '[ NetCatKS ]: Error: components/protocols does not exist...'
+        print Fore.YELLOW + '[ NetCatKS ]: You have to initialize first your project tree'
+        sys.exit(1)
+
+    protocol_name = __directory_checker(protocol_name)
+
+    if not protocol_name:
+        sys.exit(1)
+
+    dir_ = create_protocol_dir(protocol_name)
+
+    protocols = protocols_prompt(protocols)
 
     __all = []
 
@@ -89,8 +152,9 @@ from __future__ import absolute_import
 __author__ = 'NetCatKS auto generator at {}'
 
 from zope.interface import Interface, Attribute, implementer
+from zope.component import getGlobalSiteManager
 
-from NetCatKS.DProtocol import BaseProtocolActions
+from NetCatKS.DProtocol import BaseProtocolActions, DProtocolSubscriber
 from NetCatKS.Dispatcher import IJSONResource
     """.format(str(datetime.now()))
 
@@ -165,18 +229,161 @@ class {}Implementer(BaseProtocolActions):
         __all.append(__prop_names)
 
         if proto == protocols.get('config').keys()[-1]:
+            main_protocol = proto
             __main_proto = """
 
 @implementer(IJSONResource)
 class {0}Protocol({0}Implementer):
+
     def __init__(self, **kwargs):
+
         super({0}Protocol, self).__init__(**kwargs)
             """.format(proto)
 
             __all.append(__main_proto)
 
+            __main_proto_subs = """
+
+class {0}ProtocolSubscriber(DProtocolSubscriber):
+
+    def __init__(self, adapter):
+
+        self.adapter = adapter
+        self.protocol = {0}Protocol()
+
+
+gsm = getGlobalSiteManager()
+gsm.registerSubscriptionAdapter({0}ProtocolSubscriber)
+            """.format(proto)
+
+            __all.append(__main_proto_subs)
+
+    to_str = ''
+
+    for s in __all:
+        to_str += s
+
+    print Fore.BLUE + "=" * 77
+    print Fore.GREEN + '[ NetCatKS ]: Generate a DProtocol structure\n'
+
+    print Fore.WHITE + to_str
+
+    print Fore.BLUE + "=" * 77 + '\n'
+
     with open('{}/__init__.py'.format(dir_), 'a') as app:
-        app.write(''.join(__all))
+        app.write(to_str)
+
+    app.close()
+
+    path = 'components/protocols/{}/'.format(protocol_name)
+    fname = 'components/protocols/{}/__init__.py'.format(protocol_name)
+
+    try:
+
+        print Fore.GREEN + '[ NetCatKS ]: Trying to load module components.protocols.{}.{}'.format(protocol_name, main_protocol)
+        load = imp.load_source(path, fname)
+
+    except IOError as e_load:
+
+        print Fore.RED + '[ NetCatKS ]:Failed to load module: components.protocols.{}.{}'.format(protocol_name, main_protocol)
+        print Fore.RED + '[ NetCatKS ]: ERROR: {}'.format(e_load.message)
+
+        cleaningup(path)
+        sys.exit(1)
+
+    except Exception as e:
+
+        print Fore.RED + e.message
+        cleaningup(path)
+        sys.exit(1)
+
+    else:
+
+        try:
+
+            proto_load = getattr(load, '{}Protocol'.format(main_protocol))()
+
+        except Exception as e:
+
+            print Fore.RED + e.message
+            cleaningup(path)
+            sys.exit(1)
+
+        else:
+
+            print Fore.GREEN + '[ NetCatKS ]: JSON Signature looks like:\n'
+            print Fore.CYAN + proto_load.to_json(indent=4)
+
+            if len(proto_load.to_dict().keys()) > 1:
+
+                print 'A non root API, not implemented yet...\n'
+
+            else:
+                __root_api = """
+from NetCatKS.Dispatcher import IJSONResource, IJSONResourceAPI
+from zope.interface import implementer
+from zope.component import adapts, getGlobalSiteManager
+from NetCatKS.Logger import Logger
+
+
+@implementer(IJSONResourceAPI)
+class {0}(object):
+
+    adapts(IJSONResource)
+
+    def __init__(self, factory):
+
+        self.factory = factory
+        self.logger = Logger()
+
+    def process_factory(self):
+
+        self.logger.debug(self.factory.to_dict())
+        return self.factory
+
+
+gsm = getGlobalSiteManager()
+
+gsm.registerSubscriptionAdapter({0})
+                """.format(proto_load.to_dict().keys()[0].capitalize())
+
+                api_path = 'components/adapters/{}'.format(protocol_name)
+
+                if os.path.isdir(api_path):
+
+                    print Fore.RED + '[ NetCatKS ]: ERROR: path {} exist'.format(api_path)
+                    sys.exit(1)
+
+                else:
+
+                    try:
+
+                        os.mkdir(api_path)
+
+                    except OSError as e:
+
+                        print Fore.RED + '[ NetCatKS ]: ERROR: cannot create directory {} {}'.format(
+                            api_path, e
+                        )
+
+                        sys.exit(1)
+
+                    else:
+
+                        print 'components/adapters/{}/__init__.py'.format(protocol_name)
+
+                        with open('components/adapters/{}/__init__.py'.format(protocol_name), 'a') as aapp:
+                            aapp.write(__root_api)
+
+                        aapp.close()
+
+                        print Fore.BLUE + "=" * 77 + '\n'
+
+                        print Fore.GREEN + '[ NetCatKS ]: Create a Root API for the above schema...\n'
+                        print Fore.WHITE + __root_api
+
+                        print Fore.BLUE + "=" * 77 + '\n'
+
     return
 
 
@@ -263,52 +470,74 @@ class GlobalSubscriberCallBack(object):
     app.close()
 
 
+def create_project_tree():
+
+    dirs = [
+        'components/factories',
+        'components/adapters',
+        'components/protocols',
+        'components/utility',
+        'components/validators',
+        'components/wamp/rpc',
+        'components/wamp/pub',
+        'components/wamp/sub',
+    ]
+
+    print '\n'
+
+    for d in dirs:
+
+        try:
+
+            os.makedirs(d, 0755)
+            open(d + '/__init__.py', 'a').close()
+
+            print Fore.GREEN + '[ NetCatKS ]: Module {} was created successfully'.format(d)
+
+        except OSError as e:
+            print Fore.RED + '{}'.format(e)
+            sys.exit(1)
+
+        else:
+
+            open(d + '/../__init__.py', 'a').close()
+            open('components/__init__.py', 'a').close()
+
+    try:
+
+        os.mkdir('config')
+        print Fore.GREEN + '[ NetCatKS ]: The config directory "config" was created successfully'
+
+    except OSError as e:
+
+        print Fore.RED + '{}'.format(e)
+        sys.exit(1)
+
+
+def successfully_response():
+    print Fore.CYAN + '\n[ NetCatKS ]: Project structures was created successfully\n'
+    print Fore.BLUE + '[ NetCatKS ]: Next step is creation of a DProtocol structure'
+    print Fore.BLUE + '[ NetCatKS ]: netcatks init protocol <protocol_name>\n'
+
 try:
+
     arg = sys.argv[1]
 
 except IndexError:
-    print 'Usage:'
-    print '\tnetcatks init tcp - Will produce Defaut TCP Server'
-    print '\tnetcatks init mixin - Will produce Defaut TCP and WEB Server plus Default Wamp Component'
-    print '\tnetcatks init wamp - Will produce Default Wamp Component'
+
+    print '\n[ NetCatKS ]: Usage:\n'
+
+    print Fore.CYAN + ':~$ netcatks init tcp' + Fore.WHITE + ' - will produce a default TCP Server'
+    print Fore.CYAN + ':~$ netcatks init web' + Fore.WHITE + ' - will produce a default WEB Server'
+    print Fore.CYAN + ':~$ netcatks init wamp' + Fore.WHITE + ' - will produce a default Wamp Component'
+    print Fore.CYAN + ':~$ netcatks init mixin' + Fore.WHITE + ' - will produce all together TCP and WEB Server plus Default Wamp Component'
+    print Fore.CYAN + ':~$ netcatks init protocol <protocol name>' + Fore.WHITE + ' - will generate DProtocol structure or Message protocol or TDO'
 
 else:
 
     if arg == 'init' and sys.argv[2] != 'protocol':
 
-        dirs = [
-            'components/factories',
-            'components/adapters',
-            'components/protocols',
-            'components/utility',
-            'components/validators',
-            'components/wamp/rpc',
-            'components/wamp/pub',
-            'components/wamp/sub',
-        ]
-
-        for d in dirs:
-
-            try:
-
-                os.makedirs(d, 0755)
-                open(d + '/__init__.py', 'a').close()
-
-            except OSError as e:
-                print e
-                break
-
-        open(d + '/../__init__.py', 'a').close()
-        open('components/__init__.py', 'a').close()
-
-        try:
-
-            os.mkdir('config')
-
-        except OSError as e:
-
-            print e
-            sys.exit()
+        create_project_tree()
 
 __config = dict()
 
@@ -344,7 +573,8 @@ application = IDefaultAutobahnService(
         app.close()
         save_config(__config)
         global_sub()
-        print 'Projects structures was created successfully'
+
+        successfully_response()
 
     elif arg == 'tcp':
 
@@ -368,7 +598,7 @@ application = IDefaultService(DefaultFactory(
 
         app.close()
         save_config(__config)
-        print 'Projects structures was created successfully'
+        successfully_response()
 
     elif arg == 'web':
 
@@ -392,7 +622,8 @@ application = IDefaultWebService(
 
         app.close()
         save_config(__config)
-        print 'Projects structures was created successfully'
+
+        successfully_response()
 
     elif arg == 'mixin':
 
@@ -447,7 +678,7 @@ multi_service.setServiceParent(application)
         global_sub()
         save_config(__config)
 
-        print 'Projects structures was created successfully'
+        successfully_response()
 
     elif arg == 'protocol':
 
