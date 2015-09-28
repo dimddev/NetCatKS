@@ -194,7 +194,7 @@ class TestDprotocol(unittest.TestCase):
 
     def test_add_session_get_session_many(self):
 
-        for x in range(1, 10000):
+        for x in range(1, 5000):
 
             self.init_user()
 
@@ -221,6 +221,21 @@ class TestDprotocol(unittest.TestCase):
         all_keys2.sort()
 
         self.assertListEqual(all_keys, all_keys2)
+
+    def test_to_tdo(self):
+
+        req = {'age': None, 'city': None, 'location': []}
+        req1 = {'id': None, 'user': None, 'email': None, 'age': None}
+
+        self.user.location = 'one'
+        self.user.location = 'two'
+        self.user.location = 'three'
+
+        self.assertDictEqual(req, self.user.to_tdo(req))
+        self.assertDictEqual(req1, self.user.to_tdo(req1))
+
+        self.assertListEqual(req.get('location'), self.user.location)
+        self.assertEqual(len(req.get('location')), len(self.user.location))
 
     def test_to_object(self, out_object=None):
 
