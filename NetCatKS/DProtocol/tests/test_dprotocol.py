@@ -1,7 +1,9 @@
+from __future__ import absolute_import
+
 __author__ = 'dimd'
 
 import unittest
-import json
+
 from zope.interface.verify import verifyObject
 from zope.interface.exceptions import DoesNotImplement
 
@@ -78,9 +80,9 @@ class TestProtocolProfile(BaseProtocolActions):
 
 class TestProtoclUser(DynamicProtocol):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
 
-        super(TestProtoclUser, self).__init__()
+        super(TestProtoclUser, self).__init__(**kwargs)
 
         self.__profile = TestProtocolProfile()
         self.__location = []
@@ -145,21 +147,63 @@ class TestDprotocol(unittest.TestCase):
         self.user.profile.details.jobs = 'Art'
         self.user.profile.details.city = 'Frankfurt'
 
-    def test_public_setter(self):
+    def test_constructor(self):
 
-        self.user.profile = {
-            'name': 'public_name',
-            'email': 'public@email.com'
-        }
+        with self.assertRaises(DoesNotImplement):
+            TestProtoclUser(storage=object)
 
-        self.assertEquals(self.user.profile.name, 'public_name')
-        self.assertEquals(self.user.profile.email, 'public@email.com')
+    def test_public_setter(self, num=None):
+
+        if num is None:
+
+            self.user.profile = {
+                'name': 'public_name',
+                'email': 'public@email.com'
+            }
+
+            self.assertEquals(self.user.profile.name, 'public_name')
+            self.assertEquals(self.user.profile.email, 'public@email.com')
+
+            with self.assertRaises(AttributeError):
+
+                self.user.profile = {
+                    'name': 'public_name',
+                    'title': 'tittle'
+                }
+
+    def test_public_setter_many(self, num=None):
+
+        for x in range(1, 9421):
+
+            self.user.profile = {
+                'name': 'public_name_{}'.format(x),
+                'email': 'public_{}@email.com'.format(x)
+            }
+
+            self.assertEquals(self.user.profile.name, 'public_name_{}'.format(x))
+            self.assertEquals(self.user.profile.email, 'public_{}@email.com'.format(x))
+
+    def test_get_storage(self):
+
+        st = self.user.get_storage()
+
+        self.assertDictEqual({}, st)
 
     def test_save(self):
 
         self.user.save()
+
         user = self.user.get_session(id=1234567)
         self.assertEqual(self.user.id, user.id)
+
+        self.user.id = None
+
+        with self.assertRaises(ValueError):
+            self.user.save()
+
+        with self.assertRaises(NotImplementedError):
+            self.profile.save()
+
         self.test_to_object(user)
 
     def test_finish(self):
@@ -186,15 +230,33 @@ class TestDprotocol(unittest.TestCase):
 
         self.user.add_session(id=self.user.id, session=self.user)
 
+        with self.assertRaises(AttributeError):
+            self.user.add_session(id=self.user.id)
+
+        with self.assertRaises(AttributeError):
+            self.user.add_session(session='')
+
+        self.assertFalse(self.user.add_session(id=self.user.id, session=self.user))
+
+        with self.assertRaises(AttributeError):
+            self.user.get_session()
+
+        user = self.user.get_session(id=4242)
+
+        self.assertFalse(user)
+
         user = self.user.get_session(id=42)
 
         self.assertEquals(user.id, self.user.id)
 
+        with self.assertRaises(AttributeError):
+            self.user.add_session(id=self.user.id, session=object)
+
         self.test_to_object(user)
 
-    def test_add_session_get_session_many(self):
+    def test_add_session_get_session_many_to_object(self):
 
-        for x in range(1, 5000):
+        for x in range(1, 9421):
 
             self.init_user()
 
@@ -237,6 +299,16 @@ class TestDprotocol(unittest.TestCase):
         self.assertListEqual(req.get('location'), self.user.location)
         self.assertEqual(len(req.get('location')), len(self.user.location))
 
+    def test_to_json(self):
+
+        origin = '{"profile": {"details": {"city": "Frankfurt", "age": 34, "jobs": ["Developer", "Art"]}, "name": "name2", "email": "email2@email.com"}, "max_length": [], "location": ["here", "there", "there, here"], "id": 1234567}'
+        self.assertEquals(origin, self.user.to_json())
+
+        json_indent = self.user.to_json(indent=4)
+        json_indent = json_indent.replace('\n', '')
+        json_indent = json_indent.replace(' ', '')
+        self.assertEquals(json_indent, origin.replace(' ', ''))
+
     def test_to_object(self, out_object=None):
 
         if out_object:
@@ -247,6 +319,8 @@ class TestDprotocol(unittest.TestCase):
         o = self.user_temp = TestProtoclUser()
 
         d1 = o.to_object(d)
+
+        self.assertFalse(o.to_object())
 
         self.assertEqual(self.user.profile.name, d1.profile.name)
         self.assertEqual(self.user.profile.email, d1.profile.email)
@@ -260,6 +334,21 @@ class TestDprotocol(unittest.TestCase):
         self.assertListEqual(['here', 'there', 'there, here'], self.user.location)
 
         self.assertDictEqual(d, d1.to_dict())
+
+    def test_to_xml(self):
+
+        with self.assertRaises(ValueError):
+            self.user.to_xml()
+
+        with self.assertRaises(ValueError):
+            self.user.to_xml([])
+
+        root = {'root': {'id': 4, 'username': 'user'}}
+
+        xml_output = '<?xml version="1.0" encoding="utf-8"?><root><username>user</username><id>4</id></root>'
+
+        xml = self.user.to_xml(root).replace('\n', '')
+        self.assertEquals(xml, xml_output)
 
     def test_if_list_auto_append(self):
 
@@ -282,56 +371,65 @@ class TestDprotocol(unittest.TestCase):
         with self.assertRaises(TypeError):
 
             self.user.if_list_auto_append(1, {}, 144)
+
+        with self.assertRaises(TypeError):
             self.user.if_list_auto_append(1, None, 144)
 
         self.user.max_length = range(1, 100)
         self.assertListEqual(self.user.max_length, range(1, 100))
 
-        # print json.dumps(self.user.to_dict(), indent=4)
-    
     def test_check_for_float_and_int(self):
 
         self.assertTrue(self.user.check_for_float_and_int(1))
         self.assertTrue(self.user.check_for_float_and_int(1.1))
 
-        with self.assertRaises(Exception):
-            self.user.check_for_float_and_int('1d')
+        with self.assertRaises(TypeError):
+            self.user.check_for_float_and_int('87654')
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             self.user.check_for_float_and_int([])
 
     def test_check_for_float(self):
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             self.user.check_for_float(1)
 
-        self.assertTrue(self.user.check_for_float(1.1))
+        self.assertTrue(self.user.check_for_float(1.134))
+        self.assertTrue(self.user.check_for_float(178.134))
 
     def test_check_for_int(self):
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             self.user.check_for_int(1.1)
 
         self.assertTrue(self.user.check_for_int(1))
 
     def test_check_for_list(self):
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
+            self.user.check_for_int(())
+
+        with self.assertRaises(TypeError):
             self.user.check_for_int({})
 
         self.assertTrue(self.user.check_for_list([]))
 
     def test_check_for_dict(self):
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             self.user.check_for_dict([])
+
+        with self.assertRaises(TypeError):
+            self.user.check_for_dict(())
 
         self.assertTrue(self.user.check_for_dict({}))
 
     def test_check_for_bool(self):
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             self.user.check_for_bool(1)
+
+        with self.assertRaises(TypeError):
             self.user.check_for_bool(0)
 
         self.assertTrue(self.user.check_for_bool(True))
@@ -350,8 +448,13 @@ class TestDprotocol(unittest.TestCase):
         with self.assertRaises(DoesNotImplement):
 
             verifyObject(IProtocolStogareInterface, {})
+
+        with self.assertRaises(DoesNotImplement):
+
             verifyObject(IProtocolStogareInterface, object)
+
+        with self.assertRaises(DoesNotImplement):
             verifyObject(IProtocolStogareInterface, FakeStorage())
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestDprotocol)
-unittest.TextTestRunner(verbosity=2).run(suite)
+#dprotocol_suite = unittest.TestLoader().loadTestsFromTestCase(TestDprotocol)
+#unittest.TextTestRunner(verbosity=2).run(dprotocol_suite)

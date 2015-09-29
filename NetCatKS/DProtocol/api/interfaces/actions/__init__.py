@@ -30,7 +30,7 @@ class IBaseProtocolActionsInterface(Interface):
         :return:
         """
 
-    def to_object(in_dict, in_obj, **kwargs):
+    def to_object(in_dict, in_obj):
         """
         One of the most used method of this API.
         It take care for converting input dict to object who is implement IBaseSessionActionsInterface
@@ -39,8 +39,6 @@ class IBaseProtocolActionsInterface(Interface):
         :param in_dict: Dict to be converted to object of kind IBaseSessionActionsInterface
         :param in_obj: This parameter is used only for our recursion and is not required during
         working with this method
-        :param kwargs: Currently kwargs support only 'debug' key, is is present, debug will be enabled.
-        Useful, when somebody make debug and so on
         :return: self - the current object is updated with new values contained in in_dict
 
         """
@@ -100,14 +98,4 @@ class IBaseProtocolActionsInterface(Interface):
         :param kwargs: dict of args (they must exist into child object)
         :param service: child obect
         :return: object
-        """
-
-    def if_list_auto_append(in_data, add_to, max_len):
-        """
-
-        :param in_data:
-        :param add_to:
-        :param max_len:
-
-        :return:
         """
