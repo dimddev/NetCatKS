@@ -1,14 +1,14 @@
 __author__ = 'dimd'
+
 import json
 import xmltodict
+
 from zope.interface import implementer
-from zope.interface.verify import verifyObject
 from zope.interface.exceptions import DoesNotImplement
 
 
 from NetCatKS.DProtocol.api.interfaces.actions import IBaseProtocolActionsInterface
 from NetCatKS.DProtocol.api.interfaces.storage import IProtocolStogareInterface
-from NetCatKS.DProtocol.api.interfaces.dymanic import IDynamicProtocolInterface
 from NetCatKS.DProtocol.api.public.storage import ProtocolStorage
 from NetCatKS.DProtocol.api.implementors.filters import ProtocolFiltersImplementor
 
@@ -38,9 +38,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
     def to_tdo(self, in_data):
 
-        deep = 0
-
-        def inner(apidata, indata, deep):
+        def inner(apidata, indata):
             """
 
             :param apidata:
@@ -51,7 +49,6 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
             :return: dict
             """
-            deep += 1
 
             # apidata is a dprotocol instance, predefined inside our backend as
             # DProtocol implementation in both way it inherit from BaseProtocolActions which provides
@@ -62,7 +59,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                 # so if we meet attribute from IBaseProtocolActionsInterface type means it's a sub protocol
                 # and we have to call inner
                 if IBaseProtocolActionsInterface.providedBy(getattr(apidata, k)):
-                    inner(getattr(apidata, k), indata, deep)
+                    inner(getattr(apidata, k), indata)
 
                 else:
 
@@ -89,10 +86,10 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
                                 # else we pass the iv to our inner again for more
                                 # nested structures
-                                inner(apidata, iv, deep)
-            return indata, deep
+                                inner(apidata, iv)
+            return indata
 
-        result, deep = inner(self, in_data, deep)
+        result = inner(self, in_data)
 
         return result
 
@@ -101,8 +98,16 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         :return:
         """
-        if self.id is None:
-            raise AttributeError('The session id is not assigned')
+
+        try:
+
+            if self.id is None:
+
+                raise ValueError('The session id is not assigned')
+
+        except AttributeError:
+
+            raise NotImplementedError('the storage methods works only with protocols which provide a id attribute')
 
         self.add_session(id=self.id, session=self)
         return True
@@ -113,16 +118,9 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         :return:
         """
-        try:
-            self.__storage.session.pop(self.id)
+        return False if not self.__storage.session.pop(self.id, False) else self
 
-        except KeyError:
-            return False
-
-        else:
-            return self
-
-    def to_object(self, in_dict=None, in_obj=None, **kwargs):
+    def to_object(self, in_dict=None, in_obj=None):
 
         """
 
@@ -130,6 +128,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         :param in_obj:
         :return:
         """
+
         if in_dict is None:
             return False
 
@@ -140,12 +139,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
             child_object = getattr(self, child_members)
 
-            try:
-
-                verifyObject(IBaseProtocolActionsInterface, child_object)
-
-            except DoesNotImplement:
-                # set up child
+            if not isinstance(child_object, BaseProtocolActionsImplementor):
                 setattr(self, child_members, in_dict[child_members])
 
             else:
@@ -155,9 +149,10 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                     in_obj=child_object
                 )
 
-        for members in in_dict.keys():
+        for members, members_value in in_dict.iteritems():
 
-            if type(in_dict[members]) is dict or IBaseProtocolActionsInterface.providedBy(in_dict[members]):
+            if type(members_value) is dict or isinstance(members_value, BaseProtocolActionsImplementor):
+
                 get_child(members, in_dict)
 
             else:
@@ -165,11 +160,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                 if members == '_BaseProtocolActionsImplementor__storage':
                     continue
 
-                try:
-                    setattr(self, members, in_dict[members])
-
-                except AttributeError as e:
-                    print 'MEMBERS {}, DICT {} {}'.format(members, in_dict[members], e.message)
+                setattr(self, members, members_value)
 
         return self
 
@@ -195,8 +186,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
             if members == '_BaseProtocolActionsImplementor__storage':
                 continue
 
-            if IBaseProtocolActionsInterface.providedBy(self.__dict__[members]) is True:
-
+            if isinstance(self.__dict__[members], BaseProtocolActionsImplementor) is True:
                 temp[nice_name(members)] = self.to_dict(dob=self.__dict__[members])
 
             else:
@@ -207,26 +197,20 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                 # this is not usual case and to_object will not work
 
                 if isinstance(self.__dict__[members], list):
-
                     tmp = []
 
                     for mem in self.__dict__[members]:
 
-                        if IBaseProtocolActionsInterface.providedBy(mem):
-                            # print 1111
-                            # print mem.to_dict()
+                        if isinstance(mem, BaseProtocolActionsImplementor) is True:
                             tmp.append(mem.to_dict())
 
                     if tmp:
-
                         temp[nice_name(members)] = tmp
 
                     else:
-
                         temp[nice_name(members)] = self.__dict__[members]
 
                 else:
-
                     temp[nice_name(members)] = self.__dict__[members]
 
         return temp
@@ -246,6 +230,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
             return json.dumps(self.to_dict())
 
     def to_xml(self, in_dict=None):
+
         """
 
         Convert dict to xml
@@ -254,12 +239,16 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         :return: xml
         """
+
         try:
 
-            return xmltodict.unparse(in_dict or self.to_dict())
+            xml = xmltodict.unparse(in_dict or self.to_dict())
 
-        except Exception as e:
-            print e.message
+        except ValueError as e:
+            raise ValueError(e.message)
+
+        else:
+            return xml
 
     def get_session(self, **kwargs):
 
@@ -269,24 +258,11 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         :return:
         """
 
-        if 'id' in kwargs and kwargs['id']:
-
-            try:
-
-                session = self.__storage.session.pop(kwargs.get('id'), False)
-
-            except KeyError as e:
-
-                print('TICKET WITH ID {} DOES NOT EXIST IN TICKET STORAGE'.format(e))
-                return False
-
-            else:
-
-                return session
+        if 'id' in kwargs and kwargs.get('id'):
+            return self.__storage.session.pop(kwargs.get('id'), False)
 
         else:
-
-            return False
+            raise AttributeError('Incorrect configure, the id is a required argument')
 
     def add_session(self, **kwargs):
         """
@@ -297,28 +273,22 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         if 'id' in kwargs and 'session' in kwargs:
 
-            if kwargs.get('id') in self.__storage.session:
+            _id = kwargs.get('id')
+
+            if _id in self.__storage.session:
                 return False
 
-            try:
+            session = kwargs.get('session')
 
-                session = kwargs.get('session')
+            if not isinstance(session, BaseProtocolActionsImplementor) is True:
+                raise AttributeError('Incorrect configure, you must pass a DProtocol implementation as session argument')
 
-                if not IDynamicProtocolInterface.providedBy(session):
-                    raise Exception('Incorrect configure, you must pass DProtocol implementation as session argument')
+            self.__storage.session[_id] = session
 
-                self.__storage.session[kwargs.get('id')] = kwargs.get('session')
-
-            except Exception as e:
-                print e.message
-                return False
-
-            else:
-                return self
+            return self
 
         else:
-
-            raise AttributeError('Incorrect configure, id and session are required argument')
+            raise AttributeError('Incorrect configure, the id and a session are required arguments')
 
     def get_storage(self):
 
@@ -343,11 +313,11 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         :param storage:
         :return:
         """
-        try:
-            verifyObject(IProtocolStogareInterface, storage)
+        if not IProtocolStogareInterface.providedBy(storage):
 
-        except DoesNotImplement as e:
-            print e
+            raise DoesNotImplement(
+                'A storage {} does not implement IProtocolStogareInterface'.format(storage)
+            )
 
         else:
             return storage
@@ -374,7 +344,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                 setattr(service, k, kwargs[k])
 
             else:
-                raise Exception('Incorrect configure for {}, key: {}'.format(service, k))
+                raise AttributeError('Incorrect configure for {}, key: {}'.format(service, k))
 
         # if user are passed correct service attributes, they are set
         # otherwise just return requested service without changes

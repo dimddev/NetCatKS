@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from setuptools import setup, find_packages
 
 setup(
@@ -10,6 +9,7 @@ setup(
     author_email = 'targolini@gmail.com',
     url = 'https://github.com/dimddev/NetCatKS',
     packages=find_packages(),
+    test_suite='NetCatKS',
     classifiers = [
         # How mature is this project? Common values are
         #   3 - Alpha
