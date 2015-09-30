@@ -2,8 +2,8 @@ __author__ = 'dimd'
 
 from NetCatKS.NetCAT.api.interfaces.twisted.protocols.linereceiver import IDefaultLineReceiver
 
-from NetCatKS.Dispatcher import IDispatcher, IJSONResource, IXMLResourceAPI, IXMLResource
-from NetCatKS.Validators import Validator, IValidator
+from NetCatKS.Dispatcher import IDispatcher, DispathcherResultHelper
+from NetCatKS.Validators import Validator
 from NetCatKS.Logger import Logger
 
 from twisted.protocols.basic import LineReceiver
@@ -30,27 +30,10 @@ class DefaultLineReceiver(LineReceiver):
         self.__logger.info('Received line: {}'.format(line))
 
         result = IDispatcher(Validator(line)).dispatch()
+        result_helper = DispathcherResultHelper(result)
 
-        if IValidator.providedBy(result):
-
-            self.__logger.warning('TCP Message is invalid: {}'.format(result.message))
-            self.transport.loseConnection()
-
-        else:
-
-            if result:
-
-                self.__logger.info('Response: {}'.format(result))
-
-                if IJSONResource.providedBy(result):
-
-                    self.sendLine(result.to_json())
-
-                elif IXMLResource.providedBy(result):
-
-                    self.sendLine(str(result.to_xml()))
-
-            else:
-
-                self.__logger.warning('TCP: This message was not be dispatched')
-                self.transport.loseConnection()
+        result_helper.result_validation(
+            self.sendLine,
+            self.transport.loseConnection,
+            'TCP'
+        )

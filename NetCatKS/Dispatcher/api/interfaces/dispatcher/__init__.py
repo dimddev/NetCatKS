@@ -10,3 +10,15 @@ class IDispatcher(Interface):
         Dispatch current message to actual factory
         :return:
         """
+
+
+class IDispathcherResultHelper(Interface):
+
+    def result_validation(self, sender, drop):
+        """
+
+        :param sender:
+        :param drop:
+        :return:
+        """
+

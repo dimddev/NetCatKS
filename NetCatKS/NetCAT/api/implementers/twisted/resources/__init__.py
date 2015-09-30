@@ -9,7 +9,7 @@ from NetCatKS.Logger import Logger
 from zope.interface import classImplementsOnly
 from zope.component import adapts, getGlobalSiteManager
 
-from NetCatKS.Dispatcher import IDispatcher, IJSONResource, IXMLResource
+from NetCatKS.Dispatcher import IDispatcher, IJSONResource, IXMLResource, DispathcherResultHelper
 from NetCatKS.Validators import Validator, IValidator
 
 
@@ -52,27 +52,8 @@ class BaseWebMethods(object):
         """
 
         result = IDispatcher(Validator(request.content.read())).dispatch()
-
-        if IValidator.providedBy(result):
-            self.__logger.warning('WEB Message is invalid: {}'.format(result.message))
-            return 'message is invalid'
-
-        else:
-
-            if result:
-
-                if IJSONResource.providedBy(result):
-
-                    return result.to_json()
-
-                elif IXMLResource.providedBy(result):
-
-                    return str(result.to_xml())
-
-            else:
-
-                self.__logger.warning('WEB: This message was not be dispatched')
-                return ''
+        result_response = DispathcherResultHelper(result)
+        return result_response.result_validation(None, None, 'WEB')
 
 
 class DefaultWebResource(Resource):
@@ -92,7 +73,7 @@ class DefaultWebResource(Resource):
         base = BaseWebMethods()
         self.__logger = Logger()
 
-        for meth in factory.config.get('WEB_METHODS'):
+        for meth in factory.config.get('http_methods'):
 
             try:
 

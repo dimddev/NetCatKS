@@ -8,6 +8,7 @@ from zope.interface.verify import verifyObject
 from NetCatKS.Dispatcher.api.public import IDispatcher, IJSONResourceSubscriber, IJSONResourceAPI, IJSONResource
 from NetCatKS.Dispatcher.api.public import IXMLResourceSubscriber, IXMLResourceAPI, IXMLResource
 from NetCatKS.Validators.api.public import IValidator, ValidatorResponse
+from NetCatKS.Dispatcher.api.public import IDispathcherResultHelper
 from NetCatKS.Logger import Logger
 
 
@@ -172,6 +173,53 @@ class Dispatcher(object):
                     IXMLResourceAPI,
                     IXMLResource
                 )
+
+
+@implementer(IDispathcherResultHelper)
+class DispathcherResultHelper(object):
+
+    def __init__(self, factory):
+        self.__logger = Logger()
+        self.factory = factory
+
+    def result_validation(self, sender=None, drop=None, section='TCP'):
+
+        if IValidator.providedBy(self.factory):
+
+            self.__logger.warning('{} Message is invalid: {}'.format(section, self.factory.message))
+
+            if drop is not None:
+                drop()
+
+            else:
+                return 'message is invalid'
+
+        else:
+
+            if self.factory:
+
+                self.__logger.info('{} Response: {}'.format(section, self.factory))
+
+                if IJSONResource.providedBy(self.factory):
+
+                    if sender is not None:
+                        sender(self.factory.to_json())
+
+                    else:
+                        return self.factory.to_json()
+
+                elif IXMLResource.providedBy(self.factory):
+
+                    if sender is not None:
+                        sender(str(self.factory.to_xml()))
+
+                    else:
+                        return str(self.factory.to_xml())
+
+            else:
+
+                self.__logger.warning('{}: This message was not be dispatched'.format(section))
+                drop()
 
 gsm = getGlobalSiteManager()
 gsm.registerAdapter(Dispatcher)

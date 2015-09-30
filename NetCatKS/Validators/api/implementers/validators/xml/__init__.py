@@ -23,7 +23,6 @@ class XMLValidator(BaseValidator):
             __xml = etree.fromstring(self.validate_msg.message)
 
         except Exception as e:
-            print e.message
             return self
 
         else:

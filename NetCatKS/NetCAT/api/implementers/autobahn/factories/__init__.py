@@ -3,12 +3,14 @@ __author__ = 'dimd'
 from autobahn.wamp.types import ComponentConfig
 from autobahn.websocket.protocol import parseWsUrl
 from autobahn.twisted.websocket import WampWebSocketClientFactory
+
 from twisted.internet import reactor
 from twisted.internet.endpoints import clientFromString
 from twisted.application import service
 
 from NetCatKS.Logger import Logger
 from NetCatKS.NetCAT.api.public import IDefaultAutobahnFactory
+from NetCatKS.NetCAT.api.implementers.autobahn.factories.ws import DefaultWSFactory
 
 from zope.interface import implementer
 
@@ -81,18 +83,19 @@ class AutobahnDefaultFactory(service.Service):
             self.logger.warning('Config is not provided failback to defaults')
 
             self.config.update({
-                'WS_PROTO': 'ws',
-                'WS_IP': 'localhost',
-                'WS_PORT': 8080, # integer
-                'WS_REALM': 'realm1',
-                'WS_PATH': 'ws',
-                'WS_RETRY_INTERVAL': 2,  # in seconds
-                'WS_URL': u'ws://localhost:8080/ws'
+                'protocol': 'wss',
+                'hostname': 'localhost',
+                'port': 8080, # integer
+                'realm': 'realm1',
+                'path': 'ws',
+                'retry_interval': 2,  # in seconds
+                'url': u'ws://localhost:8080/ws',
+                'service_name': 'A Default WAMP Service name"'
             })
 
-        self.url = kwargs.get('url', self.config.get('WS_URL'))
+        self.url = kwargs.get('url', self.config.get('url'))
 
-        self.realm = u'{}'.format(kwargs.get('realm', self.config.get('WS_REALM')))
+        self.realm = u'{}'.format(kwargs.get('realm', self.config.get('realm')))
 
         self.extra = kwargs.get('extra', dict())
 
@@ -106,16 +109,15 @@ class AutobahnDefaultFactory(service.Service):
 
         self.make = None
 
-        self.protocol = kwargs.get('protocol', self.config.get('WS_PROTO'))
+        self.protocol = kwargs.get('protocol', self.config.get('protocol'))
 
-        self.name = kwargs.get('name', 'Default Autobahn Service')
+        self.name = kwargs.get('name', self.config.get('service_name'))
 
-        self.port = kwargs.get('port', self.config.get('WS_PORT'))
+        self.port = kwargs.get('port', self.config.get('port'))
 
-        self.host = kwargs.get('host', self.config.get('WS_IP'))
+        self.host = kwargs.get('host', self.config.get('hostname'))
 
-        self.path = kwargs.get('path', self.config.get('WS_PATH'))
-
+        self.path = kwargs.get('path', self.config.get('path'))
 
     def run(self, make):
         """
@@ -223,5 +225,6 @@ class AutobahnDefaultFactory(service.Service):
 
 __all__ = [
     'AutobahnDefaultFactory',
-    'Reconnect'
+    'Reconnect',
+    'DefaultWSFactory'
 ]

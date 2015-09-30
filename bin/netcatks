@@ -9,6 +9,8 @@ from datetime import datetime
 from colorama import Fore
 from collections import OrderedDict
 
+from NetCatKS.Config.api.implementers import TCP, WAMP, WEB, WS
+
 print Fore.RED + """
 
 _///     _//            _//      _//               _//  _//   _//    _// //
@@ -389,53 +391,39 @@ gsm.registerSubscriptionAdapter({0})
 
 def tcp_config(tcp_conf):
 
-    tcp_conf.update({'TCP': {
-        'TCP_PORT': 8484,
-        'TCP_BACK_LOG': 50,
-        'TCP_SERVICE_NAME': 'Default TCP Server'
-        }}
-     )
+    tcp = TCP()
+
+    tcp_conf.update({'TCP': tcp.to_dict()})
 
     return tcp_conf
 
 
+def ws_config(ws_conf):
+
+    ws = WS()
+
+    ws_conf.update({'WS': ws.to_dict()})
+
+    return ws_conf
+
+
 def web_config(web_conf):
 
-    web_conf.update({'WEB': {
-        'WEB_PORT': 8000,
-        'WEB_ROOT': '',
-        'WEB_NAME': 'Default WEB Server',
-        'WEB_METHODS': ['GET']
-        }}
-     )
+    web = WEB()
+
+    web_conf.update({'WEB': web.to_dict()})
 
     return web_conf
 
 
 def wamp_config(wamp_conf):
 
+    wamp = WAMP()
+
     wamp_conf.update({
 
-        'WAMP': {
-            'WS_PROTO': 'wss',
-            'WS_IP': 'localhost',
-            'WS_PORT': 8080, # integer
-            'WS_REALM': 'realm1',
-            'WS_PATH': 'ws',
-            'WS_RETRY_INTERVAL': 2,  # in seconds
-            'WS_NAME': 'Default WAMP Component',
-            'WS_USER': 'wamp_ws_user',
-            'WS_PASS': 'wamp_ws_password'
-        }
+        'WAMP': wamp.to_dict()
     })
-
-    wamp_conf.get('WAMP').update({'WS_URL': '{}://{}:{}/{}'.format(
-        wamp_conf.get('WAMP').get('WS_PROTO'),
-        wamp_conf.get('WAMP').get('WS_IP'),
-        wamp_conf.get('WAMP').get('WS_PORT'),
-        wamp_conf.get('WAMP').get('WS_PATH')
-        )}
-    )
 
     return wamp_conf
 
@@ -481,6 +469,7 @@ def create_project_tree():
         'components/wamp/rpc',
         'components/wamp/pub',
         'components/wamp/sub',
+        'components/ws'
     ]
 
     print '\n'
@@ -529,6 +518,7 @@ except IndexError:
 
     print Fore.CYAN + ':~$ netcatks init tcp' + Fore.WHITE + ' - will produce a default TCP Server'
     print Fore.CYAN + ':~$ netcatks init web' + Fore.WHITE + ' - will produce a default WEB Server'
+    print Fore.CYAN + ':~$ netcatks init ws' + Fore.WHITE + ' - will produce a default WS Server'
     print Fore.CYAN + ':~$ netcatks init wamp' + Fore.WHITE + ' - will produce a default Wamp Component'
     print Fore.CYAN + ':~$ netcatks init mixin' + Fore.WHITE + ' - will produce all together TCP and WEB Server plus Default Wamp Component'
     print Fore.CYAN + ':~$ netcatks init protocol <protocol name>' + Fore.WHITE + ' - will generate DProtocol structure or Message protocol or TDO'
@@ -550,7 +540,33 @@ except IndexError:
 
 else:
 
-    if arg == 'wamp':
+    if arg == 'ws':
+
+        __config.update(ws_config(__config))
+
+        ws_app = """
+from NetCatKS.Components import ComponentsRegistration
+from NetCatKS.NetCAT import IDefaultWSService, DefaultWSFactory
+from NetCatKS.Config import Config
+
+components = ComponentsRegistration().init()
+
+application = IDefaultWSService(
+    DefaultWSFactory(config=Config().get('WS'))
+).start()
+
+        """
+
+        with open('app.py', 'a') as app:
+
+            app.write(ws_app)
+
+        app.close()
+        save_config(__config)
+
+        successfully_response()
+
+    elif arg == 'wamp':
 
         __config.update(wamp_config(__config))
 
@@ -630,6 +646,7 @@ application = IDefaultWebService(
         __config.update(wamp_config(__config))
         __config.update(tcp_config(__config))
         __config.update(web_config(__config))
+        __config.update(ws_config(__config))
 
         mixin_app = """
 from twisted.application import service
@@ -638,6 +655,7 @@ from NetCatKS.NetCAT import IDefaultWebService, DefaultWebFactory
 from NetCatKS.Components import ComponentsRegistration
 from NetCatKS.NetCAT import DefaultFactory, IDefaultService
 from NetCatKS.NetCAT import IDefaultAutobahnService, AutobahnDefaultFactory
+from NetCatKS.NetCAT import IDefaultWSService, DefaultWSFactory
 from NetCatKS.Config import Config
 
 components = ComponentsRegistration().init()
@@ -658,6 +676,11 @@ apps = [
 
     IDefaultWebService(DefaultWebFactory(
         config=Config().get('WEB'),
+        belong_to=multi_service
+    )),
+
+    IDefaultWSService(DefaultWSFactory(
+        config=Config().get('WS'),
         belong_to=multi_service
     ))
 ]
@@ -697,4 +720,5 @@ multi_service.setServiceParent(application)
             make_protocols(proto_name)
 
     else:
-        print 'Incorrect parameter'
+
+        print 'Incorrect parameter: {}'.format(arg)
