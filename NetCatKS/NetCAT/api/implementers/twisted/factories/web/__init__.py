@@ -28,15 +28,13 @@ class DefaultWebFactory(Factory):
             self.__logger.warning('Config for IDefaultWebFactory is not provided, failback to defaults...')
 
             self.config = {
-                'WEB': {
-                    'WEB_PORT': 8000,
-                    'WEB_ROOT': '',
-                    'WEB_NAME': 'Default WEB Server',
-                    'WEB_METHODS': ['GET']
-                }
+                'port': 8000,
+                'www_root': '',
+                'service_name': 'Default WEB Server',
+                'http_methods': ['GET']
             }
 
-        self.name = kwargs.get('name', self.config.get('WEB_NAME'))
-        self.port = kwargs.get('port', self.config.get('WEB_PORT'))
-        self.methods = kwargs.get('methods', self.config.get('WEB_METHODS'))
+        self.name = kwargs.get('name', self.config.get('service_name'))
+        self.port = kwargs.get('port', self.config.get('port'))
+        self.methods = kwargs.get('methods', self.config.get('http_methods'))
         self.belong_to = kwargs.get('belong_to', False)

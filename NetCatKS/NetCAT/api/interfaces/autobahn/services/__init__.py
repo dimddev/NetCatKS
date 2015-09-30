@@ -11,7 +11,17 @@ class IDefaultAutobahnService(Interface):
         :return:
         """
 
+
+class IDefaultWSService(Interface):
+
+    def start():
+        """
+        Start default service
+        :return:
+        """
+
 __all__ = [
-    'IDefaultAutobahnService'
+    'IDefaultAutobahnService',
+    'IDefaultWSService'
 ]
 

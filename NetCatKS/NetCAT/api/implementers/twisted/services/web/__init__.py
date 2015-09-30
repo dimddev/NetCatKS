@@ -53,7 +53,7 @@ class DefaultWebService(service.Service):
         root = Resource()
 
         root.putChild(
-            self.factory.config.get('WEB_ROOT'),
+            self.factory.config.get('www_root'),
             IDefaultWebResource(self.factory)
         )
 

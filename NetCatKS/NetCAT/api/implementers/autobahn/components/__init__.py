@@ -25,7 +25,7 @@ def onConnect(self):
 
     log.info('Connecting to router...')
 
-    self.join(self.config.realm, [u'wampcra'], cfg.get('WS_USER'))
+    self.join(self.config.realm, [u'wampcra'], cfg.get('user'))
 
 
 def onChallenge(self, challenge):
@@ -38,20 +38,20 @@ def onChallenge(self, challenge):
         cfg = Config().get('WAMP')
 
         password = {
-            u'%s' % cfg.get('WS_USER'): u'%s' % cfg.get('WS_PASS')
+            u'%s' % cfg.get('user'): u'%s' % cfg.get('password')
         }
 
         if u'salt' in challenge.extra:
 
             key = auth.derive_key(
-                password[cfg.get('WS_USER')].encode('utf8'),
+                password[cfg.get('user')].encode('utf8'),
                 challenge.extra['salt'].encode('utf8'),
                 challenge.extra.get('iterations', None),
                 challenge.extra.get('keylen', None)
             )
 
         else:
-            key = password[cfg.get('WS_USER')].encode('utf8')
+            key = password[cfg.get('user')].encode('utf8')
 
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
 
@@ -75,7 +75,7 @@ class WampDefaultComponent(ApplicationSession):
 
         self.__gsm = getGlobalSiteManager()
 
-        if self.cfg.get('WAMP').get('WS_PROTO') == 'wss':
+        if self.cfg.get('WAMP').get('protocol') == 'wss':
 
             self.__logger.info('WAMP is secure, switch to wss...')
 
@@ -152,7 +152,7 @@ class WampDefaultComponent(ApplicationSession):
                 f.set_session(self)
 
         sub_topic = 'netcatks_global_subscriber_{}'.format(
-            self.cfg.get('WAMP').get('WS_NAME').lower().replace(' ', '_')
+            self.cfg.get('WAMP').get('service_name').lower().replace(' ', '_')
         )
 
         yield self.subscribe(self.subscriber_dispatcher, sub_topic)
@@ -174,7 +174,7 @@ class WampDefaultComponent(ApplicationSession):
             )
 
             reactor.callLater(
-                self.cfg.get('WAMP').get('WS_RETRY_INTERVAL'),
+                self.cfg.get('WAMP').get('retry_interval'),
                 reconnect.start,
             )
 

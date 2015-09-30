@@ -5,6 +5,7 @@ from twisted.application import service
 from NetCatKS.NetCAT.api.implementers.autobahn.components import WampDefaultComponent
 from NetCatKS.NetCAT.api.interfaces.autobahn.services import IDefaultAutobahnService
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultAutobahnFactory
+from NetCatKS.NetCAT.api.implementers.autobahn.services.ws import DefaultWSService
 
 from zope.interface import classImplementsOnly
 from zope.component import adapts
@@ -73,5 +74,6 @@ gsm.registerAdapter(DefaultAutobahnService)
 
 
 __all__ = [
-    'DefaultAutobahnService'
+    'DefaultAutobahnService',
+    'DefaultWSService'
 ]

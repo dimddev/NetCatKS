@@ -1,5 +1,5 @@
 __author__ = 'dimd'
 
-from components import *
-from factories import *
-from services import *
+from NetCatKS.NetCAT.api.implementers.autobahn.components import *
+from NetCatKS.NetCAT.api.implementers.autobahn.factories import *
+from NetCatKS.NetCAT.api.implementers.autobahn.services import *
