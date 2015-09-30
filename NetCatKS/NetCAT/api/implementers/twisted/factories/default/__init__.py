@@ -26,17 +26,15 @@ class DefaultFactory(Factory):
             self.__logger.warning('Config for IDefaultFactory is not provided, failback to defaults...')
 
             self.config = {
-                'TCP': {
-                    'TCP_PORT': 8484,
-                    'TCP_BACK_LOG': 50,
-                    'TCP_SERVICE_NAME': 'Default TCP Server'
-                }
+                'port': 8484,
+                'tcp_back_log': 50,
+                'service_name': 'Default TCP Server'
             }
 
         self.protocol = kwargs.get('protocol', DefaultLineReceiver)
 
-        self.name = kwargs.get('name', self.config.get('TCP_SERVICE_NAME'))
+        self.name = kwargs.get('name', self.config.get('service_name'))
 
-        self.port = kwargs.get('port', self.config.get('TCP_PORT'))
+        self.port = kwargs.get('port', self.config.get('port'))
 
         self.belong_to = kwargs.get('belong_to', False)
