@@ -1,6 +1,9 @@
 __author__ = 'dimd'
 
+from datetime import datetime
+
 from twisted.application import internet, service
+from twisted.internet import ssl
 
 from zope.interface import classImplementsOnly
 from zope.component import adapts
@@ -8,6 +11,9 @@ from zope.component import getGlobalSiteManager
 
 from NetCatKS.NetCAT.api.interfaces.autobahn.services import IDefaultWSService
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultWSFactory
+from NetCatKS.Logger import Logger
+
+from autobahn.twisted.websocket import listenWS
 
 
 class DefaultWSService(service.Service):
@@ -26,6 +32,18 @@ class DefaultWSService(service.Service):
         super(DefaultWSService, self).__init__()
 
         self.factory = factory
+        self.__logger = Logger()
+
+        if self.factory.ws_protocol == 'wss':
+
+            print('{} [ NetCatKS ] {} entering secure mode'.format(
+                datetime.now(), self.factory.name
+            ))
+
+            self.__ssl_context = ssl.DefaultOpenSSLContextFactory(
+                self.factory.crt_keys.get('key'),
+                self.factory.crt_keys.get('crt')
+            )
 
         if self.factory.belong_to is False:
 
@@ -43,11 +61,22 @@ class DefaultWSService(service.Service):
 
         :return:
         """
-        internet.TCPServer(
-            self.factory.port,
-            self.factory,
-            50
-        ).setServiceParent(self.service_collection)
+        if self.factory.ws_protocol == 'ws':
+
+            internet.TCPServer(
+                self.factory.port,
+                self.factory.ws_server_factory,
+                50
+            ).setServiceParent(self.service_collection)
+
+        else:
+
+            listenWS(self.factory.ws_server_factory, self.__ssl_context)
+
+            print('{} [ NetCatKS ] DefaultWSFactory starting on {} mode secure (WS over SSL)'.format(
+                datetime.now(),
+                self.factory.port
+            ))
 
         if self.factory.belong_to is False:
 
