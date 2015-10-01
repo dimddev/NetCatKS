@@ -164,6 +164,14 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         return self
 
+    def nice_name(self, in_name):
+
+        # if not in_name.startswith('__'):
+        #    raise AttributeError('attribute {} is not defined as private'.format(in_name))
+
+        temp, result = in_name.rsplit('__')
+        return result
+
     def to_dict(self, dob=None):
 
         """
@@ -177,17 +185,13 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         if dob is not None:
             self = dob
 
-        def nice_name(in_name):
-            temp, result = in_name.rsplit('__')
-            return result
-
         for members in self.__dict__:
 
             if members == '_BaseProtocolActionsImplementor__storage':
                 continue
 
             if isinstance(self.__dict__[members], BaseProtocolActionsImplementor) is True:
-                temp[nice_name(members)] = self.to_dict(dob=self.__dict__[members])
+                temp[self.nice_name(members)] = self.to_dict(dob=self.__dict__[members])
 
             else:
 
@@ -205,13 +209,13 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                             tmp.append(mem.to_dict())
 
                     if tmp:
-                        temp[nice_name(members)] = tmp
+                        temp[self.nice_name(members)] = tmp
 
                     else:
-                        temp[nice_name(members)] = self.__dict__[members]
+                        temp[self.nice_name(members)] = self.__dict__[members]
 
                 else:
-                    temp[nice_name(members)] = self.__dict__[members]
+                    temp[self.nice_name(members)] = self.__dict__[members]
 
         return temp
 

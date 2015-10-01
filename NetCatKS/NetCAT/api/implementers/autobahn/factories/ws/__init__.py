@@ -11,7 +11,7 @@ from NetCatKS.Logger import Logger
 
 
 @implementer(IDefaultWSFactory)
-class DefaultWSFactory(WebSocketServerFactory):
+class DefaultWSFactory(object):
 
     def __init__(self, **kwargs):
         """
@@ -29,21 +29,34 @@ class DefaultWSFactory(WebSocketServerFactory):
 
             self.config = {
                 'url': 'ws://localhost:8585',
-                'port': 8484,
+                'port': 8585,
                 'hostname': 'localhost',
                 'protocol': 'ws'
             }
 
-        self.protocol = kwargs.get('protocol', DefaultWSProtocol)
+        self.ws_protocol = self.config.get('protocol', 'ws')
 
         self.name = kwargs.get('name', 'DefaultWSFactory')
 
         self.port = kwargs.get('port', self.config.get('port'))
 
-        self.url = kwargs.get('port', self.config.get('url'))
+        self.url = kwargs.get('port', self.config.get('url').decode('utf8'))
 
         self.belong_to = kwargs.get('belong_to', False)
 
-        super(DefaultWSFactory, self).__init__(
+        self.ws_server_factory = WebSocketServerFactory(
             self.url
         )
+
+        if self.ws_protocol == 'wss':
+
+            key = self.config.get('keys').get('key', None)
+            crt = self.config.get('keys').get('crt', None)
+
+            if key is None or crt is None:
+                raise AttributeError('WS over SSL required attribute key and crt')
+
+            self.crt_keys = dict(key=key, crt=crt)
+
+
+        self.ws_server_factory.protocol = DefaultWSProtocol

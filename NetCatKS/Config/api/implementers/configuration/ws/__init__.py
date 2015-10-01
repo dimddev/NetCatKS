@@ -16,13 +16,7 @@ class IKeysInterface(Interface):
 
     crt = Attribute("Comments going here")
 
-    csr = Attribute("Comments going here")
-
     key = Attribute("Comments going here")
-
-    pem = Attribute("Comments going here")
-
-    pub = Attribute("Comments going here")
 
 
 @implementer(IKeysInterface)
@@ -30,15 +24,9 @@ class KeysImplementer(BaseProtocolActions):
 
     def __init__(self, **kwargs):
 
-        self.__crt = None
+        self.__crt = 'keys/server.crt'
 
-        self.__csr = None
-
-        self.__key = None
-
-        self.__pem = None
-
-        self.__pub = None
+        self.__key = 'keys/server.key'
 
     @property
     def crt(self):
@@ -49,28 +37,12 @@ class KeysImplementer(BaseProtocolActions):
         self.__crt = crt
 
     @property
-    def csr(self):
-        return self.__csr
-
-    @csr.setter
-    def csr(self, csr):
-        self.__csr = csr
-
-    @property
     def key(self):
         return self.__key
 
     @key.setter
     def key(self, key):
         self.__key = key
-
-    @property
-    def pem(self):
-        return self.__pem
-
-    @pem.setter
-    def pem(self, pem):
-        self.__pem = pem
 
     @property
     def pub(self):
