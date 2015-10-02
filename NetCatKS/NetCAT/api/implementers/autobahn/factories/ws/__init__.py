@@ -44,9 +44,7 @@ class DefaultWSFactory(object):
 
         self.belong_to = kwargs.get('belong_to', False)
 
-        self.ws_server_factory = WebSocketServerFactory(
-            self.url
-        )
+        self.ws_server_factory = WebSocketServerFactory
 
         if self.ws_protocol == 'wss':
 
@@ -59,4 +57,4 @@ class DefaultWSFactory(object):
             self.crt_keys = dict(key=key, crt=crt)
 
 
-        self.ws_server_factory.protocol = DefaultWSProtocol
+        self.ws_msg_protocol = DefaultWSProtocol

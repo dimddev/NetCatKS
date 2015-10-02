@@ -32,18 +32,19 @@ class DefaultWSService(service.Service):
         super(DefaultWSService, self).__init__()
 
         self.factory = factory
+
         self.__logger = Logger()
 
-        if self.factory.ws_protocol == 'wss':
+        self.listener = None
 
-            print('{} [ NetCatKS ] {} entering secure mode'.format(
-                datetime.now(), self.factory.name
-            ))
+        if self.factory.ws_protocol == 'wss':
 
             self.__ssl_context = ssl.DefaultOpenSSLContextFactory(
                 self.factory.crt_keys.get('key'),
                 self.factory.crt_keys.get('crt')
             )
+
+        self.setName(self.factory.name)
 
         if self.factory.belong_to is False:
 
@@ -54,7 +55,7 @@ class DefaultWSService(service.Service):
 
             self.service_collection = self.factory.belong_to
 
-    def start(self):
+    def startService(self):
 
         """
         Starting a TCP server and put to the right service collection
@@ -63,25 +64,43 @@ class DefaultWSService(service.Service):
         """
         if self.factory.ws_protocol == 'ws':
 
+            factory = self.factory.ws_server_factory(self.factory.url)
+            factory.protocol = self.factory.ws_msg_protocol
+
+            self.factory.ws_server_factory = factory
+
             internet.TCPServer(
                 self.factory.port,
-                self.factory.ws_server_factory,
+                factory,
                 50
-            ).setServiceParent(self.service_collection)
+            )
 
         else:
 
-            listenWS(self.factory.ws_server_factory, self.__ssl_context)
+            factory = self.factory.ws_server_factory(self.factory.url)
 
-            print('{} [ NetCatKS ] DefaultWSFactory starting on {} mode secure (WS over SSL)'.format(
-                datetime.now(),
-                self.factory.port
-            ))
+            factory.protocol = self.factory.ws_msg_protocol
+
+            factory.startFactory()
+
+            self.factory.ws_server_factory = factory
+
+            self.listener = listenWS(self.factory.ws_server_factory, self.__ssl_context)
 
         if self.factory.belong_to is False:
 
             return self.__application
 
+    def start(self):
+        self.setServiceParent(self.service_collection)
+
+    def stopService(self):
+
+        self.factory.ws_server_factory.stopFactory()
+
+        # if is not meaning wss server
+        if self.listener is not None:
+            self.listener.stopListening()
 
 classImplementsOnly(DefaultWSService, IDefaultWSService)
 
