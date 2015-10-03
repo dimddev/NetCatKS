@@ -67,7 +67,7 @@ class RegisterAdapters(RegisterFactories):
                 adapter_interface.__name__
             ))
 
-            self.__gsm.registerAdapter(adapter)
+            self.__gsm.registerSubscriptionAdapter(adapter)
 
         return True
 

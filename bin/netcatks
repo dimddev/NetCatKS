@@ -324,7 +324,7 @@ gsm.registerSubscriptionAdapter({0}ProtocolSubscriber)
                 __root_api = """
 from NetCatKS.Dispatcher import IJSONResource, IJSONResourceAPI
 from zope.interface import implementer
-from zope.component import adapts, getGlobalSiteManager
+from zope.component import adapts
 from NetCatKS.Logger import Logger
 
 
@@ -343,10 +343,6 @@ class {0}(object):
         self.logger.debug(self.factory.to_dict())
         return self.factory
 
-
-gsm = getGlobalSiteManager()
-
-gsm.registerSubscriptionAdapter({0})
                 """.format(proto_load.to_dict().keys()[0].capitalize())
 
                 api_path = 'components/adapters/{}'.format(protocol_name)

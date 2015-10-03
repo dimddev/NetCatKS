@@ -2,14 +2,14 @@ __author__ = 'dimd'
 
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager
-from zope.component import subscribers
+from zope.component import subscribers, createObject
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
 from NetCatKS.Components import IWAMPResource, IUserGlobalSubscriber
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
-from NetCatKS.Dispatcher import IDispatcher, IJSONResource
+from NetCatKS.Dispatcher import IDispatcher, IJSONResource, IJSONResourceAPI
 from NetCatKS.Validators import Validator, IValidator
 
 from autobahn.wamp import auth
@@ -134,22 +134,27 @@ class WampDefaultComponent(ApplicationSession):
         # registration of all classes which ends with Wamp into shared wamp session
         for x in list(self.__gsm.registeredSubscriptionAdapters()):
 
-            # only if class implements IWAMPResource will be register as RPC
-            # IWAMPResource means RPC
+            # storing wamp session inside storage
+            sr = createObject('storageregister').components
+            sr['__wamp_session__'] = self
 
             if IWAMPResource in x.required:
 
-                f = x.factory()
+                if x.factory.__name__ != 'BaseWampComponent':
 
-                self.__logger.info('Register Wamp Component: {}'.format(f.__class__.__name__))
+                    f = x.factory()
 
-                yield self.register(f)
+                    self.__logger.info('Register Wamp Component: {}'.format(f.__class__.__name__))
 
-                # here we provide wamp session to each wamp component,
-                # in this way every component can access methods like publish, call etc,
-                # which are hosted by default inside wamp session.
+                    yield self.register(f)
 
-                f.set_session(self)
+                    # here we provide wamp session to each wamp component,
+                    # in this way every component can access methods like publish, call etc,
+                    # which are hosted by default inside wamp session.
+
+                    f.set_session(self)
+
+        # for s in subscribers([])
 
         sub_topic = 'netcatks_global_subscriber_{}'.format(
             self.cfg.get('WAMP').get('service_name').lower().replace(' ', '_')

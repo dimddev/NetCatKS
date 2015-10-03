@@ -29,7 +29,6 @@ class DefaultWebService(service.Service):
         :type IDefaultWebFactory
 
         """
-        super(DefaultWebService, self).__init__()
 
         self.factory = factory
 

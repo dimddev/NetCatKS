@@ -10,6 +10,10 @@ from NetCatKS.NetCAT.api.implementers.autobahn.protocols import DefaultWSProtoco
 from NetCatKS.Logger import Logger
 
 
+class DefaultWSFactoryRunner(WebSocketServerFactory):
+    def __init__(self, *args, **kwargs):
+        super(DefaultWSFactoryRunner, self).__init__(*args, **kwargs)
+
 @implementer(IDefaultWSFactory)
 class DefaultWSFactory(object):
 
@@ -44,7 +48,7 @@ class DefaultWSFactory(object):
 
         self.belong_to = kwargs.get('belong_to', False)
 
-        self.ws_server_factory = WebSocketServerFactory
+        self.ws_server_factory = DefaultWSFactoryRunner
 
         if self.ws_protocol == 'wss':
 
@@ -52,7 +56,7 @@ class DefaultWSFactory(object):
             crt = self.config.get('keys').get('crt', None)
 
             if key is None or crt is None:
-                raise AttributeError('WS over SSL required attribute key and crt')
+                raise AttributeError('WS over SSL required attribute a key and a crt')
 
             self.crt_keys = dict(key=key, crt=crt)
 

@@ -1,5 +1,7 @@
 __author__ = 'dimd'
 
+from twisted.internet.defer import Deferred
+
 from zope.interface import implementer
 from zope.component import adapts, subscribers
 from zope.component import getGlobalSiteManager
@@ -215,6 +217,24 @@ class DispathcherResultHelper(object):
 
                     else:
                         return str(self.factory.to_xml())
+
+                elif isinstance(self.factory, Deferred):
+
+                    def deferred_response(response):
+
+                        if sender is not None:
+                            sender(response.to_json())
+
+                    def deferred_response_error(err):
+
+                        self.__logger.error('Cannot send message to user: {}'.format(
+                            err
+                        ))
+
+                        return False
+
+                    self.factory.addCallback(deferred_response)
+                    self.factory.addErrback(deferred_response_error)
 
             else:
 

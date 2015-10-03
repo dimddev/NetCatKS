@@ -34,8 +34,6 @@ class DefaultAutobahnService(service.Service):
         :return:
         """
 
-        super(DefaultAutobahnService, self).__init__()
-
         self.factory = factory
 
         if self.factory.belong_to is False:

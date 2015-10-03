@@ -24,7 +24,6 @@ class DefaultService(service.Service):
         :type IDefaultFactory
 
         """
-        super(DefaultService, self).__init__()
 
         self.factory = factory
 
