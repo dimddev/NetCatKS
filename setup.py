@@ -2,20 +2,20 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = 'NetCatKS',
-    version = '0.1a',
-    description = 'Networking with Crossbar, Autobahn and Twisted - Kick Starter',
-    author = 'Dimitar Dimitrov',
-    author_email = 'targolini@gmail.com',
-    url = 'https://github.com/dimddev/NetCatKS',
+    name='NetCatKS',
+    version='0.1.1b',
+    description='Networking with Crossbar, Autobahn and Twisted - Kick Starter',
+    author='Dimitar Dimitrov',
+    author_email='targolini@gmail.com',
+    url='https://github.com/dimddev/NetCatKS',
     packages=find_packages(),
     test_suite='NetCatKS',
-    classifiers = [
+    classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',

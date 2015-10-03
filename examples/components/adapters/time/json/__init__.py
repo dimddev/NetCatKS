@@ -2,7 +2,7 @@ __author__ = 'dimd'
 
 from NetCatKS.Dispatcher import IJSONResource, IJSONResourceAPI
 from zope.interface import implementer
-from zope.component import adapts, getGlobalSiteManager
+from zope.component import adapts
 from NetCatKS.Logger import Logger
 
 log = Logger()
@@ -35,9 +35,3 @@ class Convert(object):
 
         self.factory.convert.id = 4200
         return self.factory
-
-
-gsm = getGlobalSiteManager()
-
-gsm.registerSubscriptionAdapter(Convert)
-gsm.registerSubscriptionAdapter(Command)

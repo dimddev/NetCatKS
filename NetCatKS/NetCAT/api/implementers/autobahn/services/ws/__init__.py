@@ -29,7 +29,6 @@ class DefaultWSService(service.Service):
         :type IDefaultFactory
 
         """
-        super(DefaultWSService, self).__init__()
 
         self.factory = factory
 
@@ -66,6 +65,7 @@ class DefaultWSService(service.Service):
 
             factory = self.factory.ws_server_factory(self.factory.url)
             factory.protocol = self.factory.ws_msg_protocol
+            factory.name = self.factory.name
 
             self.factory.ws_server_factory = factory
 
@@ -73,7 +73,7 @@ class DefaultWSService(service.Service):
                 self.factory.port,
                 factory,
                 50
-            )
+            ).setServiceParent(self.service_collection)
 
         else:
 
