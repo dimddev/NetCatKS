@@ -11,6 +11,7 @@ from twisted.application import service
 from NetCatKS.Logger import Logger
 from NetCatKS.NetCAT.api.public import IDefaultAutobahnFactory
 from NetCatKS.NetCAT.api.implementers.autobahn.factories.ws import DefaultWSFactory
+from NetCatKS.Config.api.implementers.configuration.wamp import WAMP
 
 from zope.interface import implementer
 
@@ -79,6 +80,7 @@ class AutobahnDefaultFactory(service.Service):
         if self.config is None:
 
             self.config = {}
+            wamp = WAMP()
 
             self.logger.warning('Config is not provided failback to defaults')
 
@@ -93,9 +95,11 @@ class AutobahnDefaultFactory(service.Service):
                 'service_name': 'A Default WAMP Service name"'
             })
 
-        self.url = kwargs.get('url', self.config.get('url'))
+            self.config = wamp.to_object(self.config)
 
-        self.realm = u'{}'.format(kwargs.get('realm', self.config.get('realm')))
+        self.url = kwargs.get('url', self.config.url)
+
+        self.realm = u'{}'.format(kwargs.get('realm', self.config.realm))
 
         self.extra = kwargs.get('extra', dict())
 
@@ -109,15 +113,15 @@ class AutobahnDefaultFactory(service.Service):
 
         self.make = None
 
-        self.protocol = kwargs.get('protocol', self.config.get('protocol'))
+        self.protocol = kwargs.get('protocol', self.config.protocol)
 
-        self.name = kwargs.get('name', self.config.get('service_name'))
+        self.name = kwargs.get('name', self.config.service_name)
 
-        self.port = kwargs.get('port', self.config.get('port'))
+        self.port = kwargs.get('port', self.config.port)
 
-        self.host = kwargs.get('host', self.config.get('hostname'))
+        self.host = kwargs.get('host', self.config.hostname)
 
-        self.path = kwargs.get('path', self.config.get('path'))
+        self.path = kwargs.get('path', self.config.path)
 
     def run(self, make):
         """
@@ -201,7 +205,7 @@ class AutobahnDefaultFactory(service.Service):
                     )
 
                     reactor.callLater(
-                        self.config.get('WS_RETRY_INTERVAL', 2),
+                        self.config.retry_interval,
                         reconnect.start,
                     )
 

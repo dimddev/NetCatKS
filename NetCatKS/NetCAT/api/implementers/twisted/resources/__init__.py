@@ -73,7 +73,7 @@ class DefaultWebResource(Resource):
         base = BaseWebMethods()
         self.__logger = Logger()
 
-        for meth in factory.config.get('http_methods'):
+        for meth in factory.config.http_methods:
 
             try:
 

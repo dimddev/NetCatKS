@@ -3,6 +3,8 @@ __author__ = 'dimd'
 from zope.component import createObject
 from zope.interface.interfaces import ComponentLookupError
 
+from NetCatKS.Config import Config
+
 
 class ComponentsRegistratorAdapter(object):
 
@@ -29,6 +31,7 @@ class ComponentsRegistratorAdapter(object):
             'validators', 'wamp'
         ]
 
+        self.config = Config()
         self.adapters_source = kwargs.get('adapters_source', 'components/adapters')
         self.factories_source = kwargs.get('factories_source', 'components/factories')
         self.protocols_source = kwargs.get('protocols_source', 'components/protocols')
@@ -77,6 +80,8 @@ class ComponentsRegistratorAdapter(object):
             else:
 
                 reg_component.register()
+
+        return self
 
 
 class ComponentsRegistration(ComponentsRegistratorAdapter):

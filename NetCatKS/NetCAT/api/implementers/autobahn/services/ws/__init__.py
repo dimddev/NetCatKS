@@ -1,7 +1,5 @@
 __author__ = 'dimd'
 
-from datetime import datetime
-
 from twisted.application import internet, service
 from twisted.internet import ssl
 
@@ -92,7 +90,11 @@ class DefaultWSService(service.Service):
             return self.__application
 
     def start(self):
+
         self.setServiceParent(self.service_collection)
+
+        if self.factory.belong_to is False:
+            return self.__application
 
     def stopService(self):
 

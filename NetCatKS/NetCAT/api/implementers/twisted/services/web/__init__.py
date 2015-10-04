@@ -20,7 +20,6 @@ class DefaultWebService(service.Service):
 
     """
     adapts(IDefaultWebFactory)
-    running = 0
 
     def __init__(self, factory):
         """
@@ -52,7 +51,7 @@ class DefaultWebService(service.Service):
         root = Resource()
 
         root.putChild(
-            self.factory.config.get('www_root'),
+            self.factory.config.www_root,
             IDefaultWebResource(self.factory)
         )
 
