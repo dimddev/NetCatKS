@@ -11,10 +11,13 @@ from zope.component import createObject
 
 @implementer(IConfig)
 class Config(object):
+
     """
     Trying to load config/config.json file and then load as JSON
     """
+
     __instance = None
+    __config = None
 
     def __new__(cls):
 
@@ -22,38 +25,50 @@ class Config(object):
 
             Config.__instance = object.__new__(cls)
 
+            try:
+
+                with open('config/config.json', 'r') as config:
+                    Config.__config = json.loads(config.read(), encoding='utf-8')
+
+            except Exception as e:
+                raise Exception('Config not found: {}'.format(e.message))
+
+            else:
+
+                config.close()
+
         return Config.__instance
 
     def __init__(self):
-
-        try:
-
-            with open('config/config.json', 'r') as config:
-
-                self.__config = json.loads(config.read(), encoding='utf-8')
-
-        except Exception as e:
-            raise Exception('Config not found: {}'.format(e.message))
-
-        else:
-
-            config.close()
-
-            __all = {}
-
-            tcp = createObject('tcp').to_dict()
-            __all['tcp'] = tcp
-
-            web = createObject('web').to_dict()
-            __all['web'] = web
-
-            wamp = createObject('wamp').to_dict()
-            __all['wamp'] = wamp
-
-            # print json.dumps(__all, indent=4)
+        pass
 
     def get(self, section):
-        return self.__config.get(section, None)
+        return self.__class__.__config.get(section, None)
+
+    @classmethod
+    def __get_section(cls, section):
+
+        proto = createObject(section)
+
+        if section.upper() in cls.__config:
+            return proto.to_object(cls.__config.get(section.upper()))
+
+    @classmethod
+    def get_tcp(cls):
+        return cls.__get_section('tcp')
+
+    @classmethod
+    def get_web(cls):
+        return cls.__get_section('web')
+
+    @classmethod
+    def get_wamp(cls):
+        return cls.__get_section('wamp')
+
+
+    @classmethod
+    def get_ws(cls):
+        return cls.__get_section('ws')
 
 
 __all__ = [

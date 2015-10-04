@@ -7,6 +7,7 @@ from autobahn.twisted.websocket import WebSocketServerFactory
 
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultWSFactory
 from NetCatKS.NetCAT.api.implementers.autobahn.protocols import DefaultWSProtocol
+from NetCatKS.Config.api.implementers.configuration.ws import WS
 from NetCatKS.Logger import Logger
 
 
@@ -29,6 +30,8 @@ class DefaultWSFactory(object):
 
         if self.config is None:
 
+            ws = WS()
+
             self.__logger.warning('Config for IDefaultFactory is not provided, failback to defaults...')
 
             self.config = {
@@ -38,13 +41,15 @@ class DefaultWSFactory(object):
                 'protocol': 'ws'
             }
 
-        self.ws_protocol = self.config.get('protocol', 'ws')
+            self.config = ws.to_object(self.config)
+
+        self.ws_protocol = self.config.protocol
 
         self.name = kwargs.get('name', 'DefaultWSFactory')
 
-        self.port = kwargs.get('port', self.config.get('port'))
+        self.port = kwargs.get('port', self.config.port)
 
-        self.url = kwargs.get('port', self.config.get('url').decode('utf8'))
+        self.url = kwargs.get('port', self.config.url)
 
         self.belong_to = kwargs.get('belong_to', False)
 
@@ -52,13 +57,12 @@ class DefaultWSFactory(object):
 
         if self.ws_protocol == 'wss':
 
-            key = self.config.get('keys').get('key', None)
-            crt = self.config.get('keys').get('crt', None)
+            key = self.config.keys.key
+            crt = self.config.keys.crt
 
             if key is None or crt is None:
                 raise AttributeError('WS over SSL required attribute a key and a crt')
 
             self.crt_keys = dict(key=key, crt=crt)
-
 
         self.ws_msg_protocol = DefaultWSProtocol

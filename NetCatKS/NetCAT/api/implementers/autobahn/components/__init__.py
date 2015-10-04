@@ -20,12 +20,12 @@ from twisted.internet import reactor
 
 def onConnect(self):
 
-    cfg = Config().get('WAMP')
+    cfg = Config().get_wamp()
     log = Logger()
 
     log.info('Connecting to router...')
 
-    self.join(self.config.realm, [u'wampcra'], cfg.get('user'))
+    self.join(self.config.realm, [u'wampcra'], cfg.user)
 
 
 def onChallenge(self, challenge):
@@ -35,23 +35,23 @@ def onChallenge(self, challenge):
 
     if challenge.method == u"wampcra":
 
-        cfg = Config().get('WAMP')
+        cfg = Config().get_wamp()
 
         password = {
-            u'%s' % cfg.get('user'): u'%s' % cfg.get('password')
+            u'%s' % cfg.user: u'%s' % cfg.password
         }
 
         if u'salt' in challenge.extra:
 
             key = auth.derive_key(
-                password[cfg.get('user')].encode('utf8'),
+                password[cfg.user].encode('utf8'),
                 challenge.extra['salt'].encode('utf8'),
                 challenge.extra.get('iterations', None),
                 challenge.extra.get('keylen', None)
             )
 
         else:
-            key = password[cfg.get('user')].encode('utf8')
+            key = password[cfg.user].encode('utf8')
 
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
 
@@ -71,11 +71,11 @@ class WampDefaultComponent(ApplicationSession):
         super(WampDefaultComponent, self).__init__(config)
 
         self.__logger = Logger()
-        self.cfg = Config()
+        self.cfg = Config().get_wamp()
 
         self.__gsm = getGlobalSiteManager()
 
-        if self.cfg.get('WAMP').get('protocol') == 'wss':
+        if self.cfg.protocol == 'wss':
 
             self.__logger.info('WAMP is secure, switch to wss...')
 
@@ -157,7 +157,7 @@ class WampDefaultComponent(ApplicationSession):
         # for s in subscribers([])
 
         sub_topic = 'netcatks_global_subscriber_{}'.format(
-            self.cfg.get('WAMP').get('service_name').lower().replace(' ', '_')
+            self.cfg.service_name.lower().replace(' ', '_')
         )
 
         yield self.subscribe(self.subscriber_dispatcher, sub_topic)
@@ -175,11 +175,11 @@ class WampDefaultComponent(ApplicationSession):
             reconnect = Reconnect(
                 session=WampDefaultComponent,
                 runner=AutobahnDefaultFactory,
-                config=self.cfg.get('WAMP')
+                config=self.cfg
             )
 
             reactor.callLater(
-                self.cfg.get('WAMP').get('retry_interval'),
+                self.cfg.retry_interval,
                 reconnect.start,
             )
 
