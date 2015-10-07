@@ -154,9 +154,7 @@ from __future__ import absolute_import
 __author__ = 'NetCatKS auto generator at {}'
 
 from zope.interface import Interface, Attribute, implementer
-from zope.component import getGlobalSiteManager
 
-from NetCatKS.DProtocol import BaseProtocolActions, DProtocolSubscriber
 from NetCatKS.Dispatcher import IJSONResource
     """.format(str(datetime.now()))
 
@@ -243,22 +241,6 @@ class {0}Protocol({0}Implementer):
             """.format(proto)
 
             __all.append(__main_proto)
-
-            __main_proto_subs = """
-
-class {0}ProtocolSubscriber(DProtocolSubscriber):
-
-    def __init__(self, adapter):
-
-        self.adapter = adapter
-        self.protocol = {0}Protocol()
-
-
-gsm = getGlobalSiteManager()
-gsm.registerSubscriptionAdapter({0}ProtocolSubscriber)
-            """.format(proto)
-
-            __all.append(__main_proto_subs)
 
     to_str = ''
 

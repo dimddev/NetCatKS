@@ -70,17 +70,28 @@ class RegisterFactories(object):
 
             if obj_interface is IJSONResource:
 
-                def __init(self, adapter):
-                    self.adapter = adapter
+                try:
 
-                __klass = type(
-                    'DynamicAdapter{}'.format(obj.__name__),
-                    (DProtocolSubscriber, ),
-                    {'__init__': __init}
-                )
+                    subscribe_me = getattr(obj(), 'subscribe_me')()
 
-                setattr(__klass, 'protocol', obj())
-                self.__gsm.registerSubscriptionAdapter(__klass, [IValidatorResponse])
+                except AttributeError:
+                    pass
+
+                else:
+
+                    def __init(self, adapter):
+                        self.adapter = adapter
+
+                    if subscribe_me is True:
+
+                        __klass = type(
+                            'DynamicAdapter{}'.format(obj.__name__),
+                            (DProtocolSubscriber, ),
+                            {'__init__': __init, 'protocol': None}
+                        )
+
+                        setattr(__klass, 'protocol', obj())
+                        self.__gsm.registerSubscriptionAdapter(__klass, [IValidatorResponse])
 
             # NETODO to be checked and removed is needed
             # reg_name = obj.__name__.lower().replace(self.file_loader.prefix.lower(), '')
