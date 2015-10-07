@@ -101,6 +101,9 @@ class WampDefaultComponent(ApplicationSession):
 
         except Exception as e:
 
+            # import traceback
+            # print(traceback.format_exc())
+
             log.warning('subscriber_dispatcher exception: {}'.format(
                 e.message
             ))
