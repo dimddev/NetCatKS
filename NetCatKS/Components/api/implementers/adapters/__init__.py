@@ -16,7 +16,6 @@ class WampSessionProvider(object):
             '__wamp_session__', False
         )
 
-
 @implementer(IDynamicAdapterFactory)
 class DynamicAdapterFactory(object):
 
