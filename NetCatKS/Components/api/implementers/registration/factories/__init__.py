@@ -11,8 +11,10 @@ from zope.component.interfaces import IFactory
 from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactories
 from NetCatKS.Components.common.loaders import BaseLoader
 from NetCatKS.Components.api.interfaces import IUserStorage, IUserFactory
+from NetCatKS.Validators import IValidatorResponse
+from NetCatKS.DProtocol import DProtocolSubscriber
 from NetCatKS.Logger import Logger
-
+from NetCatKS.Dispatcher import IJSONResource
 
 @implementer(IRegisterFactories)
 class RegisterFactories(object):
@@ -65,6 +67,20 @@ class RegisterFactories(object):
                 str(datetime.now()), obj.__name__,
                 obj_interface.__name__
             ))
+
+            if obj_interface is IJSONResource:
+
+                def __init(self, adapter):
+                    self.adapter = adapter
+
+                __klass = type(
+                    'DynamicAdapter{}'.format(obj.__name__),
+                    (DProtocolSubscriber, ),
+                    {'__init__': __init}
+                )
+
+                setattr(__klass, 'protocol', obj())
+                self.__gsm.registerSubscriptionAdapter(__klass, [IValidatorResponse])
 
             # NETODO to be checked and removed is needed
             # reg_name = obj.__name__.lower().replace(self.file_loader.prefix.lower(), '')
