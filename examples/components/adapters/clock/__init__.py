@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from NetCatKS.Dispatcher import IJSONResource, IJSONResourceAPI
 from NetCatKS.Logger import Logger
-from NetCatKS.Components import WampSessionProvider
+from NetCatKS.Components import WampSessionProvider, IJSONResource, IJSONResourceAPI
 
 from zope.interface import implementer
 from zope.component import adapts

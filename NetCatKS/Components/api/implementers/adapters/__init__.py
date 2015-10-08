@@ -1,11 +1,42 @@
 __author__ = 'dimd'
 
 from NetCatKS.Components.api.implementers.default import DefaultAdapter
-from NetCatKS.Components.api.interfaces.adapters import IDynamicAdapterFactory
+from NetCatKS.Components.api.interfaces.adapters import IDynamicAdapterFactory, IRequestSubscriber
 
-from zope.component import adapter, createObject
+from zope.component import adapter, createObject, adapts
 from zope.component import getGlobalSiteManager
 from zope.interface import implementer
+
+from NetCatKS.Components.api.interfaces.adapters import IJSONResourceRootAPI, IJSONResourceAPI
+from NetCatKS.Components.api.interfaces.loaders import IJSONResource
+
+
+@implementer(IJSONResourceAPI)
+class BaseAPI(object):
+
+    adapts(IJSONResource)
+
+    def __init__(self, factory):
+        self.factory = factory
+
+
+@implementer(IJSONResourceRootAPI)
+class BaseRootAPI(object):
+
+    adapts(IJSONResource)
+
+    def __init__(self, factory):
+        self.factory = factory
+
+    def process_factory(self):
+        raise NotImplemented
+
+
+@implementer(IRequestSubscriber)
+class RequestSubscriber(object):
+
+    def subscribe_me(self):
+        return True
 
 
 class WampSessionProvider(object):

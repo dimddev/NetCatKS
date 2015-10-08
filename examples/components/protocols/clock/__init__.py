@@ -6,8 +6,8 @@ __author__ = 'NetCatKS auto generator at 2015-10-02 16:03:11.224681'
 from zope.interface import Interface, Attribute, implementer
 from zope.component import getGlobalSiteManager
 
-from NetCatKS.DProtocol import BaseProtocolActions, DProtocolSubscriber
-from NetCatKS.Dispatcher import IJSONResource
+from NetCatKS.DProtocol import BaseProtocolActions
+from NetCatKS.Components import IJSONResource, RequestSubscriber
     
 
 class ITimeInterface(Interface):
@@ -32,20 +32,8 @@ class TimeImplementer(BaseProtocolActions):
             
 
 @implementer(IJSONResource)
-class TimeProtocol(TimeImplementer):
+class TimeProtocol(TimeImplementer, RequestSubscriber):
 
     def __init__(self, **kwargs):
 
         super(TimeProtocol, self).__init__(**kwargs)
-            
-
-class TimeProtocolSubscriber(DProtocolSubscriber):
-
-    def __init__(self, adapter):
-
-        self.adapter = adapter
-        self.protocol = TimeProtocol()
-
-
-gsm = getGlobalSiteManager()
-gsm.registerSubscriptionAdapter(TimeProtocolSubscriber)

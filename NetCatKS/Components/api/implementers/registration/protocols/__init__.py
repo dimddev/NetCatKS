@@ -2,7 +2,7 @@ __author__ = 'dimd'
 
 from NetCatKS.Components.api.interfaces.registration.protocols import IRegisterProtocols
 from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
-from NetCatKS.Dispatcher.api.interfaces import IJSONResource
+from NetCatKS.Components.api.interfaces import IJSONResource
 
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager

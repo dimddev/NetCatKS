@@ -1,6 +1,7 @@
 __author__ = 'dimd'
 
 from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory, WampSessionProvider
+from NetCatKS.Components.api.implementers.adapters import RequestSubscriber, BaseAPI, BaseRootAPI
 from NetCatKS.Components.api.implementers.default import DefaultAdapter
 from NetCatKS.Components.api.implementers.registration.adapters import RegisterAdapters
 from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
@@ -20,5 +21,8 @@ __all__ = [
     'StorageRegister',
     'RegisterWamp',
     'BaseWampComponent',
-    'WampSessionProvider'
+    'WampSessionProvider',
+    'RequestSubscriber',
+    'BaseAPI',
+    'BaseRootAPI'
 ]

@@ -2,8 +2,7 @@ __author__ = 'dimd'
 
 from zope.component import createObject
 from zope.interface.interfaces import ComponentLookupError
-
-from NetCatKS.Config import Config
+from NetCatKS.Config.api.implementers import Config
 
 
 class ComponentsRegistratorAdapter(object):

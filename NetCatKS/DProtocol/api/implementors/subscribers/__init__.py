@@ -6,7 +6,8 @@ import json
 from zope.component import adapts
 from zope.interface import implementer, classImplementsOnly
 
-from NetCatKS.Dispatcher import IJSONResourceSubscriber, IXMLResourceSubscriber, IBaseResourceSubscriber
+from NetCatKS.DProtocol.api.interfaces.subscribers import IBaseResourceSubscriber, IJSONResourceSubscriber
+from NetCatKS.DProtocol.api.interfaces.subscribers import IXMLResourceSubscriber
 from NetCatKS.Validators import IValidatorResponse
 from NetCatKS.Logger import Logger
 

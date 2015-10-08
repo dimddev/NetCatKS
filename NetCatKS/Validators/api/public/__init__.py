@@ -1,14 +1,13 @@
 __author__ = 'dimd'
 
-from ..implementers import *
-from ..interfaces import *
+from NetCatKS.Validators.api.implementers import *
+from NetCatKS.Validators.api.interfaces import *
 
 __all__ = [
     'Validator',
     'ValidatorResponse',
     'IValidatorResponse',
     'BaseValidator',
-    'HTMLValidator',
     'JSONValidator',
     'XMLValidator',
     'IMessage',

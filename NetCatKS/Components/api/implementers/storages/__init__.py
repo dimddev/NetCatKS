@@ -1,6 +1,6 @@
 __author__ = 'dimd'
 
-from ....api.interfaces.storages import IStorageRegister
+from NetCatKS.Components.api.interfaces.storages import IStorageRegister
 
 from zope.interface import implementer
 from zope.component.factory import Factory

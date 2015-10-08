@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 __author__ = 'dimd'
 
 from datetime import datetime
@@ -14,7 +16,8 @@ from NetCatKS.Components.api.interfaces import IUserStorage, IUserFactory
 from NetCatKS.Validators import IValidatorResponse
 from NetCatKS.DProtocol import DProtocolSubscriber
 from NetCatKS.Logger import Logger
-from NetCatKS.Dispatcher import IJSONResource
+from NetCatKS.Components.api.interfaces import IJSONResource
+
 
 @implementer(IRegisterFactories)
 class RegisterFactories(object):

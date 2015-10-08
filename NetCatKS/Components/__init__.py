@@ -22,5 +22,8 @@ __all__ = [
     'BaseLoader',
     'IRegisterWamp',
     'RegisterWamp',
-    'IWAMPResource'
+    'IWAMPResource',
+    'IJSONResourceRootAPI',
+    'IJSONResourceAPI',
+    'IJSONResource'
 ]

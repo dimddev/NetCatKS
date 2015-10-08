@@ -1,4 +1,4 @@
 __author__ = 'dimd'
 
-from ..interfaces import *
-from ..implementers import *
+from NetCatKS.NetCAT.api.interfaces import *
+from NetCatKS.NetCAT.api.implementers import *

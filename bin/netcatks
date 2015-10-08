@@ -155,7 +155,8 @@ __author__ = 'NetCatKS auto generator at {}'
 
 from zope.interface import Interface, Attribute, implementer
 
-from NetCatKS.Dispatcher import IJSONResource
+from NetCatKS.DProtocol import BaseProtocolActions
+from NetCatKS.Components import IJSONResource, RequestSubscriber
     """.format(str(datetime.now()))
 
     __all.append(head)
@@ -233,7 +234,7 @@ class {}Implementer(BaseProtocolActions):
             __main_proto = """
 
 @implementer(IJSONResource)
-class {0}Protocol({0}Implementer):
+class {0}Protocol({0}Implementer, RequestSubscriber):
 
     def __init__(self, **kwargs):
 
@@ -304,21 +305,15 @@ class {0}Protocol({0}Implementer):
 
             else:
                 __root_api = """
-from NetCatKS.Dispatcher import IJSONResource, IJSONResourceAPI
 from NetCatKS.Logger import Logger
+from NetCatKS.Components import BaseAPI
 
-from zope.interface import implementer
-from zope.component import adapts
-
-
-@implementer(IJSONResourceAPI)
-class {0}(object):
-
-    adapts(IJSONResource)
+class {0}(BaseAPI):
 
     def __init__(self, factory):
 
-        self.factory = factory
+        super({0}, self).__init__(factory)
+
         self.logger = Logger()
 
     def process_factory(self):
@@ -326,7 +321,7 @@ class {0}(object):
         self.logger.debug(self.factory.to_dict())
         return self.factory
 
-                """.format(proto_load.to_dict().keys()[0].capitalize())
+                """.format(protocol_name.capitalize())
 
                 api_path = 'components/adapters/{}'.format(protocol_name)
 
@@ -411,8 +406,7 @@ def global_sub():
 
     gsub = """
 
-from NetCatKS.Components.api import IUserGlobalSubscriber
-from NetCatKS.Dispatcher import IJSONResource
+from NetCatKS.Components.api import IUserGlobalSubscriber, IJSONResource
 
 from zope.interface import implementer
 from zope.component import adapts

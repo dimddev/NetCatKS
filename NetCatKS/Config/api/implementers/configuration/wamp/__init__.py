@@ -5,7 +5,7 @@ from zope.component import getGlobalSiteManager
 from zope.component.factory import Factory
 from zope.component.interfaces import IFactory
 
-from NetCatKS.DProtocol import BaseProtocolActions
+from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
 from NetCatKS.Config.api.interfaces import IWamp
 
 

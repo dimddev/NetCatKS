@@ -1,8 +1,13 @@
 __author__ = 'dimd'
 
-from implementers import *
+from NetCatKS.Config.api.implementers.configuration import TCP, WS, WAMP, WEB
+from NetCatKS.Config.api.implementers import Config
 
 
 __all__ = [
-    'Config'
+    'Config',
+    'TCP',
+    'WEB',
+    'WAMP',
+    'WS'
 ]

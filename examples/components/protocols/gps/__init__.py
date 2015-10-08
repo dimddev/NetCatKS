@@ -1,9 +1,9 @@
 __author__ = 'dimd'
 
 from zope.interface import Interface, Attribute, implementer
-from zope.component import getGlobalSiteManager
 
-from NetCatKS.DProtocol import BaseProtocolActions, DynamicProtocol, DProtocolSubscriber
+from NetCatKS.DProtocol import BaseProtocolActions, DynamicProtocol
+from NetCatKS.Components import RequestSubscriber
 
 
 class IGPSUser(Interface):
@@ -104,22 +104,11 @@ class GPSProtocolImplementer(DynamicProtocol):
         self.__coordinates = self.public_setter(kwargs, self.__coordinates)
 
 
-class GPSProtocol(GPSProtocolImplementer):
+class GPSProtocol(GPSProtocolImplementer, RequestSubscriber):
 
     def __init__(self, **kwargs):
 
         super(GPSProtocol, self).__init__(**kwargs)
-
-
-class GPSProtocolSubscriber(DProtocolSubscriber):
-
-    def __init__(self, adapter):
-        self.adapter = adapter
-        self.protocol = GPSProtocol()
-
-
-gsm = getGlobalSiteManager()
-gsm.registerSubscriptionAdapter(GPSProtocolSubscriber)
 
 __all__ = [
     'IGPSUser',

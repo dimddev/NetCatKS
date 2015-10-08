@@ -1,7 +1,7 @@
 __author__ = 'dimd'
 
-from ....interfaces.message import IMessage
-from ..default import BaseValidator
+from NetCatKS.Validators.api.interfaces.message import IMessage
+from NetCatKS.Validators.api.implementers.validators.default import BaseValidator
 
 from zope.component import adapts
 from zope.component import getGlobalSiteManager

@@ -6,7 +6,7 @@ from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
 from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
 from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory
 from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
-from NetCatKS.Dispatcher.api.interfaces import IJSONResourceAPI
+from NetCatKS.Components.api.interfaces import IJSONResourceAPI
 
 from NetCatKS.Components.common.loaders import BaseLoader
 from NetCatKS.Components.common.factory import get_factory_objects

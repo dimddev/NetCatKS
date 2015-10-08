@@ -4,7 +4,6 @@ from NetCatKS.Validators.api.interfaces.validators import IValidator, IValidator
 from NetCatKS.Validators.api.implementers.message import Message
 
 from NetCatKS.Validators.api.implementers.validators.default import BaseValidator
-from NetCatKS.Validators.api.implementers.validators.html import HTMLValidator
 from NetCatKS.Validators.api.implementers.validators.json import JSONValidator
 from NetCatKS.Validators.api.implementers.validators.xml import XMLValidator
 
@@ -75,7 +74,6 @@ __all__ = [
     'Validator',
     'ValidatorResponse',
     'BaseValidator',
-    'HTMLValidator',
     'JSONValidator',
     'XMLValidator'
 ]

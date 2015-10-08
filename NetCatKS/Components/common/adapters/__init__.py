@@ -1,7 +1,7 @@
 __author__ = 'dimd'
 
 from zope.interface import alsoProvides
-from ...api.interfaces.virtual import IVirtualAdapter
+from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
 
 
 class AdapterProxyGetter(object):
