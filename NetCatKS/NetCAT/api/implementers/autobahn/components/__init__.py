@@ -6,10 +6,10 @@ from zope.component import subscribers, createObject
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
-from NetCatKS.Components import IWAMPResource, IUserGlobalSubscriber
+from NetCatKS.Components import IWAMPResource, IUserGlobalSubscriber, IJSONResource
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
-from NetCatKS.Dispatcher import IDispatcher, IJSONResource, IJSONResourceAPI
+from NetCatKS.Dispatcher import IDispatcher
 from NetCatKS.Validators import Validator, IValidator
 
 from autobahn.wamp import auth

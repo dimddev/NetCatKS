@@ -1,9 +1,11 @@
 __author__ = 'dimd'
 
-from NetCatKS.Dispatcher import IJSONResource, IJSONResourceAPI
+from NetCatKS.Components import IJSONResource, IJSONResourceAPI
+from NetCatKS.Logger import Logger
+
 from zope.interface import implementer
 from zope.component import adapts
-from NetCatKS.Logger import Logger
+
 
 log = Logger()
 

@@ -1,7 +1,7 @@
 __author__ = 'dimd'
 
 from zope.interface import implementer
-from ...interfaces.message import IMessage
+from NetCatKS.Validators.api.interfaces.message import IMessage
 
 
 @implementer(IMessage)

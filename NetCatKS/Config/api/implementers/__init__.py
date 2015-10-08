@@ -72,5 +72,9 @@ class Config(object):
 
 
 __all__ = [
-    'Config'
+    'Config',
+    'TCP',
+    'WS',
+    'WAMP',
+    'WEB'
 ]

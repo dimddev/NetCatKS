@@ -1,2 +1,2 @@
 __author__ = 'dimd'
-from ..implementers import *
+from NetCatKS.Logger.api.implementers import *

@@ -9,8 +9,8 @@ from NetCatKS.Logger import Logger
 from zope.interface import classImplementsOnly
 from zope.component import adapts, getGlobalSiteManager
 
-from NetCatKS.Dispatcher import IDispatcher, IJSONResource, IXMLResource, DispathcherResultHelper
-from NetCatKS.Validators import Validator, IValidator
+from NetCatKS.Dispatcher import IDispatcher, DispathcherResultHelper
+from NetCatKS.Validators import Validator
 
 
 class BaseWebMethods(object):

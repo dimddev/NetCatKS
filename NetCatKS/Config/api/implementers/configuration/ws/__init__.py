@@ -8,8 +8,7 @@ from zope.component import getGlobalSiteManager
 from zope.component.factory import Factory
 from zope.component.interfaces import IFactory
 
-from NetCatKS.DProtocol import BaseProtocolActions
-from NetCatKS.Dispatcher import IJSONResource
+from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
 
 
 class IKeysInterface(Interface):
@@ -122,7 +121,6 @@ class WSImplementer(BaseProtocolActions):
         self.__protocol = protocol
 
 
-@implementer(IJSONResource)
 class WS(WSImplementer):
 
     def __init__(self, **kwargs):

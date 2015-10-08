@@ -3,10 +3,10 @@ from __future__ import absolute_import
 __author__ = 'dimd'
 
 from zope.interface import Interface, Attribute, implementer, classImplementsOnly
-from zope.component import getGlobalSiteManager, adapts
 
-from NetCatKS.DProtocol import DynamicProtocol, BaseProtocolActions, DProtocolSubscriber, DProtocolXMLSubscriber
-from NetCatKS.Dispatcher import IJSONResource, IXMLResource
+from NetCatKS.DProtocol import DynamicProtocol, BaseProtocolActions
+from NetCatKS.Dispatcher import IXMLResource
+from NetCatKS.Components import IJSONResource, RequestSubscriber
 
 # 1. Define of our sub protocols and its interfaces
 
@@ -74,7 +74,7 @@ class TimeProtocolImplementer(DynamicProtocol):
 
 
 @implementer(IJSONResource)
-class TimeProtocol(TimeProtocolImplementer):
+class TimeProtocol(TimeProtocolImplementer, RequestSubscriber):
 
     def __init__(self, **kwargs):
 
@@ -83,7 +83,7 @@ class TimeProtocol(TimeProtocolImplementer):
 #
 #
 @implementer(IJSONResource)
-class TimeConvertProtocol(BaseProtocolActions):
+class TimeConvertProtocol(BaseProtocolActions, RequestSubscriber):
     def __init__(self, **kwargs):
 
         super(TimeConvertProtocol, self).__init__(**kwargs)
@@ -98,42 +98,10 @@ class TimeConvertProtocol(BaseProtocolActions):
         self.__convert = conv
 
 
-class TimeConvertXMLProtocol(TimeConvertProtocol):
+class TimeConvertXMLProtocol(TimeConvertProtocol, RequestSubscriber):
 
     def __init__(self, **kwargs):
         super(TimeConvertXMLProtocol, self).__init__(**kwargs)
 
 
 classImplementsOnly(TimeConvertXMLProtocol, IXMLResource)
-
-
-# # will we registered as subscriber adapter and will response on IJSONResource
-class TimeProtocolSubscriber(DProtocolSubscriber):
-
-    def __init__(self, adapter):
-
-        self.adapter = adapter
-        self.protocol = TimeProtocol()
-
-
-class TimeConvertProtocolXMLSubscriber(DProtocolXMLSubscriber):
-
-    def __init__(self, adapter):
-
-        self.adapter = adapter
-        self.protocol = TimeConvertXMLProtocol()
-
-
-class TimeConvertProtocolSubscriber(DProtocolSubscriber):
-
-    def __init__(self, adapter):
-
-        self.adapter = adapter
-        self.protocol = TimeConvertProtocol()
-
-
-gsm = getGlobalSiteManager()
-#
-gsm.registerSubscriptionAdapter(TimeProtocolSubscriber)
-gsm.registerSubscriptionAdapter(TimeConvertProtocolSubscriber)
-gsm.registerSubscriptionAdapter(TimeConvertProtocolXMLSubscriber)
