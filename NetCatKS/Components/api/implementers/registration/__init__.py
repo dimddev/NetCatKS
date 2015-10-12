@@ -55,7 +55,7 @@ class ComponentsRegistratorAdapter(object):
         self.running_components = comp or self.__available_components
 
     def init(self):
-
+        
         for reg in self.running_components:
 
             try:
