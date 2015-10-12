@@ -74,6 +74,8 @@ class BaseProtocolSubscriber(object):
 
         # normal case
 
+        self.protocol.__init__()
+
         in_dict = self.protocol.get_all_keys(self.adapter.response)
         host_proto = self.protocol.get_all_keys(self.protocol.to_dict())
 
