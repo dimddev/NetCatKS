@@ -35,7 +35,7 @@ class NonRootAPI(object):
 
                 self.__logger.debug('Candidate API {} for {}'.format(
                     api.__class__.__name__,
-                    comp.__class__.__name__
+                    self.comp.__class__.__name__
                 ))
 
                 candidate_api_name = self.comp.to_dict().get(api.__class__.__name__.lower())
@@ -51,7 +51,7 @@ class NonRootAPI(object):
 
                     self.__logger.warning(msg.format(
                         api.__class__.__name__,
-                        comp.__class__.__name__,
+                        self.comp.__class__.__name__,
                         candidate_api_name,
                         e.message
                     ))
@@ -60,10 +60,12 @@ class NonRootAPI(object):
 
                     self.__logger.info('Successful apply API {} for {}'.format(
                         api.__class__.__name__,
-                        comp.__class__.__name__
+                        self.comp.__class__.__name__
                     ))
 
                     return candidate_api_result
+
+        return False
 
 
 class RootAPI(object):
@@ -75,7 +77,7 @@ class RootAPI(object):
 
     def check(self):
 
-        for api in subscribers([comp], IJSONResourceRootAPI):
+        for api in subscribers([self.comp], IJSONResourceRootAPI):
 
             if api.__class__.__name__.lower() in self.comp.to_dict().keys():
 
@@ -91,6 +93,7 @@ class RootAPI(object):
 
                 return api.process_factory()
 
+        return False
 
 
 @implementer(IDispatcher)
@@ -137,7 +140,7 @@ class Dispatcher(object):
 
                 comp = sub.compare()
 
-                if comp is not False and IXMLResource.providedBy(comp):
+                if comp is not False and (IXMLResource.providedBy(comp) or IJSONResource.providedBy(comp)):
 
                     self.__logger.debug('Signature compare to {}'.format(comp.__class__.__name__))
 
@@ -148,14 +151,14 @@ class Dispatcher(object):
                         return NonRootAPI(comp).check()
 
                     else:
-
                         # root element
                         return RootAPI(comp).check()
 
         # if there are no one subsciber from IJSONResource
 
-        self.__logger.warning('There are no API subscribers for type: {} subscriber: {}, API: {}, Resource: {}'.format(
-            valid_dispatch.message_type, isubscriber.__name__, 'API', IJSONResource
+        self.__logger.warning('The request {} from type {} was not recognized as a structure or an API'.format(
+            valid_response.response,
+            valid_dispatch.message_type
         ))
 
         return False
