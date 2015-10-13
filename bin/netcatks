@@ -148,15 +148,14 @@ def make_protocols(protocol_name):
 
     __all = []
 
-    head = """
-from __future__ import absolute_import
-
-__author__ = 'NetCatKS auto generator at {}'
+    head = """from __future__ import absolute_import
 
 from zope.interface import Interface, Attribute, implementer
 
 from NetCatKS.DProtocol import BaseProtocolActions
 from NetCatKS.Components import IJSONResource, RequestSubscriber
+
+__author__ = 'NetCatKS auto generator at {}'
     """.format(str(datetime.now()))
 
     __all.append(head)
@@ -239,7 +238,7 @@ class {0}Protocol({0}Implementer, RequestSubscriber):
     def __init__(self, **kwargs):
 
         super({0}Protocol, self).__init__(**kwargs)
-            """.format(proto)
+""".format(proto)
 
             __all.append(__main_proto)
 
@@ -306,14 +305,16 @@ class {0}Protocol({0}Implementer, RequestSubscriber):
             else:
                 __root_api = """
 from NetCatKS.Logger import Logger
-from NetCatKS.Components import BaseAPI
+from NetCatKS.Components import BaseRootAPI
 
-class {0}(BaseAPI):
+
+class {0}(BaseRootAPI):
 
     def __init__(self, factory):
 
         super({0}, self).__init__(factory)
 
+        self.factory = factory
         self.logger = Logger()
 
     def process_factory(self):
@@ -321,7 +322,7 @@ class {0}(BaseAPI):
         self.logger.debug(self.factory.to_dict())
         return self.factory
 
-                """.format(protocol_name.capitalize())
+""".format(proto_load.to_dict().keys()[0].capitalize())
 
                 api_path = 'components/adapters/{}'.format(protocol_name)
 
