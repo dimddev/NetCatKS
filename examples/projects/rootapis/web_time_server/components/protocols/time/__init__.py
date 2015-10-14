@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import
 
 from zope.interface import Interface, Attribute, implementer
@@ -6,12 +5,12 @@ from zope.interface import Interface, Attribute, implementer
 from NetCatKS.DProtocol import BaseProtocolActions
 from NetCatKS.Components import IJSONResource, RequestSubscriber
 
-__author__ = 'NetCatKS auto generator at 2015-10-02 16:03:11.224681'
-
+__author__ = 'NetCatKS auto generator at 2015-10-14 14:38:20.745307'
+    
 
 class ITimeInterface(Interface):
         
-    clock = Attribute("Comments going here")
+    time = Attribute("Comments going here")
         
 
 @implementer(ITimeInterface)
@@ -19,19 +18,20 @@ class TimeImplementer(BaseProtocolActions):
 
     def __init__(self, **kwargs):
         
-        self.__clock = None
+        self.__time = None
         
     @property
-    def clock(self):
-        return self.__clock
+    def time(self):
+        return self.__time
 
-    @clock.setter
-    def clock(self, clock):
-        self.__clock = clock
+    @time.setter
+    def time(self, time):
+        self.__time = time
             
 
 @implementer(IJSONResource)
 class TimeProtocol(TimeImplementer, RequestSubscriber):
 
     def __init__(self, **kwargs):
+
         super(TimeProtocol, self).__init__(**kwargs)

@@ -49,7 +49,14 @@ class RegisterWamp(object):
         if type(self.__objects) is not tuple and type(self.__objects) is not list:
             raise TypeError('objects have to be tuple or list')
 
+        __ignore_list = [
+            'BaseWampComponent'
+        ]
+
         for obj, obj_interface in self.__objects:
+
+            if obj.__name__ in __ignore_list:
+                continue
 
             print('{} [ RegisterWamp ] Loading Wamp Component: {}, filter interface: {}'.format(
                 datetime.now(), obj.__name__, obj_interface.__name__

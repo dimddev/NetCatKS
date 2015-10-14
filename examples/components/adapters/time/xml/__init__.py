@@ -1,6 +1,6 @@
 __author__ = 'dimd'
 
-from NetCatKS.Dispatcher import IXMLResourceAPI, IXMLResource
+from NetCatKS.Components import IXMLResourceAPI, IXMLResource
 from zope.interface import implementer
 from zope.component import adapts
 

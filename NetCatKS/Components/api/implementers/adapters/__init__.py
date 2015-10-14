@@ -1,5 +1,3 @@
-__author__ = 'dimd'
-
 from NetCatKS.Components.api.implementers.default import DefaultAdapter
 from NetCatKS.Components.api.interfaces.adapters import IDynamicAdapterFactory, IRequestSubscriber
 
@@ -9,6 +7,17 @@ from zope.interface import implementer
 
 from NetCatKS.Components.api.interfaces.adapters import IJSONResourceRootAPI, IJSONResourceAPI
 from NetCatKS.Components.api.interfaces.loaders import IJSONResource
+
+__author__ = 'dimd'
+
+
+class _WampSessionProvider(object):
+
+    def get_session(self):
+
+        return createObject('storageregister').components.get(
+            '__wamp_session__', False
+        )
 
 
 @implementer(IJSONResourceAPI)
@@ -32,20 +41,23 @@ class BaseRootAPI(object):
         raise NotImplemented
 
 
+class BaseAPIWampMixin(BaseAPI, _WampSessionProvider):
+    def __init__(self, factory):
+        super(BaseAPIWampMixin, self).__init__(factory)
+
+
+class BaseRootAPIWampMixin(BaseRootAPI, _WampSessionProvider):
+
+    def __init__(self, factory):
+        super(BaseRootAPIWampMixin, self).__init__(factory)
+
+
 @implementer(IRequestSubscriber)
 class RequestSubscriber(object):
 
     def subscribe_me(self):
         return True
 
-
-class WampSessionProvider(object):
-
-    def get_session(self):
-
-        return createObject('storageregister').components.get(
-            '__wamp_session__', False
-        )
 
 @implementer(IDynamicAdapterFactory)
 class DynamicAdapterFactory(object):

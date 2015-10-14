@@ -1,22 +1,15 @@
 from datetime import datetime
 
 from NetCatKS.Logger import Logger
-from NetCatKS.Components import WampSessionProvider, IJSONResource, IJSONResourceAPI
-
-from zope.interface import implementer
-from zope.component import adapts
+from NetCatKS.Components import BaseRootAPIWampMixin
 
 
-@implementer(IJSONResourceAPI)
-class Clock(WampSessionProvider):
-
-    adapts(IJSONResource)
+class Clock(BaseRootAPIWampMixin):
 
     def __init__(self, factory=None):
 
-        super(Clock, self).__init__()
+        super(Clock, self).__init__(factory)
 
-        self.factory = factory
         self.logger = Logger()
 
     @staticmethod

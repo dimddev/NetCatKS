@@ -1,21 +1,14 @@
-__author__ = 'dimd'
-
-from NetCatKS.Components import IJSONResource, IJSONResourceAPI
+from NetCatKS.Components import BaseAPI, BaseRootAPI
 from NetCatKS.Logger import Logger
-
-from zope.interface import implementer
-from zope.component import adapts
 
 
 log = Logger()
 
-@implementer(IJSONResourceAPI)
-class Command(object):
 
-    adapts(IJSONResource)
+class Command(BaseAPI):
 
     def __init__(self, factory):
-        self.factory = factory
+        super(Command, self).__init__(factory)
 
     def event(self):
 
@@ -24,14 +17,10 @@ class Command(object):
         return self.factory
 
 
-@implementer(IJSONResourceAPI)
-class Convert(object):
-
-    adapts(IJSONResource)
+class Convert(BaseRootAPI):
 
     def __init__(self, factory):
-
-        self.factory = factory
+        super(Convert, self).__init__(factory)
 
     def process_factory(self):
 

@@ -1,5 +1,3 @@
-__author__ = 'dimd'
-
 from zope.interface import Interface, Attribute, implementer
 
 from NetCatKS.DProtocol import BaseProtocolActions, DynamicProtocol
@@ -37,14 +35,14 @@ class GPSUserProtocol(BaseProtocolActions):
         self.__email = email
 
 
-class IGPSCoordianates(Interface):
+class IGPSCoordinates(Interface):
 
     long = Attribute("longitude of user")
     lat = Attribute("latitude of user")
 
 
-@implementer(IGPSCoordianates)
-class GPSCoordiantesProtocol(BaseProtocolActions):
+@implementer(IGPSCoordinates)
+class GPSCoordinatesProtocol(BaseProtocolActions):
 
     def __init__(self):
 
@@ -83,7 +81,7 @@ class GPSProtocolImplementer(DynamicProtocol):
 
         self.__profile = GPSUserProtocol()
 
-        self.__coordinates = GPSCoordiantesProtocol()
+        self.__coordinates = GPSCoordinatesProtocol()
 
     @property
     def profile(self):
@@ -115,6 +113,6 @@ __all__ = [
     'GPSUserProtocol',
     'IGPSProtocol',
     'GPSProtocol',
-    'IGPSCoordianates',
-    'GPSCoordiantesProtocol',
+    'IGPSCoordinates',
+    'GPSCoordinatesProtocol',
 ]
