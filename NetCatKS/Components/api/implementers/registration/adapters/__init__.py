@@ -57,7 +57,9 @@ class RegisterAdapters(RegisterFactories):
 
         self.__objects = list(set(self.__objects))
 
-        __skip_system_helpers = ['BaseAPI', 'BaseRootAPI']
+        __skip_system_helpers = [
+            'BaseAPI', 'BaseRootAPI', 'BaseRootAPIWampMixin', 'BaseAPIWampMixin'
+        ]
 
         for adapter, adapter_interface in self.__objects:
 

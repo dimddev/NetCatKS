@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-__author__ = 'dimd'
 
 from zope.interface import Interface, Attribute, implementer, classImplementsOnly
 
@@ -18,6 +17,8 @@ class ISubTimeProtocol(Interface):
 # All sub protocols have to inherit from BaseProtocolActions
 # the protocol attributes are defined as private and accessible via properties
 # this give as a way do check values before __setattr__
+
+
 @implementer(ISubTimeProtocol)
 class SubTimeProtocol(BaseProtocolActions):
 
@@ -80,8 +81,7 @@ class TimeProtocol(TimeProtocolImplementer, RequestSubscriber):
 
         super(TimeProtocol, self).__init__(**kwargs)
 
-#
-#
+
 @implementer(IJSONResource)
 class TimeConvertProtocol(BaseProtocolActions, RequestSubscriber):
     def __init__(self, **kwargs):
