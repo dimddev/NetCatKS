@@ -44,14 +44,14 @@ def onChallenge(self, challenge):
         if u'salt' in challenge.extra:
 
             key = auth.derive_key(
-                password[cfg.user].encode('utf8'),
+                cfg.user.encode('utf8'),
                 challenge.extra['salt'].encode('utf8'),
                 challenge.extra.get('iterations', None),
                 challenge.extra.get('keylen', None)
             )
 
         else:
-            key = password[cfg.user].encode('utf8')
+            key = cfg.user.encode('utf8')
 
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
 
