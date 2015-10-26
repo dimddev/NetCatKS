@@ -6,7 +6,7 @@ from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
 from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
 from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory
 from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
-from NetCatKS.Components.api.interfaces import IJSONResourceAPI, IJSONResourceRootAPI
+from NetCatKS.Components.api.interfaces import IJSONResourceAPI, IJSONResourceRootAPI, IWAMPLoadOnRunTime
 
 from NetCatKS.Components.common.loaders import BaseLoader
 from NetCatKS.Components.common.factory import get_factory_objects
@@ -36,7 +36,9 @@ class RegisterAdapters(RegisterFactories):
 
         :return:
         """
-        default_filters = list(set(out_filter + [IVirtualAdapter, IJSONResourceAPI, IJSONResourceRootAPI]))
+        default_filters = list(
+            set(out_filter + [IVirtualAdapter, IJSONResourceAPI, IJSONResourceRootAPI, IWAMPLoadOnRunTime])
+        )
 
         super(RegisterAdapters, self).__init__(protocols_source, file_loader, default_filters)
 
@@ -58,7 +60,7 @@ class RegisterAdapters(RegisterFactories):
         self.__objects = list(set(self.__objects))
 
         __skip_system_helpers = [
-            'BaseAPI', 'BaseRootAPI', 'BaseRootAPIWampMixin', 'BaseAPIWampMixin'
+            'BaseAPI', 'BaseRootAPI', 'BaseRootAPIWampMixin', 'BaseAPIWampMixin', 'WAMPLoadOnRunTime'
         ]
 
         for adapter, adapter_interface in self.__objects:

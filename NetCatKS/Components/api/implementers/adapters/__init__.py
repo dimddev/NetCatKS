@@ -7,6 +7,7 @@ from zope.interface import implementer
 
 from NetCatKS.Components.api.interfaces.adapters import IJSONResourceRootAPI, IJSONResourceAPI
 from NetCatKS.Components.api.interfaces.loaders import IJSONResource
+from NetCatKS.Components.api.interfaces.registration.wamp import IWAMPLoadOnRunTime
 
 __author__ = 'dimd'
 
@@ -50,6 +51,18 @@ class BaseRootAPIWampMixin(BaseRootAPI, _WampSessionProvider):
 
     def __init__(self, factory):
         super(BaseRootAPIWampMixin, self).__init__(factory)
+
+
+@implementer(IWAMPLoadOnRunTime)
+class WAMPLoadOnRunTime(_WampSessionProvider):
+
+    adapts(IJSONResource)
+
+    def __init__(self, factory):
+        self.factory = factory
+
+    def load(self):
+        raise NotImplemented('User must implement this method')
 
 
 @implementer(IRequestSubscriber)

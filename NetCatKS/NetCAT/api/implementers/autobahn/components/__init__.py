@@ -1,12 +1,10 @@
-__author__ = 'dimd'
-
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager
 from zope.component import subscribers, createObject
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
-from NetCatKS.Components import IWAMPResource, IUserGlobalSubscriber, IJSONResource
+from NetCatKS.Components import IWAMPResource, IUserGlobalSubscriber, IJSONResource, IWAMPLoadOnRunTime
 from NetCatKS.Logger import Logger
 from NetCatKS.Config import Config
 from NetCatKS.Dispatcher import IDispatcher
@@ -16,6 +14,9 @@ from autobahn.wamp import auth
 from autobahn.twisted.wamp import ApplicationSession
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet import reactor
+
+
+__author__ = 'dimd'
 
 
 def onConnect(self):
@@ -157,7 +158,10 @@ class WampDefaultComponent(ApplicationSession):
 
                     f.set_session(self)
 
-        # for s in subscribers([])
+            else:
+
+                if x.provided is IWAMPLoadOnRunTime:
+                    x.factory('init').load()
 
         sub_topic = 'netcatks_global_subscriber_{}'.format(
             self.cfg.service_name.lower().replace(' ', '_')

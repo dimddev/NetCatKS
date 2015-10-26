@@ -27,3 +27,15 @@ class IWAMPComponent(Interface):
         :param session: Wamp Session
         :return:
         """
+
+
+class IWAMPLoadOnRunTime(Interface):
+    """
+    marker for API's that have to be run, after we join in WAMP session
+    """
+
+    def load():
+        """
+        trying to load on runtime some wamp RPC
+        :return: IJSONResource
+        """

@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-__author__ = 'dimd'
-
 from NetCatKS.Components.api.interfaces.registration.wamp import IRegisterWamp
 from NetCatKS.Components.common.loaders import BaseLoader
 from NetCatKS.Components.api.interfaces import IUserWampComponent, IUserGlobalSubscriber, IWAMPComponent
@@ -12,6 +10,8 @@ from zope.interface import implementer
 from zope.component import getGlobalSiteManager
 
 from datetime import datetime
+
+__author__ = 'dimd'
 
 
 @implementer(IRegisterWamp)

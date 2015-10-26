@@ -1,4 +1,4 @@
-from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory
+from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory, WAMPLoadOnRunTime
 from NetCatKS.Components.api.implementers.adapters import RequestSubscriber, BaseAPI, BaseRootAPI
 from NetCatKS.Components.api.implementers.adapters import BaseAPIWampMixin, BaseRootAPIWampMixin
 from NetCatKS.Components.api.implementers.default import DefaultAdapter
@@ -27,5 +27,6 @@ __all__ = [
     'BaseAPI',
     'BaseRootAPI',
     'BaseRootAPIWampMixin',
-    'BaseAPIWampMixin'
+    'BaseAPIWampMixin',
+    'WAMPLoadOnRunTime'
 ]
