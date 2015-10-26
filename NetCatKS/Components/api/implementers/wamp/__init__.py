@@ -1,9 +1,8 @@
-__author__ = 'dimd'
-
-
 from NetCatKS.Components.api.interfaces.registration.wamp import IWAMPComponent, IWAMPResource
 from zope.interface import implementer
 from zope.component import adapts
+
+__author__ = 'dimd'
 
 
 @implementer(IWAMPComponent)
