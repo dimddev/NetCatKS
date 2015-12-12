@@ -1,6 +1,9 @@
-__author__ = 'dimd'
+"""
+Interfaces that representing our IJSONResource Subscribers
+"""
 
 from zope.interface import Interface, Attribute
+__author__ = 'dimd'
 
 
 class IBaseResourceSubscriber(Interface):
@@ -31,12 +34,13 @@ class IBaseResourceSubscriber(Interface):
 
 
 class IJSONResourceSubscriber(Interface):
-    """
 
+    """
+    Used when we having a request from a IJSONResource type
     """
 
 
 class IXMLResourceSubscriber(Interface):
     """
-
+    Used when we having a request from a IXMLResource type
     """

@@ -1,4 +1,7 @@
-__author__ = 'dimd'
+"""
+The Base actions for a DProtocol API. All sub protocols and main protocols have to use
+this as base class
+"""
 
 import json
 import xmltodict
@@ -11,6 +14,9 @@ from NetCatKS.DProtocol.api.interfaces.actions import IBaseProtocolActionsInterf
 from NetCatKS.DProtocol.api.interfaces.storage import IProtocolStogareInterface
 from NetCatKS.DProtocol.api.public.storage import ProtocolStorage
 from NetCatKS.DProtocol.api.implementors.filters import ProtocolFiltersImplementor
+
+
+__author__ = 'dimd'
 
 
 @implementer(IBaseProtocolActionsInterface)
@@ -38,6 +44,14 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
     def to_tdo(self, in_data):
 
+        """
+        this methis will prepare a dynamic structure from the exist one, based on
+        user request
+
+        :param in_data:
+        :return:
+        """
+
         def inner(apidata, indata):
             """
 
@@ -54,39 +68,39 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
             # DProtocol implementation in both way it inherit from BaseProtocolActions which provides
             # IBaseProtocolActionsInterface
 
-            for k, v in apidata.to_dict().iteritems():
+            for key, _ in apidata.to_dict().iteritems():
 
                 # so if we meet attribute from IBaseProtocolActionsInterface type means it's a sub protocol
                 # and we have to call inner
-                if IBaseProtocolActionsInterface.providedBy(getattr(apidata, k)):
-                    inner(getattr(apidata, k), indata)
+                if IBaseProtocolActionsInterface.providedBy(getattr(apidata, key)):
+                    inner(getattr(apidata, key), indata)
 
                 else:
 
                     # otherwise we will looping over all items in indata
-                    for ik, iv in indata.iteritems():
+                    for inner_key, inner_val in indata.iteritems():
 
-                        # 1. we checking whether the ik exist directly in our root dict of apidata
-                        if ik in apidata.to_dict():
+                        # 1. we checking whether the inner_key exist directly in our root dict of apidata
+                        if inner_key in apidata.to_dict():
 
-                            # if exist we get the value from apidata.to_dict().get(ik) with ik as key
-                            indata[ik] = apidata.to_dict().get(ik)
+                            # if exist we get the value from apidata.to_dict().get(inner_key) with ik as key
+                            indata[inner_key] = apidata.to_dict().get(inner_key)
 
-                        elif type(iv) is dict:
+                        elif isinstance(inner_val, dict):
 
-                            # 2.if iv is a dict first we will trying to get the k apidata key
+                            # 2.if inner_val is a dict first we will trying to get the apidata key
                             # from this dict
 
-                            if k in iv:
+                            if key in inner_val:
 
                                 # if exist will update the indata for this key
-                                indata[ik].update({k: apidata.to_dict().get(k)})
+                                indata[inner_key].update({key: apidata.to_dict().get(key)})
 
                             else:
 
-                                # else we pass the iv to our inner again for more
+                                # else we pass the inner_val to our inner again for more
                                 # nested structures
-                                inner(apidata, iv)
+                                inner(apidata, inner_val)
             return indata
 
         result = inner(self, in_data)
@@ -115,10 +129,33 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
     def finish(self):
 
         """
+        The session will be finished
+        :return: False if session does not exist or self on success
 
-        :return:
         """
         return False if not self.__storage.session.pop(self.id, False) else self
+
+    def get_child(self, child_members, in_dict):
+
+        """
+
+        :param child_members:
+        :param in_dict:
+        :return:
+
+        """
+
+        child_object = getattr(self, child_members)
+
+        if not isinstance(child_object, BaseProtocolActionsImplementor):
+            setattr(self, child_members, in_dict[child_members])
+
+        else:
+
+            self.to_object(
+                in_dict=in_dict.get(child_members),
+                in_obj=child_object
+            )
 
     def to_object(self, in_dict=None, in_obj=None):
 
@@ -135,25 +172,11 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         if in_obj is not None:
             self = in_obj
 
-        def get_child(child_members, in_dict):
-
-            child_object = getattr(self, child_members)
-
-            if not isinstance(child_object, BaseProtocolActionsImplementor):
-                setattr(self, child_members, in_dict[child_members])
-
-            else:
-
-                self.to_object(
-                    in_dict=in_dict.get(child_members),
-                    in_obj=child_object
-                )
-
         for members, members_value in in_dict.iteritems():
 
-            if type(members_value) is dict or isinstance(members_value, BaseProtocolActionsImplementor):
+            if isinstance(members_value, dict) or isinstance(members_value, BaseProtocolActionsImplementor):
 
-                get_child(members, in_dict)
+                self.get_child(members, in_dict)
 
             else:
 
@@ -164,12 +187,20 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         return self
 
-    def nice_name(self, in_name):
+    @staticmethod
+    def nice_name(in_name):
 
-        # if not in_name.startswith('__'):
-        #    raise AttributeError('attribute {} is not defined as private'.format(in_name))
+        """
+        Will produce from "__attribute" -> "attribute"
 
-        temp, result = in_name.rsplit('__')
+        :param in_name:
+        :type in_name: str
+
+        :return: str
+
+        """
+
+        _, result = in_name.rsplit('__')
         return result
 
     def to_dict(self, dob=None):
@@ -227,7 +258,7 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         """
         indent = kwargs.get('indent', None)
 
-        if indent is not None and type(indent) is int:
+        if indent is not None and isinstance(indent, int):
             return json.dumps(self.to_dict(), indent=indent)
 
         else:
@@ -248,8 +279,8 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
             xml = xmltodict.unparse(in_dict or self.to_dict())
 
-        except ValueError as e:
-            raise ValueError(e.message)
+        except ValueError as error:
+            raise ValueError(error.message)
 
         else:
             return xml
@@ -284,8 +315,9 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
             session = kwargs.get('session')
 
-            if not isinstance(session, BaseProtocolActionsImplementor) is True:
-                raise AttributeError('Incorrect configure, you must pass a DProtocol implementation as session argument')
+            if isinstance(session, BaseProtocolActionsImplementor) is not True:
+                __msg = 'Incorrect configure, you must pass a DProtocol implementation as session argument'
+                raise AttributeError(__msg)
 
             self.__storage.session[_id] = session
 
@@ -310,7 +342,8 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
         """
         self.__storage.session = {}
 
-    def verify_storage(self, storage):
+    @staticmethod
+    def verify_storage(storage):
 
         """
 
@@ -370,22 +403,30 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         keys = []
 
-        def inner(data):
+        def inner(data_):
 
-            if isinstance(data, dict):
+            """
 
-                for k, v in data.iteritems():
-                    if (isinstance(v, dict) or
-                        isinstance(v, list) or
-                        isinstance(v, tuple)
-                        ):
-                        keys.append(k)
-                        inner(v)
+            Inner recursion
+            :param data_:
+            :return:
+
+            """
+
+            if isinstance(data_, dict):
+
+                for key, value in data_.iteritems():
+
+                    if isinstance(value, dict) or isinstance(value, list) or isinstance(value, tuple):
+
+                        keys.append(key)
+                        inner(value)
+
                     else:
-                        keys.append(k)
+                        keys.append(key)
 
-            elif isinstance(data, list) or isinstance(data, tuple):
-                for item in data:
+            elif isinstance(data_, list) or isinstance(data_, tuple):
+                for item in data_:
                     inner(item)
 
         inner(data)

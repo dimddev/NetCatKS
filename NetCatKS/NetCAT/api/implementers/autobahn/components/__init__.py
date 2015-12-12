@@ -102,8 +102,8 @@ class WampDefaultComponent(ApplicationSession):
 
         except Exception as e:
 
-            # import traceback
-            # print(traceback.format_exc())
+            import traceback
+            print(traceback.format_exc())
 
             log.warning('subscriber_dispatcher exception: {}'.format(
                 e.message
@@ -135,6 +135,13 @@ class WampDefaultComponent(ApplicationSession):
 
         self.__logger.info('WAMP Session is ready')
 
+        sub_topic = 'netcatks_global_subscriber_{}'.format(
+            self.cfg.service_name.lower().replace(' ', '_')
+        )
+
+        yield self.subscribe(self.subscriber_dispatcher, sub_topic)
+        self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
+
         # registration of all classes which ends with Wamp into shared wamp session
         for x in list(self.__gsm.registeredSubscriptionAdapters()):
 
@@ -158,17 +165,8 @@ class WampDefaultComponent(ApplicationSession):
 
                     f.set_session(self)
 
-            else:
-
-                if x.provided is IWAMPLoadOnRunTime:
-                    x.factory('init').load()
-
-        sub_topic = 'netcatks_global_subscriber_{}'.format(
-            self.cfg.service_name.lower().replace(' ', '_')
-        )
-
-        yield self.subscribe(self.subscriber_dispatcher, sub_topic)
-        self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
+            if x.provided is IWAMPLoadOnRunTime:
+                x.factory('init').load()
 
     def onDisconnect(self):
         """

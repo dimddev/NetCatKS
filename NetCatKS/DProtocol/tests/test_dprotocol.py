@@ -1,15 +1,19 @@
 from __future__ import absolute_import
 
-__author__ = 'dimd'
-
 import unittest
 
 from zope.interface.verify import verifyObject
 from zope.interface.exceptions import DoesNotImplement
 
 from NetCatKS.DProtocol import BaseProtocolActions, DynamicProtocol
+from NetCatKS.DProtocol.api.public.filters import ProtocolFilters
 from NetCatKS.DProtocol.api.public.storage import ProtocolStorage
 from NetCatKS.DProtocol.api.interfaces.storage import IProtocolStogareInterface
+from NetCatKS.DProtocol.api.interfaces.dymanic import IDynamicProtocolInterface
+from NetCatKS.DProtocol.api.interfaces.filters import IProtocolFiltersInterface
+from NetCatKS.DProtocol.api.interfaces.actions import IBaseProtocolActionsInterface
+
+__author__ = 'dimd'
 
 
 class TestProtoclDetails(BaseProtocolActions):
@@ -407,10 +411,13 @@ class TestDprotocol(unittest.TestCase):
     def test_check_for_list(self):
 
         with self.assertRaises(TypeError):
-            self.user.check_for_int(())
+            self.user.check_for_list(())
 
         with self.assertRaises(TypeError):
-            self.user.check_for_int({})
+            self.user.check_for_list({})
+
+        with self.assertRaises(TypeError):
+            self.user.check_for_list(1)
 
         self.assertTrue(self.user.check_for_list([]))
 
@@ -456,5 +463,15 @@ class TestDprotocol(unittest.TestCase):
         with self.assertRaises(DoesNotImplement):
             verifyObject(IProtocolStogareInterface, FakeStorage())
 
-#dprotocol_suite = unittest.TestLoader().loadTestsFromTestCase(TestDprotocol)
-#unittest.TextTestRunner(verbosity=2).run(dprotocol_suite)
+    def test_dynamic_protocol(self):
+
+        dynamic = DynamicProtocol()
+        self.assertTrue(IDynamicProtocolInterface.providedBy(dynamic))
+
+    def test_base_protocol_actions(self):
+        actions = BaseProtocolActions()
+        self.assertTrue(IBaseProtocolActionsInterface.providedBy(actions))
+
+    def test_protocol_filters(self):
+        filters = ProtocolFilters()
+        self.assertTrue(IProtocolFiltersInterface.providedBy(filters))

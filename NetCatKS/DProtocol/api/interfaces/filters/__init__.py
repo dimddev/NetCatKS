@@ -1,6 +1,9 @@
-__author__ = 'dimd'
+"""
+An Interface tht represent our filters actions
+"""
 
 from zope.interface import Interface
+__author__ = 'dimd'
 
 
 class IProtocolFiltersInterface(Interface):

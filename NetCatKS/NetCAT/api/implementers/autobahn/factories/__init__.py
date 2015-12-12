@@ -1,7 +1,12 @@
-__author__ = 'dimd'
+import traceback
 
 from autobahn.wamp.types import ComponentConfig
-from autobahn.websocket.protocol import parseWsUrl
+
+try:
+    from autobahn.websocket.protocol import parseWsUrl
+except RuntimeError:
+    print traceback.format_exc()
+
 from autobahn.twisted.websocket import WampWebSocketClientFactory
 
 from twisted.internet import reactor
@@ -14,6 +19,8 @@ from NetCatKS.NetCAT.api.implementers.autobahn.factories.ws import DefaultWSFact
 from NetCatKS.Config.api.implementers.configuration.wamp import WAMP
 
 from zope.interface import implementer
+
+__author__ = 'dimd'
 
 
 class Reconnect(object):
