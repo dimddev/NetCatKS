@@ -7,14 +7,14 @@ from __future__ import absolute_import
 from zope.interface import implementer
 
 from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
-from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
 from NetCatKS.Config.api.interfaces import ITcp
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig
 
 __author__ = 'dimd'
 
 
 @implementer(ITcp)
-class TCP(BaseProtocolActions):
+class TCP(MixinSharedConfig):
 
     """
 
@@ -31,59 +31,11 @@ class TCP(BaseProtocolActions):
 
         """
 
-        self.__port = 8484
+        super(TCP, self).__init__()
+
+        self.port = 8484
         self.__service_name = 'Default TCP Server'
         self.__tcp_back_log = 50
-
-    @property
-    def port(self):
-
-        """
-        Getter for a TCP port
-        :return: int
-        """
-
-        return self.__port
-
-    @port.setter
-    def port(self, port):
-
-        """
-        A port setter we accept only integers for a port number
-
-        :param port:
-        :type port: int
-
-        :return: void
-
-        """
-
-        self.__port = port
-
-    @property
-    def service_name(self):
-
-        """
-        A Service Name getter for this TCP service, it used inside out Twisted TCP service.Service
-
-        :return: strs
-
-        """
-
-        return self.__service_name
-
-    @service_name.setter
-    def service_name(self, name):
-
-        """
-        A setter for a service name
-        :param name:
-        :type name: str
-
-        :return: void
-        """
-
-        self.__service_name = name
 
     @property
     def tcp_back_log(self):

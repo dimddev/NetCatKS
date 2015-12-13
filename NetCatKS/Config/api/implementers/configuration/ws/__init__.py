@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from zope.interface import Interface, Attribute, implementer
 from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
 from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
-
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig
 
 __author__ = 'dimd'
 
@@ -84,32 +84,13 @@ class KeysImplementer(BaseProtocolActions):
         self.__key = key
 
 
-class IWSInterface(Interface):
-
-    """
-    A WEB Socket Server an actual Interface. This is our main interface which represent
-    a config for web socket server
-    """
-
-    keys = Attribute('A proxy attribute that point to IKeysInterface implementation')
-
-    url = Attribute('A web socket server url ws|wss://')
-
-    hostname = Attribute('Hostname or IP address')
-
-    port = Attribute('Port to bind')
-
-    protocol = Attribute('A WS protocol can be unsecure(ws) or secure(wss)')
-
-
-@implementer(IWSInterface)
-class WSImplementer(BaseProtocolActions):
+class WSImplementer(MixinSharedConfig):
 
     """
     Implementation of IWSInterface
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self):
 
         """
         In our constructor we providing a default values for all properties
@@ -117,13 +98,16 @@ class WSImplementer(BaseProtocolActions):
 
         :return: void
         """
+
+        super(WSImplementer, self).__init__()
+
+        self.port = 8585
+
+        self.service_name = 'Default Web Socket server'
+
         self.__keys = KeysImplementer()
 
         self.__url = 'ws://localhost:8585'
-
-        self.__hostname = 'localhost'
-
-        self.__port = 8585
 
         self.__protocol = 'ws'
 
@@ -170,47 +154,6 @@ class WSImplementer(BaseProtocolActions):
         :return: void
         """
         self.__url = url
-
-    @property
-    def hostname(self):
-        """
-        A WS hostname getter
-        :return:
-        """
-        return self.__hostname
-
-    @hostname.setter
-    def hostname(self, hostname):
-
-        """
-        A WS hostname setter
-
-        :param hostname:
-        :type hostname: str
-
-        :return: void
-        """
-        self.__hostname = hostname
-
-    @property
-    def port(self):
-        """
-        A WS port getter
-        :return: int
-        """
-        return self.__port
-
-    @port.setter
-    def port(self, port):
-
-        """
-        A WS port setter
-        :param port:
-        :type port: int
-
-        :return: void
-        """
-        self.__port = port
 
     @property
     def protocol(self):
