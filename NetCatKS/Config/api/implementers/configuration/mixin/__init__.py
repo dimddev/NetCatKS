@@ -3,7 +3,6 @@ This module is written in a DynamicProtocol style and caring for our Mixin confi
 """
 from __future__ import absolute_import
 
-from zope.interface import Interface, Attribute, implementer
 from zope.component import getGlobalSiteManager
 
 from zope.component.factory import Factory
@@ -19,13 +18,16 @@ class MixinSharedConfig(BaseProtocolActions):
     """
     Represents a shared mixin configuration between all sections
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
 
         """
         We providing a default service name, port and hostname
 
         :return: void
         """
+
+        super(MixinSharedConfig, self).__init__(**kwargs)
+
         self.__service_name = 'DefaultServiceName'
         self.__port = 8080
         self.__hostname = '127.0.0.1'
@@ -100,6 +102,79 @@ class MixinSharedConfig(BaseProtocolActions):
         :return: void
         """
         self.__hostname = hostname
+
+
+class MixinWamp(BaseProtocolActions):
+
+    """
+    A shared mixin for a web socket servers and wamp components
+    """
+
+    def __init__(self, **kwargs):
+
+        """
+
+        Our mixin providing a default values for a url - "ws://localhost:8585"
+        and a protocol - "ws"
+
+        :param kwargs:
+
+        :return: void
+
+        """
+        super(MixinWamp, self).__init__(**kwargs)
+
+        self.__url = 'ws://localhost:8585'
+        self.__protocol = 'ws'
+
+    @property
+    def url(self):
+
+        """
+        A getter for our WS url
+        :return: str
+        """
+
+        return self.__url
+
+    @url.setter
+    def url(self, url):
+
+        """
+        A setter for our WS url
+        :param url:
+        :type url: str
+
+        :return: void
+        """
+        self.__url = url
+
+    @property
+    def protocol(self):
+
+        """
+        A setter for our wamp protocol
+
+        :return: str
+        """
+
+        return self.__protocol
+
+    @protocol.setter
+    def protocol(self, protocol):
+
+        """
+        A setter for our wamp protocol
+        :param protocol:
+        :type protocol: str
+
+        :return:
+        """
+
+        __available_protocols = ['ws', 'wss']
+
+        if protocol in __available_protocols:
+            self.__protocol = protocol
 
 
 class RegisterAsFactory(object):

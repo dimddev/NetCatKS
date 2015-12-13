@@ -3,14 +3,13 @@ This module is written in a DynamicProtocol style and caring for our WAMP client
 """
 from zope.interface import implementer
 from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
-from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
 from NetCatKS.Config.api.interfaces import IWamp
-
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig, MixinWamp
 __author__ = 'dimd'
 
 
 @implementer(IWamp)
-class WAMP(BaseProtocolActions):
+class WAMP(MixinSharedConfig, MixinWamp):
 
     """
     An implementation of IWamp
@@ -23,16 +22,16 @@ class WAMP(BaseProtocolActions):
 
         :return: void
         """
+
+        super(WAMP, self).__init__()
+
         self.__user = 'wamp_cra_username'
         self.__password = 'wamp_cra_password'
-        self.__service_name = 'wamp service name'
-        self.__url = 'ws://localhost:8080/ws'
         self.__realm = 'realm1'
-        self.__port = 8080
-        self.__protocol = 'ws'
         self.__retry_interval = 2
         self.__path = 'ws'
-        self.__hostname = 'localhost'
+        self.url = 'ws://localhost:8080'
+        self.port = 8080
 
     @property
     def user(self):
@@ -79,50 +78,6 @@ class WAMP(BaseProtocolActions):
         self.__password = password
 
     @property
-    def service_name(self):
-
-        """
-        A setter for our wamp servise name
-
-        :return: str
-        """
-        return self.__service_name
-
-    @service_name.setter
-    def service_name(self, name):
-
-        """
-        A getter for our wamp servise name
-        :param name:
-        :type name: str
-
-        :return: void
-        """
-        self.__service_name = name
-
-    @property
-    def url(self):
-
-        """
-        A getter for our wamp url
-        :return: str
-        """
-
-        return self.__url
-
-    @url.setter
-    def url(self, url):
-
-        """
-        A setter for our wamp url
-        :param url:
-        :type url: str
-
-        :return: void
-        """
-        self.__url = url
-
-    @property
     def realm(self):
         """
         A getter for our wamp realm
@@ -141,52 +96,6 @@ class WAMP(BaseProtocolActions):
         :return: void
         """
         self.__realm = realm
-
-    @property
-    def port(self):
-
-        """
-        A getter for our wamp port
-
-        :return: int
-        """
-        return self.__port
-
-    @port.setter
-    def port(self, port):
-
-        """
-        A setter for our wamp port
-        :param port:
-        :type port: int
-
-        :return: void
-        """
-        self.__port = port
-
-    @property
-    def protocol(self):
-
-        """
-        A setter for our wamp protocol
-
-        :return: str
-        """
-
-        return self.__protocol
-
-    @protocol.setter
-    def protocol(self, protocol):
-
-        """
-        A setter for our wamp protocol
-        :param protocol:
-        :type protocol: str
-
-        :return:
-        """
-
-        self.__protocol = protocol
 
     @property
     def retry_interval(self):
@@ -235,27 +144,5 @@ class WAMP(BaseProtocolActions):
 
         self.__path = path
 
-    @property
-    def hostname(self):
-
-        """
-        A getter for our wamp hostname
-
-        :return: str
-        """
-
-        return self.__hostname
-
-    @hostname.setter
-    def hostname(self, host):
-
-        """
-        A setter for our wamp hostname
-        :param host:
-        :type host: str
-
-        :return: void
-        """
-        self.__hostname = host
 
 RegisterAsFactory(WAMP).register()

@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from zope.interface import Interface, Attribute, implementer
 from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
 from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
-from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig, MixinWamp
 
 __author__ = 'dimd'
 
@@ -84,7 +84,7 @@ class KeysImplementer(BaseProtocolActions):
         self.__key = key
 
 
-class WSImplementer(MixinSharedConfig):
+class WSImplementer(MixinSharedConfig, MixinWamp):
 
     """
     Implementation of IWSInterface
@@ -105,11 +105,11 @@ class WSImplementer(MixinSharedConfig):
 
         self.service_name = 'Default Web Socket server'
 
+        self.url = 'ws://localhost:8585'
+
+        self.protocol = 'ws'
+
         self.__keys = KeysImplementer()
-
-        self.__url = 'ws://localhost:8585'
-
-        self.__protocol = 'ws'
 
     @property
     def keys(self):
@@ -134,49 +134,6 @@ class WSImplementer(MixinSharedConfig):
         """
 
         self.__keys = keys
-
-    @property
-    def url(self):
-        """
-        A WS URL getter
-        :return:
-        """
-        return self.__url
-
-    @url.setter
-    def url(self, url):
-
-        """
-        A WS URL Setter
-        :param url:
-        :type url: str
-
-        :return: void
-        """
-        self.__url = url
-
-    @property
-    def protocol(self):
-        """
-        A WS protocol getter
-        :return: str
-        """
-        return self.__protocol
-
-    @protocol.setter
-    def protocol(self, protocol):
-
-        """
-        A WS protocol setter. Protocol can be "ws" or "wss"
-        :param protocol:
-        :type protocol: str
-
-        :return: void
-        """
-        __available_protocols = ['ws', 'wss']
-
-        if protocol in __available_protocols:
-            self.__protocol = protocol
 
 
 class WS(WSImplementer):
