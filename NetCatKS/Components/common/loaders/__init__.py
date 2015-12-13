@@ -65,7 +65,6 @@ class BaseLoader(object):
         """
 
         __klasses = []
-        __ignore = ['DefaultAdapter']
 
         for klass in dir(load):
 
@@ -79,7 +78,7 @@ class BaseLoader(object):
 
             else:
 
-                if candidate and klass not in __ignore:
+                if candidate:
                     __klasses.append(candidate)
 
         return __klasses

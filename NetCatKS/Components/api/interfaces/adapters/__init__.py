@@ -21,20 +21,6 @@ class IRequestSubscriber(Interface):
         """
 
 
-class IDynamicAdapterFactory(Interface):
-
-    """
-    Will attempt to create a dynamic adapter for a protocol
-    """
-
-    def get():
-
-        """
-        return new dynamic adapter prepared by __init__
-        :return: class
-        """
-
-
 class IJSONResourceRootAPI(Interface):
 
     """

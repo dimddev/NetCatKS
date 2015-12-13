@@ -9,18 +9,14 @@ __author__ = 'dimd'
 
 __all__ = [
     'ComponentsRegistration',
-    'DynamicAdapterFactory',
-    'DefaultAdapter',
     'RegisterFactories',
     'RegisterAdapters',
     'RegisterProtocols',
     'StorageRegister',
-    'IDynamicAdapterFactory',
     'IBaseLoader',
     'IRegisterAdapters',
     'IRegisterFactories',
     'IStorageRegister',
-    'AdapterProxyGetter',
     'BaseLoader',
     'IRegisterWamp',
     'RegisterWamp',

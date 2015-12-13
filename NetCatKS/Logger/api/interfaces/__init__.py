@@ -1,9 +1,15 @@
-__author__ = 'dimd'
-
+"""
+A module that contains the interfaces which describing our Logger API
+"""
 from zope.interface import Interface, Attribute
+__author__ = 'dimd'
 
 
 class ILogger(Interface):
+
+    """
+    A Base logger interface
+    """
 
     default = Attribute("default logging module")
     origin = Attribute("Current module")
@@ -22,14 +28,14 @@ class ILogger(Interface):
 
     def error(msg):
         """
-        error level loggign
+        error level logging
         :param msg: error message
         :return:
         """
 
     def warning(msg):
         """
-        warning level loggign
+        warning level logging
         :param msg: warrning message
         :return:
         """

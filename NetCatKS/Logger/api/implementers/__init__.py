@@ -1,34 +1,83 @@
-__author__ = 'dimd'
-
+"""
+A module that contains a main implementation of NetCatKS logger
+"""
 from twisted.python import log
 from zope.interface import implementer
 from NetCatKS.Logger.api.interfaces import ILogger
 
+
+__author__ = 'dimd'
 
 GLOBAL_DEBUG = True
 
 
 @implementer(ILogger)
 class Logger(object):
+    """
+    A base NetCatKS logger
+    """
 
-    def __init__(self):
-        pass
+    # NETODO to be improved
 
-    def debug(self, msg):
+    @staticmethod
+    def debug(msg):
 
+        """
+        Using for a debug messaging
+        :param msg:
+        :type msg: str
+
+        :return: void
+        """
         if GLOBAL_DEBUG is True:
             log.msg('[ ====== DEBUG ]: {}'.format(msg))
 
-    def info(self, msg):
+    @staticmethod
+    def info(msg):
+
+        """
+        Using for a info messaging
+        :param msg:
+        :type msg: str
+
+        :return: void
+        """
         log.msg('[ ++++++ INFO ]: {}'.format(msg))
 
-    def warning(self, msg):
+    @staticmethod
+    def warning(msg):
+
+        """
+        Using for a warning messaging
+        :param msg:
+        :type msg: str
+
+        :return: void
+        """
         log.msg('[ !!!!!! WARNING ]: {}'.format(msg))
 
-    def error(self, msg):
+    @staticmethod
+    def error(msg):
+        """
+
+        Using for a error messaging
+        :param msg:
+        :type msg: str
+
+        :return: void
+        """
         log.msg('[ ------ ERROR ]: {}'.format(msg))
 
-    def critical(self, msg):
+    @staticmethod
+    def critical(msg):
+
+        """
+        Using for a critical messaging
+        :param msg:
+        :type msg: str
+
+        :return: void
+        """
         log.msg('[ @@@@@@ CRITICAL ]: {}'.format(msg))
 
 

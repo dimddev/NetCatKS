@@ -2,11 +2,9 @@
 A module that providing a public helpers for easy build of a "NetCatKS" applications
 """
 
-from NetCatKS.Components.api.implementers.default import DefaultAdapter
-from NetCatKS.Components.api.interfaces.adapters import IDynamicAdapterFactory, IRequestSubscriber
+from NetCatKS.Components.api.interfaces.adapters import IRequestSubscriber
 
-from zope.component import adapter, createObject, adapts
-from zope.component import getGlobalSiteManager
+from zope.component import createObject, adapts
 from zope.interface import implementer
 
 from NetCatKS.Components.api.interfaces.adapters import IJSONResourceRootAPI, IJSONResourceAPI
@@ -180,47 +178,3 @@ class RequestSubscriber(object):
         """
 
         return True
-
-
-@implementer(IDynamicAdapterFactory)
-class DynamicAdapterFactory(object):
-
-    """
-    Will attempt to create a dynamic adapter for a protocol
-    """
-
-    def __init__(self, *args, **kwargs):
-
-        """
-        Will create and register a dynamic adapter into storage
-
-        :param args:
-        :param kwargs:
-
-        :return:
-        """
-        super(DynamicAdapterFactory, self).__init__()
-
-        args = args[0]
-
-        klass = adapter(*args)
-
-        self.__klass = klass(
-            type(
-                kwargs.get('name', 'DynamicAdapter'),
-                (DefaultAdapter, ),
-                {}
-            )
-        )
-
-        gsm = getGlobalSiteManager()
-        gsm.registerAdapter(self.__klass)
-
-    def get(self):
-
-        """
-        Getter for an adapted class
-        :return: class
-        """
-
-        return self.__klass
