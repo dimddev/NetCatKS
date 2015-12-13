@@ -1,12 +1,16 @@
+"""
+A module that contain a main functionality for a NetCatKS
+"""
 from twisted.internet.defer import Deferred
 
 from zope.interface import implementer
 from zope.component import adapts, subscribers
 from zope.component import getGlobalSiteManager
 from zope.interface.verify import verifyObject
+from zope.interface.exceptions import DoesNotImplement
 
-from NetCatKS.Dispatcher.api.public import IDispatcher
-from NetCatKS.Dispatcher.api.public import IDispathcherResultHelper
+from NetCatKS.Dispatcher.api.interfaces.dispatcher import IDispatcher
+from NetCatKS.Dispatcher.api.interfaces.dispatcher import IDispathcherResultHelper
 
 from NetCatKS.Components import IXMLResource
 from NetCatKS.Components import IJSONResource, IJSONResourceAPI, IJSONResourceRootAPI
@@ -22,12 +26,33 @@ __author__ = 'dimd'
 
 class NonRootAPI(object):
 
+    """
+    An API that will check for a Non Root API's
+    """
+
     def __init__(self, comp):
+
+        """
+        A NonRootAPi constructor will init a logger and a comp property for an object
+        that have to be compare with the existing registered protocols
+
+        :param comp:
+        :type comp: an input object as DynamicProtocol
+
+        :return: void
+        """
 
         self.comp = comp
         self.__logger = Logger()
 
     def check(self):
+
+        """
+        Will trying to match the candidate Non Root API
+        check IJSONResourceAPI for more info
+
+        :return: False if not success otherwise the response from matched API.method()
+        """
 
         for api in subscribers([self.comp], IJSONResourceAPI):
 
@@ -69,14 +94,31 @@ class NonRootAPI(object):
 
 
 class RootAPI(object):
-
+    """
+    An API that implements an IJSONResourceRootAPI
+    """
     def __init__(self, comp):
 
+        """
+        A RootAPI constructor will init an logger and will initialize a public attribute
+        - self.comp which representing an input object as DynamicProtocol
+
+        :param comp:
+        :type comp: DynamicProtocol
+
+        :return: void
+        """
         self.comp = comp
         self.__logger = Logger()
 
     def check(self):
 
+        """
+        Will trying to get a RootAPI and if match one will fired a process_factory
+        of an implementation API
+
+        :return: False if not success otherwise the response from process_factory
+        """
         for api in subscribers([self.comp], IJSONResourceRootAPI):
 
             if api.__class__.__name__.lower() in self.comp.to_dict().keys():
@@ -107,22 +149,33 @@ class Dispatcher(object):
     adapts(IValidator)
 
     def __init__(self, validator):
+
         """
+        The constructor will init a logger and will init a public attribute - self.validator
+        that is a validated requests, here we have to determinate which protocol and API have
+        to process this request
 
         :param validator:
-        :type:
+        :type validator: IValidator
 
+        :return: void
         """
+
         self.validator = validator
         self.__logger = Logger()
 
     def __api_processor(self, valid_dispatch, valid_response, isubscriber):
+
         """
+
+        Will loop through a valid response objects and will compare it to a registered
+        protocol subscribers
 
         :param valid_dispatch:
         :param valid_response:
         :param isubscriber:
-        :return:
+
+        :return: The chosen API or False
         """
         for sub in subscribers([valid_response], isubscriber):
 
@@ -132,7 +185,7 @@ class Dispatcher(object):
 
                 verifyObject(isubscriber, sub)
 
-            except Exception as e:
+            except DoesNotImplement as e:
 
                 self.__logger.warning('Incorrect implementation: {}'.format(e))
 
@@ -164,14 +217,15 @@ class Dispatcher(object):
         return False
 
     def dispatch(self):
+
         """
         When request is happening first will be validated,
         if valid_dispatch is False means we do not support this data type. You have to write your custom
         validator(s) inside components/validators
-        Otherwise
 
-        :return:
+        :return: The response or False
         """
+
         # validate for supporting types
 
         try:
@@ -209,11 +263,59 @@ class Dispatcher(object):
 @implementer(IDispathcherResultHelper)
 class DispathcherResultHelper(object):
 
+    """
+    A helper class that care about of the result and the response of the request
+    """
+
     def __init__(self, factory):
+
+        """
+        Just settings
+        :param factory:
+        :return: void
+        """
+
         self.__logger = Logger()
         self.factory = factory
 
+    @staticmethod
+    def deferred_response(response, sender):
+
+        """
+        Care about global defered response
+        :param response: response from defer operation
+        :param sender: TBA
+
+        :return: void
+        """
+        if sender is not None:
+            sender(response.to_json())
+
+    def deferred_response_error(self, err):
+
+        """
+        fired if global defered response fail
+        :param err:
+
+        :return: False
+        """
+        self.__logger.error('Cannot send message to user: {}'.format(
+            err
+        ))
+
+        return False
+
     def result_validation(self, sender=None, drop=None, section='TCP'):
+
+        """
+        A Result Helper more info TBA
+
+        :param sender:
+        :param drop:
+        :param section:
+
+        :return: mixin
+        """
 
         if IValidator.providedBy(self.factory):
 
@@ -249,21 +351,8 @@ class DispathcherResultHelper(object):
 
                 elif isinstance(self.factory, Deferred):
 
-                    def deferred_response(response):
-
-                        if sender is not None:
-                            sender(response.to_json())
-
-                    def deferred_response_error(err):
-
-                        self.__logger.error('Cannot send message to user: {}'.format(
-                            err
-                        ))
-
-                        return False
-
-                    self.factory.addCallback(deferred_response)
-                    self.factory.addErrback(deferred_response_error)
+                    self.factory.addCallback(self.deferred_response, sender)
+                    self.factory.addErrback(self.deferred_response_error)
 
             else:
 
