@@ -2,11 +2,7 @@
 A Public API for a Dynamic Protocol
 """
 
-from NetCatKS.DProtocol.api.interfaces.dymanic import IDynamicProtocolInterface
 from NetCatKS.DProtocol.api.implementors.dynamic import DynamicProtocolImplementor
-
-from zope.interface.verify import verifyObject
-from zope.interface.exceptions import BrokenImplementation
 
 __author__ = 'dimd'
 
