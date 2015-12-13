@@ -1,41 +1,53 @@
-__author__ = 'dimd'
+"""
+A module that will load and register all API's registered under the follow
+interfaces 'BaseAPI', 'BaseRootAPI', 'BaseRootAPIWampMixin', 'BaseAPIWampMixin', 'WAMPLoadOnRunTime'
+Note: all of them have to be hosted inside an adapters directory otherwise will not be loaded!
+"""
 
 from datetime import datetime
 
+from zope.component import getGlobalSiteManager, createObject
+from zope.interface import implementer
+
 from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
 from NetCatKS.Components.api.interfaces.registration.adapters import IRegisterAdapters
-from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory
 from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
 from NetCatKS.Components.api.interfaces import IJSONResourceAPI, IJSONResourceRootAPI, IWAMPLoadOnRunTime
 
 from NetCatKS.Components.common.loaders import BaseLoader
-from NetCatKS.Components.common.factory import get_factory_objects
+from NetCatKS.Components.common.factory import RegisterAsFactory
 
-from zope.component import getMultiAdapter
-from zope.component import ComponentLookupError
-from zope.component import getGlobalSiteManager, createObject
-from zope.interface import implementer
-from zope.component.factory import Factory
-from zope.component.interfaces import IFactory
+__author__ = 'dimd'
 
 
 @implementer(IRegisterAdapters)
 class RegisterAdapters(RegisterFactories):
+
     """
     This class provide functionality for registering adapters inside Zope Global Site Manager
      ( storage of kind )
     """
-    def __init__(self, protocols_source, file_loader=None, out_filter=list()):
+
+    def __init__(self, protocols_source, file_loader=None, out_filter=None):
+
         """
+
+        The constructor will initialize the storage, will load the loaded object
+        that belong to our filters eg 'BaseAPI', 'BaseRootAPI', 'BaseRootAPIWampMixin',
+        'BaseAPIWampMixin' and 'WAMPLoadOnRunTime'
 
         :param protocols_source:
-
         :param file_loader:
-
         :param out_filter:
 
-        :return:
+        :return: void
         """
+
+        # NETODO the arguments have to be clarify and described
+
+        if not out_filter:
+            out_filter = []
+
         default_filters = list(
             set(out_filter + [IVirtualAdapter, IJSONResourceAPI, IJSONResourceRootAPI, IWAMPLoadOnRunTime])
         )
@@ -49,12 +61,17 @@ class RegisterAdapters(RegisterFactories):
         self.__gsm = getGlobalSiteManager()
 
     def register(self):
+
+        """
+        Will register all matched API's as subscriber adapters that will be called if they matched
+        until our recognition process
+
+        :return: True
         """
 
-        :return:
-        """
+        # NETODO - the method always returning True - this is not correct
 
-        if type(self.__objects) is not tuple and type(self.__objects) is not list:
+        if not isinstance(self.__objects, tuple) and not isinstance(self.__objects, list):
             raise TypeError('objects have to be tuple or list')
 
         self.__objects = list(set(self.__objects))
@@ -77,41 +94,12 @@ class RegisterAdapters(RegisterFactories):
 
         return True
 
-    def get_multi_adapter(self, objects, belong_interface=IVirtualAdapter):
-        """
-        This function will return proper multi adapter
-        :param objects: list of objects like ['user', 'admin']
-        :param belong_interface: default is IVirtualAdapter
-        :return: adapted object
-        """
-
-        # first we trying to get multi adapters based on all registered factories
-        try:
-
-            if type(objects) is not tuple and type(objects) is not list:
-                raise TypeError('objects have to be tuple or list')
-
-            return getMultiAdapter(get_factory_objects(objects), belong_interface)
-
-        except ComponentLookupError:
-
-            iface_collection = []
-
-            for obj in objects:
-
-                iface_name = 'i{}{}'.format(obj, self.__storage.components.get(obj))
-                iface = self.__storage.interfaces.get(iface_name, None)
-
-                if iface:
-                    iface_collection.append(iface.get('interface'))
-
-            # will trying to make dynamic adapter based on current request
-
-            DynamicAdapterFactory(iface_collection)
-            return getMultiAdapter(get_factory_objects(objects), belong_interface)
-
 
 class FileAdaptersLoader(BaseLoader):
+
+    """
+    A helper class that is used until our loading process
+    """
 
     def __init__(self, **kwargs):
         """
@@ -121,8 +109,4 @@ class FileAdaptersLoader(BaseLoader):
         """
         super(FileAdaptersLoader, self).__init__(**kwargs)
 
-
-gsm = getGlobalSiteManager()
-
-factory_ = Factory(RegisterAdapters, RegisterAdapters.__name__)
-gsm.registerUtility(factory_, IFactory, RegisterAdapters.__name__.lower())
+RegisterAsFactory(RegisterAdapters).register()

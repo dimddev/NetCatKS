@@ -4,7 +4,7 @@ This module is written in a DynamicProtocol style and caring for our WEB Socket 
 from __future__ import absolute_import
 
 from zope.interface import Interface, Attribute, implementer
-from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
+from NetCatKS.Components.common.factory import RegisterAsFactory
 from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
 from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig, MixinWamp
 

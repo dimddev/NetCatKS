@@ -2,7 +2,7 @@
 This module is written in a DynamicProtocol style and caring for our WAMP client (component)
 """
 from zope.interface import implementer
-from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
+from NetCatKS.Components.common.factory import RegisterAsFactory
 from NetCatKS.Config.api.interfaces import IWamp
 from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig, MixinWamp
 __author__ = 'dimd'

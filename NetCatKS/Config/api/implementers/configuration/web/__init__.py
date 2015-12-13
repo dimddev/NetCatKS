@@ -7,7 +7,7 @@ from zope.interface import implementer
 from NetCatKS.Config.api.interfaces import IWeb
 
 from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig
-from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
+from NetCatKS.Components.common.factory import RegisterAsFactory
 
 __author__ = 'dimd'
 

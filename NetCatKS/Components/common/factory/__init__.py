@@ -1,22 +1,45 @@
+"""
+A helper functions and classes for our factories
+"""
+
+from zope.component.factory import Factory
+from zope.component import getGlobalSiteManager, IFactory
+
 __author__ = 'dimd'
-from zope.component import createObject
 
 
-def get_factory_objects(objects):
+class RegisterAsFactory(object):
 
-    storage = createObject('storageregister')
+    """
+    A class that providing a shortcut for a register a class as Zope Factory
+    This mechanism is a important for us because we having loaded all user defined callbacks and protocols
+    on runtime, this including our internal configuration too
+    """
 
-    objects.sort()
+    def __init__(self, klass):
 
-    temp = []
+        """
 
-    for obj in objects:
+        The constructor will care about the class that have to be register as Factory
+        :param klass:
+        :type klass: class
 
-        prefix = storage.components.get(obj, None)
+        :return: void
+        """
 
-        if prefix is None:
-            continue
+        self.__gsm = getGlobalSiteManager()
+        self.__klass = klass
 
-        temp.append(createObject(obj + prefix))
+    def register(self):
 
-    return tuple(temp)
+        """
+        Registering a class as Zope Factory, you can load this factory with a createObject
+
+        :return: void
+        """
+
+        self.__gsm.registerUtility(
+            Factory(self.__klass, self.__klass.__name__),
+            IFactory,
+            self.__klass.__name__.lower()
+        )

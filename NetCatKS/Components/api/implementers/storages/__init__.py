@@ -1,28 +1,28 @@
-__author__ = 'dimd'
-
-from NetCatKS.Components.api.interfaces.storages import IStorageRegister
+"""
+A module that represent our internal storage
+"""
 
 from zope.interface import implementer
-from zope.component.factory import Factory
-from zope.component.interfaces import IFactory
-from zope.component import getGlobalSiteManager
+
+from NetCatKS.Components.api.interfaces.storages import IStorageRegister
+from NetCatKS.Components.common.factory import RegisterAsFactory
+
+__author__ = 'dimd'
 
 
 @implementer(IStorageRegister)
 class StorageRegisterImplementer(object):
-
+    """
+    Internal storage used by our API's
+    """
     __instance = None
     components = {}
     interfaces = {}
 
     def __new__(cls):
         """
-        we implement singleton patter for our Container to ensure that all commands point to one place
-
-        :param cls:
-            self instance
-        :return:
-            singleton instance
+        Implements a singleton pattern
+        :return: void
         """
 
         if StorageRegisterImplementer.__instance is None:
@@ -34,13 +34,17 @@ class StorageRegisterImplementer(object):
 
 class StorageRegister(StorageRegisterImplementer):
 
+    """
+    A proxy class for our Storage. The users have to use this one
+    """
+
     def __init__(self):
+        """
+        Just call a super
+        :return: void
+        """
         super(StorageRegister, self).__init__()
 
-
-gsm = getGlobalSiteManager()
-
-factory = Factory(StorageRegister, StorageRegister.__name__)
-gsm.registerUtility(factory, IFactory, StorageRegister.__name__.lower())
+RegisterAsFactory(StorageRegister).register()
 
 __all__ = ['StorageRegister']

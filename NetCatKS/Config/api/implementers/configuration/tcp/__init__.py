@@ -5,8 +5,7 @@ This module is written in a DynamicProtocol style and caring for our TCP Server 
 from __future__ import absolute_import
 
 from zope.interface import implementer
-
-from NetCatKS.Config.api.implementers.configuration.mixin import RegisterAsFactory
+from NetCatKS.Components.common.factory import RegisterAsFactory
 from NetCatKS.Config.api.interfaces import ITcp
 from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig
 

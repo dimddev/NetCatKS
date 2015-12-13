@@ -1,3 +1,6 @@
+"""
+A container for our Component public API
+"""
 from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory, WAMPLoadOnRunTime
 from NetCatKS.Components.api.implementers.adapters import RequestSubscriber, BaseAPI, BaseRootAPI
 from NetCatKS.Components.api.implementers.adapters import BaseAPIWampMixin, BaseRootAPIWampMixin

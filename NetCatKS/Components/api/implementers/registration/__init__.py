@@ -1,8 +1,11 @@
-__author__ = 'dimd'
-
+"""
+A module that represent the frontend of our Component API
+"""
 from zope.component import createObject
 from zope.interface.interfaces import ComponentLookupError
 from NetCatKS.Config.api.implementers import Config
+
+__author__ = 'dimd'
 
 
 class ComponentsRegistratorAdapter(object):
@@ -11,7 +14,7 @@ class ComponentsRegistratorAdapter(object):
     Adapt together RegisterFactories and RegisterAdapters
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
 
         """
         :param want_to_load:
@@ -42,7 +45,7 @@ class ComponentsRegistratorAdapter(object):
 
         comp = []
 
-        if __a_comp is not None and type(__a_comp) is list:
+        if __a_comp is not None and isinstance(__a_comp, list):
 
             comp = [c for c in __a_comp if c in self.__available_components]
 
@@ -55,7 +58,14 @@ class ComponentsRegistratorAdapter(object):
         self.running_components = comp or self.__available_components
 
     def init(self):
-        
+
+        """
+        Will init the right register API
+        :return: self
+        """
+
+        # NETODO to be refactored!
+
         for reg in self.running_components:
 
             try:
@@ -66,7 +76,6 @@ class ComponentsRegistratorAdapter(object):
 
             except AttributeError as e:
                 print e.message
-                pass
 
             except TypeError as e:
 
@@ -84,9 +93,11 @@ class ComponentsRegistratorAdapter(object):
 
 
 class ComponentsRegistration(ComponentsRegistratorAdapter):
-    """
 
     """
+    The public proxy class that have to used when we initializing our app
+    """
+
     def __init__(self, *args, **kwargs):
         """
 

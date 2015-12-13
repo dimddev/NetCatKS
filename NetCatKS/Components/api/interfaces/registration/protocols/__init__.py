@@ -1,9 +1,16 @@
-__author__ = 'dimd'
-
+"""
+A module containing an interface for registration of protocols
+"""
 from zope.interface import Interface
+
+__author__ = 'dimd'
 
 
 class IRegisterProtocols(Interface):
+
+    """
+    Base interface for a implementation of RegisterProtocols
+    """
 
     def register(**kwargs):
         """

@@ -1,11 +1,13 @@
+"""
+A container for our common and helper classes
+"""
+from NetCatKS.Components.common.adapters import AdapterProxyGetter
+from NetCatKS.Components.common.loaders import BaseLoader
+
 __author__ = 'dimd'
 
-from adapters import AdapterProxyGetter
-from factory import get_factory_objects
-from loaders import BaseLoader
 
 __all__ = [
     'AdapterProxyGetter',
-    'get_factory_objects',
     'BaseLoader'
 ]

@@ -1,14 +1,13 @@
+"""
+A module that providing a base functionality for loading and registration of API's
+"""
 from __future__ import absolute_import
-
-__author__ = 'dimd'
 
 from datetime import datetime
 
 from zope.interface import implementer
 from zope.component import createObject
 from zope.component import getGlobalSiteManager
-from zope.component.factory import Factory
-from zope.component.interfaces import IFactory
 
 from NetCatKS.Components.api.interfaces.registration.factories import IRegisterFactories
 from NetCatKS.Components.common.loaders import BaseLoader
@@ -17,17 +16,29 @@ from NetCatKS.Validators import IValidatorResponse
 from NetCatKS.DProtocol import DProtocolSubscriber
 from NetCatKS.Logger import Logger
 from NetCatKS.Components.api.interfaces import IJSONResource
+from NetCatKS.Components.common.factory import RegisterAsFactory
+
+
+__author__ = 'dimd'
 
 
 @implementer(IRegisterFactories)
 class RegisterFactories(object):
 
-    def __init__(self, factories_source, file_loader=None, out_filter=list()):
+    """
+    A class that care about all API's  registered with IUserStorage and IUserFactory interfaces
+    plus user defined. This class is a base for all the others from a Register* family
+    """
+
+    def __init__(self, factories_source, file_loader=None, out_filter=None):
+
         """
+        The constructor will init the storage and all objects that are matched from our filters
 
         :param file_loader:
         :param factories_source:
-        :return:
+
+        :return: void
         """
 
         super(RegisterFactories, self).__init__()
@@ -35,6 +46,9 @@ class RegisterFactories(object):
         self.__gsm = getGlobalSiteManager()
 
         self.file_loader = file_loader or FileFactoryLoader()
+
+        if not out_filter:
+            out_filter = []
 
         self.default_filter = list(set(out_filter + [IUserStorage, IUserFactory]))
 
@@ -47,14 +61,24 @@ class RegisterFactories(object):
         self.__logger = Logger()
 
     def get_object(self):
+
+        """
+        A getter for all loaded objects
+
+        :return: object
+        """
+
         return self.__objects
 
     def register(self):
         """
-
-        :return:
+        Will register API's
+        :return: void
         """
-        if type(self.__objects) is not tuple and type(self.__objects) is not list:
+
+        # NETODO the docs have to be improved
+
+        if not isinstance(self.__objects, tuple) and not isinstance(self.__objects, list):
             raise TypeError('objects have to be tuple or list')
 
         self.__objects = set(self.__objects)
@@ -97,14 +121,15 @@ class RegisterFactories(object):
                         self.__gsm.registerSubscriptionAdapter(__klass, [IValidatorResponse])
 
             # NETODO to be checked and removed is needed
-            # reg_name = obj.__name__.lower().replace(self.file_loader.prefix.lower(), '')
-            # self.__storage.components[reg_name] = self.file_loader.prefix.lower()
 
-            factory = Factory(obj, obj.__name__)
-            self.__gsm.registerUtility(factory, IFactory, obj.__name__.lower())
+            RegisterAsFactory(obj).register()
 
 
 class FileFactoryLoader(BaseLoader):
+
+    """
+    A helper class that is used during our loading process
+    """
 
     def __init__(self, **kwargs):
         """
@@ -114,8 +139,4 @@ class FileFactoryLoader(BaseLoader):
         """
         super(FileFactoryLoader, self).__init__(**kwargs)
 
-
-gsm = getGlobalSiteManager()
-
-factory_ = Factory(RegisterFactories, RegisterFactories.__name__)
-gsm.registerUtility(factory_, IFactory, RegisterFactories.__name__.lower())
+RegisterAsFactory(RegisterFactories).register()

@@ -1,7 +1,9 @@
-__author__ = 'dimd'
-
+"""
+A module that contains a helper and base class for some dynamic and shared adapters
+"""
 from zope.interface import alsoProvides
 from NetCatKS.Components.api.interfaces.virtual import IVirtualAdapter
+__author__ = 'dimd'
 
 
 class AdapterProxyGetter(object):
@@ -15,49 +17,56 @@ class AdapterProxyGetter(object):
 
     def __init__(self, *args):
 
+        """
+        Set init arguments and call a super
+        :param args:
+
+        :return: void
+        """
         self._adapters = args
 
         super(AdapterProxyGetter, self).__init__()
 
     def __getattr__(self, name):
+
         """
         returning matched attribute or method otherwise raise AttributeError
+
         :param name: list of adaptee objects
+
         :return: matched attribute or method or raise AttributeError
         """
 
         checker = []
+        obj = None
 
         for obj in self._adapters:
 
-            try:
+            # for normal attributes
+            if obj.__dict__.get(name, None) is not None:
 
-                # for normal attributes
-                if obj.__dict__.get(name, None) is not None:
+                return obj.__dict__.get(name)
 
-                    return obj.__dict__.get(name)
+            # for properties
+            elif getattr(obj, name) and not callable(getattr(obj, name)):
+                return getattr(obj, name)
 
-                # for properties
-                elif getattr(obj, name) and not callable(getattr(obj, name)):
-                    return getattr(obj, name)
+            # for methods
+            elif callable(getattr(obj, name)):
 
-                # for methods
-                elif callable(getattr(obj, name)):
+                def proxy(*args, **kwargs):
 
-                    def proxy(*args, **kwargs):
-                        setattr(self, obj.__class__.__name__.lower(), obj)
-                        return getattr(obj, name)(*args, **kwargs)
+                    """
+                    Will make a fake method
+                    :param args:
+                    :param kwargs:
 
-                    return proxy
+                    :return: method result
+                    """
+                    setattr(self, obj.__class__.__name__.lower(), obj)
+                    return getattr(obj, name)(*args, **kwargs)
 
-            except Exception as e:
-                checker.append(1)
-
-                if AdapterProxyGetter.__debug is True:
-                    print 'DEBUG EXCEPTION: {}'.format(e.message)
-
-                else:
-                    pass
+                return proxy
 
         if len(checker) == len(self._adapters):
 

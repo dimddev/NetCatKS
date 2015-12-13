@@ -1,14 +1,22 @@
-__author__ = 'dimd'
-
+"""
+A module that contains interfaces about our internal and user defined loaders
+"""
 from zope.interface import Interface
+
+__author__ = 'dimd'
 
 
 class IBaseLoader(Interface):
 
-    def load(self):
-        """
+    """
+    An interface that describing our main loader
+    """
 
-        :return:
+    def load():
+
+        """
+        have to load the proper objects based on Interface filtering
+        :return: list
         """
 
 
@@ -42,7 +50,7 @@ class IUserGlobalSubscriber(Interface):
     """
     def subscribe():
         """
-
+        When we got something for our global subscriber this method will be fired
         :return:
         """
 

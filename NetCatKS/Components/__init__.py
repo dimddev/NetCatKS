@@ -1,24 +1,26 @@
-__author__ = 'dimd'
+"""
+A container for all public object and interfaces related to our Component API
+"""
 
 from NetCatKS.Components.api import *
 from NetCatKS.Components.common import *
+
+__author__ = 'dimd'
 
 __all__ = [
     'ComponentsRegistration',
     'DynamicAdapterFactory',
     'DefaultAdapter',
     'RegisterFactories',
-    'RegisterAdapter',
+    'RegisterAdapters',
     'RegisterProtocols',
     'StorageRegister',
     'IDynamicAdapterFactory',
     'IBaseLoader',
     'IRegisterAdapters',
     'IRegisterFactories',
-    'IProtocolRegister',
     'IStorageRegister',
     'AdapterProxyGetter',
-    'get_factory_objects',
     'BaseLoader',
     'IRegisterWamp',
     'RegisterWamp',
