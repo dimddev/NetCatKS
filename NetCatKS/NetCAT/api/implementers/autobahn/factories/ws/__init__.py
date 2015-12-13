@@ -1,8 +1,7 @@
-__author__ = 'dimd'
-
+"""
+A module that care about creating of Web Socket servers
+"""
 from zope.interface import implementer
-
-from twisted.internet.protocol import Factory
 from autobahn.twisted.websocket import WebSocketServerFactory
 
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultWSFactory
@@ -11,9 +10,13 @@ from NetCatKS.Config.api.implementers.configuration.ws import WS
 from NetCatKS.Logger import Logger
 
 
+__author__ = 'dimd'
+
+
 class DefaultWSFactoryRunner(WebSocketServerFactory):
     def __init__(self, *args, **kwargs):
         super(DefaultWSFactoryRunner, self).__init__(*args, **kwargs)
+
 
 @implementer(IDefaultWSFactory)
 class DefaultWSFactory(object):

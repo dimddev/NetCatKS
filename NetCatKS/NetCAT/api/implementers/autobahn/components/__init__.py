@@ -45,14 +45,14 @@ def onChallenge(self, challenge):
         if u'salt' in challenge.extra:
 
             key = auth.derive_key(
-                cfg.user.encode('utf8'),
+                password[cfg.user].encode('utf8'),
                 challenge.extra['salt'].encode('utf8'),
                 challenge.extra.get('iterations', None),
                 challenge.extra.get('keylen', None)
             )
 
         else:
-            key = cfg.user.encode('utf8')
+            key = password[cfg.user].encode('utf8')
 
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
 
@@ -61,6 +61,7 @@ def onChallenge(self, challenge):
     else:
 
         raise Exception("don't know how to compute challenge for authmethod {}".format(challenge.method))
+
 
 @implementer(IWampDefaultComponent)
 class WampDefaultComponent(ApplicationSession):

@@ -1,12 +1,18 @@
-__author__ = 'dimd'
+"""
+A Class representing our config loader, it providing a singleton pattern and methods that retrieve
+a parts of our config represented as DynamicProtocol Object
+"""
 
 import json
 
 from NetCatKS.Config.api.interfaces import IConfig
-from NetCatKS.Config.api.implementers.configuration import *
+from NetCatKS.Config.api.implementers.configuration import TCP, WS, WEB, WAMP
 
 from zope.interface import implementer
 from zope.component import createObject
+
+
+__author__ = 'dimd'
 
 
 @implementer(IConfig)
@@ -21,6 +27,14 @@ class Config(object):
 
     def __new__(cls):
 
+        """
+
+        Will trying to load our config file, by default will looking for a
+        a config/config.json
+
+        :return: void
+
+        """
         if Config.__instance is None:
 
             Config.__instance = object.__new__(cls)
@@ -30,8 +44,8 @@ class Config(object):
                 with open('config/config.json', 'r') as config:
                     Config.__config = json.loads(config.read(), encoding='utf-8')
 
-            except Exception as e:
-                raise Exception('Config not found: {}'.format(e.message))
+            except Exception as e_load:
+                raise Exception('Config not found: {}'.format(e_load.message))
 
             else:
 
@@ -42,33 +56,72 @@ class Config(object):
     def __init__(self):
         pass
 
-    def get(self, section):
-        return self.__class__.__config.get(section, None)
-
     @classmethod
-    def __get_section(cls, section):
+    def get_section(cls, section):
 
-        proto = createObject(section)
+        """
+        Implementation of IConfig.get_section
 
-        if section.upper() in cls.__config:
-            return proto.to_object(cls.__config.get(section.upper()))
+        :param section:
+        :type section: str
+
+        :return: DynamicProtocol for this section if exist in our config - otherwise False
+
+        """
+
+        if section:
+
+            proto = createObject(section)
+
+            if section.upper() in cls.__config:
+                return proto.to_object(cls.__config.get(section.upper()))
+
+        else:
+            return False
 
     @classmethod
     def get_tcp(cls):
-        return cls.__get_section('tcp')
+
+        """
+        Implementation of IConfig.get_tcp
+
+        :return: DynamicProtocol
+        """
+
+        return cls.get_section('tcp')
 
     @classmethod
     def get_web(cls):
-        return cls.__get_section('web')
+
+        """
+        Implementation of IConfig.get_web
+
+        :return: DynamicProtocol
+        """
+
+        return cls.get_section('web')
 
     @classmethod
     def get_wamp(cls):
-        return cls.__get_section('wamp')
 
+        """
+        Implementation of IConfig.get_wamp
+
+        :return: DynamicProtocol
+        """
+
+        return cls.get_section('wamp')
 
     @classmethod
     def get_ws(cls):
-        return cls.__get_section('ws')
+
+        """
+        Implementation of IConfig.get_ws
+
+        :return: DynamicProtocol
+        """
+
+        return cls.get_section('ws')
 
 
 __all__ = [

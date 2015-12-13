@@ -31,16 +31,19 @@ setup(
     ],
 
     install_requires=[
-        'pyasn1',
-        'autobahn>=0.10.5',
-        'crossbar==0.10.4',
-        'lxml==3.4.4',
-        'zope.component==4.2.2',
-        'zope.event==4.0.3',
-        'zope.interface==4.1.2',
-        'xmltodict',
-        'colorama'
-
+        'Twisted==15.4.0',              # MIT license
+        'autobahn==0.10.9',             # MIT license
+        'lxml==3.4.4',                  # BSD license
+        'zope.component==4.2.2',        # Zope Public license
+        'zope.event==4.0.3',            # Zope Public license
+        'zope.interface==4.1.2',        # Zope Public license
+        'xmltodict',                    # ???
+        'colorama',                     # BSD 3-Clause license
+        'cryptography>=0.9.3',          # Apache license
+        'pyOpenSSL>=0.15.1',            # Apache license
+        'pyasn1>=0.1.8',                # BSD license
+        'pyasn1-modules>=0.0.7',        # BSD license
+        'service_identity>=14.0.0',     # MIT license
     ],
     scripts=['bin/netcatks']
 )

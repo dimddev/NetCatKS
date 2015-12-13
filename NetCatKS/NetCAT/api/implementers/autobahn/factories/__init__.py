@@ -110,11 +110,11 @@ class AutobahnDefaultFactory(service.Service):
 
         self.extra = kwargs.get('extra', dict())
 
-        self.debug = kwargs.get('debug', False)
+        self.debug = kwargs.get('debug', True)
 
-        self.debug_wamp = kwargs.get('debug_wamp', False)
+        self.debug_wamp = kwargs.get('debug_wamp', True)
 
-        self.debug_app = kwargs.get('debug_app', False)
+        self.debug_app = kwargs.get('debug_app', True)
 
         self.belong_to = kwargs.get('belong_to', False)
 
