@@ -1,5 +1,3 @@
-__author__ = 'dimd'
-
 from NetCatKS.Validators.api.interfaces.message import IMessage
 from NetCatKS.Validators.api.implementers.validators.default import BaseValidator
 
@@ -7,6 +5,8 @@ from zope.component import adapts
 from zope.component import getGlobalSiteManager
 
 from lxml import etree
+
+__author__ = 'dimd'
 
 
 class XMLValidator(BaseValidator):

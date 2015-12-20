@@ -1,10 +1,10 @@
-__author__ = 'dimd'
-
 from NetCatKS.Validators.api.interfaces.validators import IValidator
 from NetCatKS.Validators.api.interfaces.message import IMessage
 
 from zope.component import adapts
 from zope.interface import implementer
+
+__author__ = 'dimd'
 
 
 @implementer(IValidator)
@@ -33,4 +33,4 @@ class BaseValidator(object):
         Method wich have to validate some data type
         :return: self
         """
-        raise NotImplemented('Not implemented, must be sub classed')
+        raise NotImplementedError('Not implemented, must be sub classed')

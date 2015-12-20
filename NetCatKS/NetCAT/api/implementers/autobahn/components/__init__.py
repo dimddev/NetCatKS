@@ -50,12 +50,15 @@ def onChallenge(self, challenge):
                 challenge.extra.get('iterations', None),
                 challenge.extra.get('keylen', None)
             )
-
+            print '========= SALTED KEY: {}'.format(key)
         else:
+
             key = password[cfg.user].encode('utf8')
+            print '========= UNSALTED KEY: {}'.format(key)
 
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
-
+        print '======================'
+        print 'GENERATED SIGNATURE: {}'.format(signature)
         return signature.decode('ascii')
 
     else:

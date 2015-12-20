@@ -4,13 +4,10 @@ a parts of our config represented as DynamicProtocol Object
 """
 
 import json
-
-from NetCatKS.Config.api.interfaces import IConfig
-from NetCatKS.Config.api.implementers.configuration import TCP, WS, WEB, WAMP
-
 from zope.interface import implementer
 from zope.component import createObject
 
+from NetCatKS.Config.api.interfaces import IConfig
 
 __author__ = 'dimd'
 
@@ -125,9 +122,5 @@ class Config(object):
 
 
 __all__ = [
-    'Config',
-    'TCP',
-    'WS',
-    'WAMP',
-    'WEB'
+    'Config'
 ]

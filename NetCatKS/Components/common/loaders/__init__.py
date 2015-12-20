@@ -1,5 +1,6 @@
 """
-A common module used for all object loading operations
+A module that provide a base functionality for loading files and all objects inside it
+on run time. All loaded object will be filtering by interfaces
 """
 
 import imp
@@ -16,15 +17,12 @@ __author__ = 'dimd'
 
 @implementer(IBaseLoader)
 class BaseLoader(object):
-
     """
-    Will walk through our component directory and will try to load all matched object described
-    as interfaces
+    A base class used from all loaders
     """
-
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
-        Load the storage
+
         :param kwargs:
         :return:
         """
@@ -33,10 +31,8 @@ class BaseLoader(object):
     @staticmethod
     def is_register(obj, filter_interfaces):
         """
-        Will check whether the object is register or not
-
+        Will trying to match object to its interface implementation
         :param obj:
-
         :param filter_interfaces:
         :return: tuple
         """
@@ -52,20 +48,15 @@ class BaseLoader(object):
         else:
             return is_reg
 
-    def __filtering(self, load, filter_interface):
-
+    def __filter(self, klasses, load, filter_interface, ignore):
         """
-        Loop through loaded object and if is registered will be append to our list
-
+        A object filtering base on filter interface and ignore list
+        :param klasses:
         :param load:
-
         :param filter_interface:
-
-        :return: list
+        :param ignore:
+        :return:
         """
-
-        __klasses = []
-
         for klass in dir(load):
 
             try:
@@ -78,15 +69,15 @@ class BaseLoader(object):
 
             else:
 
-                if candidate:
-                    __klasses.append(candidate)
+                if candidate and klass not in ignore:
+                    klasses.append(candidate)
 
-        return __klasses
+        return klasses
 
     def load(self, factories_source, filter_interface):
 
         """
-        Load objects recursively
+        Load a modules
 
         :param factories_source:
         :type factories_source: str
@@ -94,12 +85,13 @@ class BaseLoader(object):
         :param filter_interface:
         :type filter_interface: list
 
-        :return: loaded classes
+        :return:
         """
 
         __klasses = []
+        __ignore = ['DefaultAdapter']
 
-        for root, _, files in os.walk(factories_source):
+        for root, subdirs, files in os.walk(factories_source):
 
             if files:
 
@@ -111,6 +103,9 @@ class BaseLoader(object):
                     mod_path = root.replace('/', '.')
 
                     load = imp.load_source(mod_path, root + '/' + f)
-                    __klasses = self.__filtering(load, filter_interface)
+
+                    __klasses = self.__filter(
+                        __klasses, load, filter_interface, __ignore
+                    )
 
         return __klasses

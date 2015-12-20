@@ -78,7 +78,7 @@ class BaseProtocolSubscriber(object):
 
         # xml
 
-        if isinstance(self.adapter) is tuple:
+        if isinstance(self.adapter, tuple):
 
             try:
 
@@ -90,7 +90,7 @@ class BaseProtocolSubscriber(object):
                 print traceback.format_exc()
                 return False
 
-        if isinstance(self.adapter.response) is str:
+        if isinstance(self.adapter.response, str):
 
             try:
 

@@ -1,5 +1,3 @@
-__author__ = 'dimd'
-
 from NetCatKS.Validators.api.interfaces.validators import IValidator, IValidatorResponse
 from NetCatKS.Validators.api.implementers.message import Message
 
@@ -11,6 +9,8 @@ from NetCatKS.Logger import Logger
 
 from zope.component import subscribers
 from zope.interface import implementer
+
+__author__ = 'dimd'
 
 
 @implementer(IValidator)
