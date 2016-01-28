@@ -14,17 +14,37 @@ __author__ = 'dimd'
 
 
 class DefaultWSFactoryRunner(WebSocketServerFactory):
+
+    """
+    A Proxy class for a WS Factory
+    """
+
     def __init__(self, *args, **kwargs):
+        """
+
+        Just call a super
+
+        :param args:
+        :param kwargs:
+
+        :return:
+        """
         super(DefaultWSFactoryRunner, self).__init__(*args, **kwargs)
 
 
 @implementer(IDefaultWSFactory)
 class DefaultWSFactory(object):
 
+    """
+    A class that represent a default WS Factory
+    """
+
     def __init__(self, **kwargs):
+
         """
         Default factory, used for TCP servers, implements IDefaultFactory
         :param kwargs:
+
         :return:
         """
         self.__logger = Logger()

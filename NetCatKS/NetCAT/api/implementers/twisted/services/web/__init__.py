@@ -1,4 +1,6 @@
-__author__ = 'dimd'
+"""
+A module that contains our default web service
+"""
 
 from twisted.web.resource import Resource
 from twisted.web.server import Site
@@ -10,6 +12,9 @@ from NetCatKS.NetCAT.api.interfaces.twisted.factories import IDefaultWebFactory
 
 from zope.interface import classImplementsOnly
 from zope.component import adapts, getGlobalSiteManager
+
+
+__author__ = 'dimd'
 
 
 class DefaultWebService(service.Service):

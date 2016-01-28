@@ -1,15 +1,19 @@
-__author__ = 'dimd'
+"""
+A default WAMP service that will starting a WAMP client component
+"""
 
 from twisted.application import service
+from zope.interface import classImplementsOnly
+from zope.component import adapts
+from zope.component import getGlobalSiteManager
 
 from NetCatKS.NetCAT.api.implementers.autobahn.components import WampDefaultComponent
 from NetCatKS.NetCAT.api.interfaces.autobahn.services import IDefaultAutobahnService
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultAutobahnFactory
 from NetCatKS.NetCAT.api.implementers.autobahn.services.ws import DefaultWSService
 
-from zope.interface import classImplementsOnly
-from zope.component import adapts
-from zope.component import getGlobalSiteManager
+
+__author__ = 'dimd'
 
 
 class DefaultAutobahnService(service.Service):
@@ -42,6 +46,7 @@ class DefaultAutobahnService(service.Service):
             self.service_collection = service.IServiceCollection(self.__application)
 
     def start(self):
+
         """
         Will attach WampDefaultComponent component through AutobahnDefaultFactory
         to our service parent, if self.factory.belong_to is not False will be multi service,

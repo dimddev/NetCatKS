@@ -1,3 +1,10 @@
+"""
+A module that contains a base validator functionality
+"""
+
+from zope.component import subscribers
+from zope.interface import implementer
+
 from NetCatKS.Validators.api.interfaces.validators import IValidator, IValidatorResponse
 from NetCatKS.Validators.api.implementers.message import Message
 
@@ -6,9 +13,6 @@ from NetCatKS.Validators.api.implementers.validators.json import JSONValidator
 from NetCatKS.Validators.api.implementers.validators.xml import XMLValidator
 
 from NetCatKS.Logger import Logger
-
-from zope.component import subscribers
-from zope.interface import implementer
 
 __author__ = 'dimd'
 
@@ -65,7 +69,9 @@ class Validator(BaseValidator):
 
 @implementer(IValidatorResponse)
 class ValidatorResponse(object):
-
+    """
+    A validator class for a validated response
+    """
     def __init__(self, valid_message):
         self.response = valid_message
 

@@ -20,7 +20,7 @@ class BaseLoader(object):
     """
     A base class used from all loaders
     """
-    def __init__(self, **kwargs):
+    def __init__(self):
         """
 
         :param kwargs:
@@ -91,7 +91,7 @@ class BaseLoader(object):
         __klasses = []
         __ignore = ['DefaultAdapter']
 
-        for root, subdirs, files in os.walk(factories_source):
+        for root, _, files in os.walk(factories_source):
 
             if files:
 

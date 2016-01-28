@@ -1,7 +1,10 @@
-__author__ = 'dimd'
+"""
+A module that represent a WS Service that will start a WS server
+"""
 
 from twisted.application import internet, service
 from twisted.internet import ssl
+from autobahn.twisted.websocket import listenWS
 
 from zope.interface import classImplementsOnly
 from zope.component import adapts
@@ -11,7 +14,8 @@ from NetCatKS.NetCAT.api.interfaces.autobahn.services import IDefaultWSService
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultWSFactory
 from NetCatKS.Logger import Logger
 
-from autobahn.twisted.websocket import listenWS
+
+__author__ = 'dimd'
 
 
 class DefaultWSService(service.Service):
@@ -91,6 +95,11 @@ class DefaultWSService(service.Service):
 
     def start(self):
 
+        """
+        A public start method
+
+        :return: service_application
+        """
         self.setServiceParent(self.service_collection)
 
         if self.factory.belong_to is False:
@@ -98,6 +107,11 @@ class DefaultWSService(service.Service):
 
     def stopService(self):
 
+        """
+        A stop service method
+
+        :return: void
+        """
         self.factory.ws_server_factory.stopFactory()
 
         # if is not meaning wss server

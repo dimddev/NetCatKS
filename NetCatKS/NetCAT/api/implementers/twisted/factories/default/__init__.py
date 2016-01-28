@@ -1,5 +1,6 @@
-__author__ = 'dimd'
-
+"""
+A module that contains functionality for our default TCP factory
+"""
 from zope.interface import implementer
 
 from twisted.internet.protocol import Factory
@@ -9,9 +10,14 @@ from NetCatKS.NetCAT.api.implementers.twisted.protocols.linereceiver import Defa
 from NetCatKS.Config.api.implementers.configuration.tcp import TCP
 from NetCatKS.Logger import Logger
 
+__author__ = 'dimd'
+
+
 @implementer(IDefaultFactory)
 class DefaultFactory(Factory):
-
+    """
+    A default TCP Factory
+    """
     def __init__(self, **kwargs):
 
         """

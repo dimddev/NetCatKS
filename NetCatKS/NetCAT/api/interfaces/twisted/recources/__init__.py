@@ -1,20 +1,13 @@
-__author__ = 'dimd'
+"""
+A module interface for a Twisted default WEV resource
+"""
 
-from zope.interface import Interface, Attribute
+from zope.interface import Interface
+
+__author__ = 'dimd'
 
 
 class IDefaultWebResource(Interface):
     """
     marker for IDefaultWebResource
     """
-
-
-class IUserPostResource(Interface):
-
-    request = Attribute('Resource from type request')
-
-    def process():
-        """
-
-        :return:
-        """

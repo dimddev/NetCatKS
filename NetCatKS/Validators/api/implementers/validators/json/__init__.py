@@ -1,3 +1,7 @@
+"""
+A module that providing validation for a JSON format
+"""
+
 import json
 
 from zope.component import getGlobalSiteManager

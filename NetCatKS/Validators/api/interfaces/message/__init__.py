@@ -1,7 +1,10 @@
-__author__ = 'dimd'
-
+"""
+A module interface for incoming request
+"""
 
 from zope.interface import Interface, Attribute
+
+__author__ = 'dimd'
 
 
 class IMessage(Interface):

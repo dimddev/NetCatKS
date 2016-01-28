@@ -1,5 +1,8 @@
-__author__ = 'dimd'
-
+"""
+A container module
+"""
 from NetCatKS.NetCAT.api.interfaces.twisted import *
 from NetCatKS.NetCAT.api.interfaces.autobahn import *
-# from NetCatKS.NetCAT.api.interfaces.common import *
+
+__author__ = 'dimd'
+

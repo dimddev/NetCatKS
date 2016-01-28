@@ -1,4 +1,6 @@
-__author__ = 'dimd'
+"""
+A module that provide functionality for our Default TCP service
+"""
 
 from twisted.application import internet, service
 
@@ -9,6 +11,9 @@ from zope.component import getGlobalSiteManager
 from NetCatKS.NetCAT.api.interfaces.twisted.services import IDefaultService
 from NetCatKS.NetCAT.api.interfaces.twisted.factories import IDefaultFactory
 from NetCatKS.NetCAT.api.implementers.twisted.services.web import DefaultWebService
+
+
+__author__ = 'dimd'
 
 
 class DefaultService(service.Service):

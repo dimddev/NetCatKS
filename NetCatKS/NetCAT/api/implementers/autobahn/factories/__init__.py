@@ -1,3 +1,7 @@
+"""
+A module that represent our default WAMP Factory
+"""
+
 import traceback
 
 from autobahn.wamp.types import ComponentConfig
@@ -24,8 +28,17 @@ __author__ = 'dimd'
 
 
 class Reconnect(object):
-
+    """
+    A reconnect class
+    """
     def __init__(self, **kwargs):
+        """
+        A constructor will init our wamp session and a runner.
+        A runner is a callable that have to be processed when we got connection again
+
+        :param kwargs: keys: 'session' and 'runner'
+        :return: void
+        """
 
         if 'session' not in kwargs or 'runner' not in kwargs:
             raise Exception('session is not provided')
@@ -37,13 +50,17 @@ class Reconnect(object):
         self.config = kwargs.get('config')
 
     def start(self):
-
+        """
+        Start the reconnection
+        :return: void
+        """
         try:
 
             self.logger.info(
                 'TRYING TO CONNECT TO {}'.format(
-                self.config
-            ))
+                    self.config
+                )
+            )
 
             run = self.__runner(config=self.config)
             run.run(self.__session)
@@ -110,11 +127,11 @@ class AutobahnDefaultFactory(service.Service):
 
         self.extra = kwargs.get('extra', dict())
 
-        self.debug = kwargs.get('debug', True)
+        self.debug = kwargs.get('debug', False)
 
-        self.debug_wamp = kwargs.get('debug_wamp', True)
+        self.debug_wamp = kwargs.get('debug_wamp', False)
 
-        self.debug_app = kwargs.get('debug_app', True)
+        self.debug_app = kwargs.get('debug_app', False)
 
         self.belong_to = kwargs.get('belong_to', False)
 
@@ -139,16 +156,19 @@ class AutobahnDefaultFactory(service.Service):
         :type make: callable
         """
 
-        isSecure, host, port, resource, path, params = parseWsUrl(self.url)
+        is_secure, host, port, resource, path, params = parseWsUrl(self.url)
 
-        ## start logging to console
+        # start logging to console
         if self.debug or self.debug_wamp or self.debug_app:
             pass
             # log.startLogging(sys.stdout)
 
-        ## factory for use ApplicationSession
+        # factory for use ApplicationSession
         def create():
-
+            """
+            Will trying to create an ApplicationSession object
+            :return: ApplicationSession
+            """
             cfg = ComponentConfig(self.realm, self.extra)
 
             try:
@@ -156,7 +176,7 @@ class AutobahnDefaultFactory(service.Service):
 
             except Exception as e:
 
-                ## the app component could not be created .. fatal
+                # the app component could not be created .. fatal
                 self.logger.critical('CREATE RUNNER EXCEPTION {}'.format(e.message))
 
             else:
@@ -164,7 +184,7 @@ class AutobahnDefaultFactory(service.Service):
                 session.debug_app = self.debug_app
                 return session
 
-        ## create a WAMP-over-WebSocket transport client factory
+        # create a WAMP-over-WebSocket transport client factory
         transport_factory = WampWebSocketClientFactory(
             create,
             url=self.url,
@@ -172,7 +192,7 @@ class AutobahnDefaultFactory(service.Service):
             debug_wamp=self.debug_wamp
         )
 
-        if isSecure:
+        if is_secure:
             endpoint_descriptor = "ssl:{0}:{1}".format(host, port)
 
         else:
@@ -188,19 +208,35 @@ class AutobahnDefaultFactory(service.Service):
             self.logger.error('CLIENT CONNECT ERROR: {}'.format(e.message))
 
     def connect(self, endpoint, transport, session):
-
+        """
+        Will make a connection to a WAMP router based on a Twisted endpoint
+        :param endpoint:
+        :param transport:
+        :param session:
+        :return:
+        """
         try:
-            ## start the client from a Twisted endpoint
+
+            # start the client from a Twisted endpoint
 
             client = clientFromString(reactor, endpoint)
 
             res = client.connect(transport)
 
             def connect_result(result):
+                """
+                A callback used as defer result
+                :param result:
+                :return:
+                """
                 return result
 
             def connect_error(result):
-
+                """
+                A callback used as defer if error occur
+                :param result:
+                :return:
+                """
                 self.logger.error('CONNECTION ERROR: {}'.format(result.getErrorMessage()))
 
                 try:
@@ -228,9 +264,17 @@ class AutobahnDefaultFactory(service.Service):
             self.logger.error('CONNECTION GLOBAL ERRORS: {}'.format(e.message))
 
     def startService(self):
+        """
+        Start a WAMP service
+        :return:
+        """
         service.Service.startService(self)
 
     def stopService(self):
+        """
+        Stop a WAMP service
+        :return:
+        """
         service.Service.stopService(self)
 
 
