@@ -1,9 +1,20 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
+
+netcatks_dev = [
+    "pep8-naming>=0.3.3",   # MIT license
+    "flake8>=2.5.1",        # MIT license
+    "pyflakes>=1.0.0",      # MIT license
+    "nose",
+    "coverage",
+    "mock>=1.3.0",          # BSD license
+    "unittest2>=1.1.0"      # BSD license
+]
+
 setup(
     name='NetCatKS',
-    version='0.1.1b',
+    version='0.1.2',
     description='Networking with Crossbar, Autobahn and Twisted - Kick Starter',
     author='Dimitar Dimitrov',
     author_email='targolini@gmail.com',
@@ -29,7 +40,9 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
     ],
-
+    extras_require={
+        'dev': netcatks_dev,
+    },
     install_requires=[
         'Twisted==15.4.0',              # MIT license
         'autobahn==0.10.9',             # MIT license

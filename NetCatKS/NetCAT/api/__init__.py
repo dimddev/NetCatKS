@@ -1,6 +1,6 @@
 """
 A module container
-""" 
+"""
 
 from NetCatKS.NetCAT.api.public import *
 

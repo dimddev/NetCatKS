@@ -17,7 +17,7 @@ class BaseWampComponent(object):
 
     def __init__(self):
         """
-        Class a super and set a session to None
+        Class calling a super and set a session to None
         :return:
         """
         super(BaseWampComponent, self).__init__()

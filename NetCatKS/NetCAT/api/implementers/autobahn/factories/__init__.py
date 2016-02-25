@@ -34,7 +34,7 @@ class Reconnect(object):
     def __init__(self, **kwargs):
         """
         A constructor will init our wamp session and a runner.
-        A runner is a callable that have to be processed when we got connection again
+        A runner is a callable that have to be processed when we lose the connection
 
         :param kwargs: keys: 'session' and 'runner'
         :return: void

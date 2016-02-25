@@ -2,11 +2,10 @@
 A module that providing a public helpers for easy build of a "NetCatKS" applications
 """
 
-from NetCatKS.Components.api.interfaces.adapters import IRequestSubscriber
-
 from zope.component import createObject, adapts
 from zope.interface import implementer
 
+from NetCatKS.Components.api.interfaces.adapters import IRequestSubscriber
 from NetCatKS.Components.api.interfaces.adapters import IJSONResourceRootAPI, IJSONResourceAPI
 from NetCatKS.Components.api.interfaces.loaders import IJSONResource
 from NetCatKS.Components.api.interfaces.registration.wamp import IWAMPLoadOnRunTime

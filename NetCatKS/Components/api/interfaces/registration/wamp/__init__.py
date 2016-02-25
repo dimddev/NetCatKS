@@ -28,7 +28,7 @@ class IWAMPResource(Interface):
 class IWAMPComponent(Interface):
 
     """
-    A Interface that are for internal usage and its implementation will be a helper class
+    A Interface that is for internal usage and its implementation will be a helper class
     for a easy creating of wamp components
     """
 
