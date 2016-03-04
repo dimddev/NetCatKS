@@ -125,20 +125,20 @@ class BaseProtocolSubscriber(object):
         if ''.join(in_dict) == ''.join(host_proto):
             return self.protocol.to_object(self.adapter.response)
 
-        else:
-
-            in_dict = self.adapter.response.keys()
-            host_proto = self.protocol.to_dict().keys()
-
-            in_dict.sort()
-            host_proto.sort()
-
-            # self.compare_debug(2, in_dict, host_proto)
-
-            if ''.join(in_dict) == ''.join(host_proto):
-                return self.protocol.to_object(self.adapter.response)
-
-            return False
+        # else:
+        #
+        #     in_dict = self.adapter.response.keys()
+        #     host_proto = self.protocol.to_dict().keys()
+        #
+        #     in_dict.sort()
+        #     host_proto.sort()
+        #
+        #     # self.compare_debug(2, in_dict, host_proto)
+        #
+        #     if ''.join(in_dict) == ''.join(host_proto):
+        #         return self.protocol.to_object(self.adapter.response)
+        #
+        #     return False
 
 
 class DProtocolSubscriber(BaseProtocolSubscriber):

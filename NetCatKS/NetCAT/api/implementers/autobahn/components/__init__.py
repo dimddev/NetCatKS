@@ -72,8 +72,9 @@ def on_challenge(self, challenge):
         else:
 
             key = password[cfg.user].encode('utf8')
-
+        
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
+
         return signature.decode('ascii')
 
     else:

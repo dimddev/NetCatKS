@@ -82,7 +82,7 @@ class RegisterAdapters(RegisterFactories):
 
         for adapter, adapter_interface in self.__objects:
 
-            if adapter.__name__.startswith('I') or adapter.__name__ in __skip_system_helpers:
+            if adapter.__name__ in __skip_system_helpers:
                 continue
 
             print('{} [ RegisterAdapters ] Load: {} with filter: {}'.format(

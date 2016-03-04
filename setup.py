@@ -46,7 +46,7 @@ setup(
     install_requires=[
         'Twisted==15.4.0',              # MIT license
         'autobahn==0.10.9',             # MIT license
-        'lxml==3.4.4',                  # BSD license
+        'lxml==3.5.0',                  # BSD license
         'zope.component==4.2.2',        # Zope Public license
         'zope.event==4.0.3',            # Zope Public license
         'zope.interface==4.1.2',        # Zope Public license
