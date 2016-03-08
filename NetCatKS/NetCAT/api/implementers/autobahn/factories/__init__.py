@@ -188,8 +188,7 @@ class AutobahnDefaultFactory(service.Service):
         transport_factory = WampWebSocketClientFactory(
             create,
             url=self.url,
-            debug=self.debug,
-            debug_wamp=self.debug_wamp
+            debug=self.debug
         )
 
         if is_secure:
