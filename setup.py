@@ -14,7 +14,7 @@ netcatks_dev = [
 
 setup(
     name='NetCatKS',
-    version='0.1.2',
+    version='0.1.3',
     description='Networking with Crossbar, Autobahn and Twisted - Kick Starter',
     author='Dimitar Dimitrov',
     author_email='targolini@gmail.com',
@@ -56,7 +56,7 @@ setup(
         'pyOpenSSL>=0.15.1',            # Apache license
         'pyasn1>=0.1.8',                # BSD license
         'pyasn1-modules>=0.0.7',        # BSD license
-        # 'service_identity>=14.0.0',     # MIT license
+        'service_identity>=14.0.0',     # MIT license
     ],
     scripts=['bin/netcatks']
 )
