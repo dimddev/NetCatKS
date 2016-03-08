@@ -2,7 +2,7 @@
 A module that provide a base functionality for loading files and all objects inside it
 on run time. All loaded object will be filtering by interfaces
 """
-
+from __future__ import absolute_import
 import imp
 import os
 

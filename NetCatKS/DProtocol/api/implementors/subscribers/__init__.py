@@ -78,18 +78,6 @@ class BaseProtocolSubscriber(object):
 
         # xml
 
-        if isinstance(self.adapter, tuple):
-
-            try:
-
-                self.adapter = self.adapter[0]
-
-            except IndexError as i_error:
-
-                print i_error.message
-                print traceback.format_exc()
-                return False
-
         if isinstance(self.adapter.response, str):
 
             try:
@@ -122,23 +110,11 @@ class BaseProtocolSubscriber(object):
 
         # self.compare_debug(1, in_dict, host_proto)
 
-        if ''.join(in_dict) == ''.join(host_proto):
+        if in_dict == host_proto:
             return self.protocol.to_object(self.adapter.response)
 
-        # else:
-        #
-        #     in_dict = self.adapter.response.keys()
-        #     host_proto = self.protocol.to_dict().keys()
-        #
-        #     in_dict.sort()
-        #     host_proto.sort()
-        #
-        #     # self.compare_debug(2, in_dict, host_proto)
-        #
-        #     if ''.join(in_dict) == ''.join(host_proto):
-        #         return self.protocol.to_object(self.adapter.response)
-        #
-        #     return False
+        else:
+            return False
 
 
 class DProtocolSubscriber(BaseProtocolSubscriber):

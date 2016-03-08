@@ -6,6 +6,7 @@ from zope.interface.verify import verifyObject
 from zope.interface.exceptions import DoesNotImplement
 
 from NetCatKS.DProtocol import BaseProtocolActions, DynamicProtocol
+from NetCatKS.DProtocol.api.implementors.subscribers import BaseProtocolSubscriber
 from NetCatKS.DProtocol.api.public.filters import ProtocolFilters
 from NetCatKS.DProtocol.api.public.storage import ProtocolStorage
 from NetCatKS.DProtocol.api.interfaces.storage import IProtocolStogareInterface
@@ -117,6 +118,12 @@ class TestProtoclUser(DynamicProtocol):
         self.__max_length = self.if_list_auto_append(add_len, self.__max_length, 144)
 
 
+class TestBaseProtocolSubscriber(BaseProtocolSubscriber):
+
+    def __init__(self, proto_as_dict):
+        super(TestBaseProtocolSubscriber, self).__init__(proto_as_dict)
+
+
 class TestDprotocol(unittest.TestCase):
 
     def setUp(self):
@@ -129,6 +136,7 @@ class TestDprotocol(unittest.TestCase):
         self.profile = TestProtocolProfile()
         self.profile.name = 'name1'
         self.profile.email = 'email1@email.com'
+        return self.profile
 
     def test_to_dict_profile(self):
 
@@ -150,6 +158,7 @@ class TestDprotocol(unittest.TestCase):
         self.user.profile.details.jobs = 'Developer'
         self.user.profile.details.jobs = 'Art'
         self.user.profile.details.city = 'Frankfurt'
+        return self.user
 
     def test_constructor(self):
 
@@ -475,3 +484,34 @@ class TestDprotocol(unittest.TestCase):
     def test_protocol_filters(self):
         filters = ProtocolFilters()
         self.assertTrue(IProtocolFiltersInterface.providedBy(filters))
+
+    def test_subscribers_compare(self):
+
+        class FakeResponseUser(object):
+            response = self.init_user().to_dict()
+
+        class FakeResponseProfile(object):
+            response = self.init_profile().to_dict()
+
+        protocols = [TestProtoclUser(), TestProtoclDetails(), TestProtocolProfile()]
+        protocols_p = [TestProtocolProfile(), TestProtoclUser(), TestProtoclDetails()]
+
+        result_user = []
+        result_p = []
+
+        for k, p in enumerate(protocols):
+
+            TestBaseProtocolSubscriber.protocol = p
+            result_user.append(TestBaseProtocolSubscriber(FakeResponseUser()).compare())
+
+            TestBaseProtocolSubscriber.protocol = protocols_p[k]
+            result_p.append(TestBaseProtocolSubscriber(FakeResponseProfile()).compare())
+
+        self.assertIsInstance(result_user[0], DynamicProtocol)
+        self.assertFalse(result_user[1])
+        self.assertFalse(result_user[2])
+
+        self.assertIsInstance(result_p[0], BaseProtocolActions)
+        self.assertFalse(result_p[1])
+        self.assertFalse(result_p[2])
+

@@ -425,9 +425,9 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
                     else:
                         keys.append(key)
 
-            elif isinstance(data_, list) or isinstance(data_, tuple):
-                for item in data_:
-                    inner(item)
+            # elif isinstance(data_, list) or isinstance(data_, tuple):
+            #     for item in data_:
+            #         inner(item)
 
         inner(data)
         return keys
