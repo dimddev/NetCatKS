@@ -1,4 +1,6 @@
-__author__ = 'dimd'
+"""
+A module that care about our default web components
+"""
 
 from zope.interface import implementer
 
@@ -8,9 +10,15 @@ from NetCatKS.NetCAT.api.interfaces.twisted.factories import IDefaultWebFactory
 from NetCatKS.Config.api.implementers.configuration.web import WEB
 from NetCatKS.Logger import Logger
 
+__author__ = 'dimd'
+
 
 @implementer(IDefaultWebFactory)
 class DefaultWebFactory(Factory):
+
+    """
+    A class which represent our defaults web factory
+    """
 
     def __init__(self, **kwargs):
 

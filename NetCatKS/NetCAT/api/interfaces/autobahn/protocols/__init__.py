@@ -1,12 +1,13 @@
+"""
+A module interface, providing a WS Protocol marker
+"""
+
+from zope.interface import Interface
+
 __author__ = 'dimd'
 
 
-from zope.interface import Interface, Attribute
-
-
 class IWSProtocol(Interface):
-    pass
-
-
-class IUserWSProtocol(Interface):
-    pass
+    """
+    An interface marker for a WSProtocol implementation
+    """

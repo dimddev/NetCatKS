@@ -1,11 +1,20 @@
-__author__ = 'dimd'
+"""
+Provide a filter operation for our dynamic protocol
+"""
 
 from NetCatKS.DProtocol.api.interfaces.filters import IProtocolFiltersInterface
 from zope.interface import implementer
 
+__author__ = 'dimd'
+
 
 @implementer(IProtocolFiltersInterface)
 class ProtocolFiltersImplementor(object):
+
+    """
+    This class providing a functionality that will check input arguments against
+    specific types
+    """
 
     @staticmethod
     def check_for_float_and_int(check):
@@ -16,7 +25,7 @@ class ProtocolFiltersImplementor(object):
         :return:
         """
 
-        if type(check) is not float and type(check) is not int:
+        if not isinstance(check, float) and not isinstance(check, int):
 
             raise TypeError('API Error: incorrect configure, input must be float or int')
 
@@ -32,7 +41,7 @@ class ProtocolFiltersImplementor(object):
         :return:
         """
 
-        if type(check) is not float:
+        if not isinstance(check, float):
 
             raise TypeError('API Error: incorrect configure, input must be float')
 
@@ -47,7 +56,7 @@ class ProtocolFiltersImplementor(object):
         :param check:
         :return:
         """
-        if type(check) is not int:
+        if not isinstance(check, int):
             raise TypeError('API Error: incorrect configure, input must be int')
 
         else:
@@ -61,12 +70,11 @@ class ProtocolFiltersImplementor(object):
         :param check:
         :return:
         """
-        if type(check) is not list:
+        if not isinstance(check, list):
             raise TypeError('API Error: incorrect configure, input must be list')
 
         else:
             return True
-
 
     @staticmethod
     def check_for_bool(check):
@@ -76,7 +84,7 @@ class ProtocolFiltersImplementor(object):
         :param check:
         :return:
         """
-        if type(check) is not bool:
+        if not isinstance(check, bool):
             raise TypeError('API Error: incorrect configure, input must be bool')
 
         else:
@@ -91,7 +99,7 @@ class ProtocolFiltersImplementor(object):
         :return:
         """
 
-        if type(indict) is not dict:
+        if not isinstance(indict, dict):
             raise TypeError('API Error: incorrect congure, input must be dict')
 
         else:
@@ -108,12 +116,12 @@ class ProtocolFiltersImplementor(object):
         :type: list
         """
 
-        if type(add_to) is not list:
+        if not isinstance(add_to, list):
             raise TypeError('add_to must be a list')
 
         if in_data:
 
-            if type(in_data) is list:
+            if isinstance(in_data, list):
                 # on update comes here
                 if len(in_data) > max_len:
                     raise OverflowError('the len of a in_date is bigger than max_len')

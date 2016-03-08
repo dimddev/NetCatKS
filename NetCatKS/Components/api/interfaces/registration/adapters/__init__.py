@@ -1,21 +1,20 @@
-__author__ = 'dimd'
+"""
+A module containing an interface for registration of adapters
+"""
 
 from zope.interface import Interface
+__author__ = 'dimd'
 
 
 class IRegisterAdapters(Interface):
+
+    """
+    Base interface for a RegisterAdapters implementation
+    """
 
     def register_adapters(**kwargs):
         """
         register adapters into zope GSM
         :param kwargs:
-        :return:
-        """
-
-    def get_multi_adapter(objects, belong_interface):
-        """
-
-        :param objects:
-        :param belong_interface:
         :return:
         """

@@ -1,57 +1,89 @@
-__author__ = 'dimd'
+"""
+This module is written in a DynamicProtocol style and caring for our WEB Server configuration
+"""
 
 from zope.interface import implementer
-from zope.component import getGlobalSiteManager
-from zope.component.factory import Factory
-from zope.component.interfaces import IFactory
 
-from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
 from NetCatKS.Config.api.interfaces import IWeb
+
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig
+from NetCatKS.Components.common.factory import RegisterAsFactory
+
+__author__ = 'dimd'
 
 
 @implementer(IWeb)
-class WEB(BaseProtocolActions):
+class WEB(MixinSharedConfig):
+
+    """
+    A Class representing our base WEB configuration
+    we having a simple setter and getters
+    """
 
     def __init__(self):
 
-        self.__service_name = 'Default WEB Server'
+        """
+
+        In our constructor we having a default values for each
+        property. Note: the default web method is "GET"
+
+        :return: void
+        """
+        super(WEB, self).__init__()
+
+        self.service_name = 'Default WEB Server'
+        self.port = 8000
         self.__http_methods = ['GET']
-        self.__port = 8000
         self.__www_root = ''
 
     @property
-    def service_name(self):
-        return self.__service_name
-
-    @service_name.setter
-    def service_name(self, sname):
-        self.__service_name = sname
-
-    @property
     def http_methods(self):
+
+        """
+        A getter for available http methods, by default there are only a "GET"
+        if you need more methods, you have to edin your config file
+
+        :return: list
+        """
         return self.__http_methods
 
     @http_methods.setter
     def http_methods(self, methods):
+
+        """
+        A setter for an allowed http methods
+
+        :param methods:
+        :type methods: list
+
+        :return: void
+        """
+
         self.__http_methods = methods
 
     @property
-    def port(self):
-        return self.__port
-
-    @port.setter
-    def port(self, port):
-        self.__port = port
-
-    @property
     def www_root(self):
+
+        """
+        A web root getter
+
+        :return: str
+
+        """
+
         return self.__www_root
 
     @www_root.setter
     def www_root(self, root):
+
+        """
+        A web root setter
+
+        :param root:
+        :type root: str
+
+        :return: void
+        """
         self.__www_root = root
 
-gsm = getGlobalSiteManager()
-
-factory = Factory(WEB, WEB.__name__)
-gsm.registerUtility(factory, IFactory, WEB.__name__.lower())
+RegisterAsFactory(WEB).register()

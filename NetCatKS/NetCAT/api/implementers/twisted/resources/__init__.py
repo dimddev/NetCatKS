@@ -1,4 +1,6 @@
-__author__ = 'dimd'
+"""
+A module that represent our web resources
+"""
 
 from twisted.web.resource import Resource
 
@@ -12,15 +14,28 @@ from zope.component import adapts, getGlobalSiteManager
 from NetCatKS.Dispatcher import IDispatcher, DispathcherResultHelper
 from NetCatKS.Validators import Validator
 
+__author__ = 'dimd'
+
 
 class BaseWebMethods(object):
 
-    def __init__(self):
+    """
+    A Base class for our web methods, currently we having PUT, GET and POST
+    """
 
+    def __init__(self):
+        """
+        The constructor will init our logger
+        :return: void
+        """
         self.__logger = Logger()
 
     def render_PUT(self, request):
-
+        """
+        The put method is still not implemented
+        :param request:
+        :return:
+        """
         return 'ok'
 
     def render_GET(self, request):
@@ -57,17 +72,20 @@ class BaseWebMethods(object):
 
 
 class DefaultWebResource(Resource):
-
+    """
+    Our default web resource will be extended runtime based on the configuration, that meaning
+    all methods as PUT, GET, POST will be attached to this cass from our BaseWebMethods
+    Our default resource it self is registered as subscriber and adapts IDefaultWebFactory
+    """
     adapts(IDefaultWebFactory)
 
     isLeaf = True
 
-    def __init__(self, factory, **kwargs):
+    def __init__(self, factory):
         """
 
         :param factory:
-        :param kwargs:
-        :return:
+        :return: void
         """
 
         base = BaseWebMethods()

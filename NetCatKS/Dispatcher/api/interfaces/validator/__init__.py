@@ -1,10 +1,15 @@
-__author__ = 'dimd'
-
+"""
+A module for a dispatch validation interface
+"""
 from zope.interface import Interface
+__author__ = 'dimd'
 
 
 class IDispatchAPIValidator(Interface):
 
+    """
+    A Base interface for validation
+    """
     def validate(check_one, check_two):
 
         """

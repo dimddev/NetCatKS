@@ -1,11 +1,15 @@
-__author__ = 'dimd'
+"""
+A module that providing validation for a JSON format
+"""
 
 import json
+
+from zope.component import getGlobalSiteManager
 
 from NetCatKS.Validators.api.implementers.validators.default import BaseValidator
 from NetCatKS.Logger import Logger
 
-from zope.component import getGlobalSiteManager
+__author__ = 'dimd'
 
 
 class JSONValidator(BaseValidator):

@@ -1,23 +1,23 @@
+"""
+A module that define aur public API
+"""
+from zope.interface import Interface
 __author__ = 'dimd'
-
-from zope.interface import Interface, Attribute
 
 
 class IRequestSubscriber(Interface):
 
+    """
+    Every API that inherit from this implementation and if subscribe_me returns True
+    this API will be called when request occur and if our compare mechanism work for it
+    this API will chosen as protocol that caring about this request
+    """
+
     def subscribe_me():
+
         """
         Attribute that mark protocol as structure that care about request
         :return: True
-        """
-
-
-class IDynamicAdapterFactory(Interface):
-
-    def get():
-        """
-        return new dynamic adapter prepared by __init__
-        :return: class
         """
 
 
@@ -128,7 +128,7 @@ class IJSONResourceRootAPI(Interface):
 
     def process_factory():
         """
-
+        This method have to be implemented by the users API
         :return: IJSONResource
         """
 

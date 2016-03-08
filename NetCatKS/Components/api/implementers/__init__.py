@@ -1,7 +1,9 @@
-from NetCatKS.Components.api.implementers.adapters import DynamicAdapterFactory, WAMPLoadOnRunTime
+"""
+A container for our Component public API
+"""
+from NetCatKS.Components.api.implementers.adapters import WAMPLoadOnRunTime
 from NetCatKS.Components.api.implementers.adapters import RequestSubscriber, BaseAPI, BaseRootAPI
 from NetCatKS.Components.api.implementers.adapters import BaseAPIWampMixin, BaseRootAPIWampMixin
-from NetCatKS.Components.api.implementers.default import DefaultAdapter
 from NetCatKS.Components.api.implementers.registration.adapters import RegisterAdapters
 from NetCatKS.Components.api.implementers.registration.factories import RegisterFactories
 from NetCatKS.Components.api.implementers.registration.protocols import RegisterProtocols
@@ -15,8 +17,6 @@ __author__ = 'dimd'
 
 __all__ = [
     'ComponentsRegistration',
-    'DynamicAdapterFactory',
-    'DefaultAdapter',
     'RegisterFactories',
     'RegisterAdapters',
     'RegisterProtocols',

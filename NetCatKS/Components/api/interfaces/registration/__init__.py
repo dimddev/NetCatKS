@@ -1,9 +1,16 @@
-__author__ = 'dimd'
+"""
+A module related for a component registration
+"""
 
 from zope.interface import Interface
+__author__ = 'dimd'
 
 
 class IComponentRegistrator(Interface):
+
+    """
+    A base interface for our ComponentRegistrator API
+    """
 
     def make(**kwargs):
         """

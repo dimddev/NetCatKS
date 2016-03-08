@@ -1,51 +1,66 @@
+"""
+This module is written in a DynamicProtocol style and caring for our TCP Server configuration
+"""
+
 from __future__ import absolute_import
+
+from zope.interface import implementer
+from NetCatKS.Components.common.factory import RegisterAsFactory
+from NetCatKS.Config.api.interfaces import ITcp
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig
 
 __author__ = 'dimd'
 
-from zope.interface import implementer
-from zope.component import getGlobalSiteManager
-from zope.component.factory import Factory
-from zope.component.interfaces import IFactory
-
-from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
-from NetCatKS.Config.api.interfaces import ITcp
-
 
 @implementer(ITcp)
-class TCP(BaseProtocolActions):
+class TCP(MixinSharedConfig):
 
+    """
+
+    A Class representing our base TCP configuration
+    we having a simple setter and getters
+
+    """
     def __init__(self):
 
-        self.__port = 8484
+        """
+        In the constructor we having a default settings for our config,
+        all generated configs will having this settings
+        :return: void
+
+        """
+
+        super(TCP, self).__init__()
+
+        self.port = 8484
         self.__service_name = 'Default TCP Server'
         self.__tcp_back_log = 50
 
     @property
-    def port(self):
-        return self.__port
-
-    @port.setter
-    def port(self, port):
-        self.__port = port
-
-    @property
-    def service_name(self):
-        return self.__service_name
-
-    @service_name.setter
-    def service_name(self, name):
-        self.__service_name = name
-
-    @property
     def tcp_back_log(self):
-        return self.__TCP_BACK_LOG
+
+        """
+        TCP back log getter
+
+        :return: int
+
+        """
+
+        return self.__tcp_back_log
 
     @tcp_back_log.setter
     def tcp_back_log(self, back_log):
+
+        """
+        A TCP back log setter
+
+        :param back_log:
+        :type back_log: int
+
+        :return: void
+        """
+
         self.__tcp_back_log = back_log
 
 
-gsm = getGlobalSiteManager()
-
-factory = Factory(TCP, TCP.__name__)
-gsm.registerUtility(factory, IFactory, TCP.__name__.lower())
+RegisterAsFactory(TCP).register()

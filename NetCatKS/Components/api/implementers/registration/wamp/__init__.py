@@ -1,15 +1,21 @@
+"""
+A module that contains functionality that will register API's from
+IUserWampComponent, IUserGlobalSubscriber, IWAMPComponent type as
+subscription adapters and later when onJoin occur they will be loaded and
+registered inside our wamp session as well
+"""
+
 from __future__ import absolute_import
 
-from NetCatKS.Components.api.interfaces.registration.wamp import IRegisterWamp
-from NetCatKS.Components.common.loaders import BaseLoader
-from NetCatKS.Components.api.interfaces import IUserWampComponent, IUserGlobalSubscriber, IWAMPComponent
-from zope.component.factory import Factory
-from zope.component.interfaces import IFactory
+from datetime import datetime
 
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager
 
-from datetime import datetime
+from NetCatKS.Components.api.interfaces.registration.wamp import IRegisterWamp
+from NetCatKS.Components.common.loaders import BaseLoader
+from NetCatKS.Components.common.factory import RegisterAsFactory
+from NetCatKS.Components.api.interfaces import IUserWampComponent, IUserGlobalSubscriber, IWAMPComponent
 
 __author__ = 'dimd'
 
@@ -26,7 +32,9 @@ class RegisterWamp(object):
 
         :param file_loader:
         :param wamp_source:
-        :return:
+        :param out_filter:
+
+        :return: void
         """
 
         self.__gsm = getGlobalSiteManager()
@@ -42,11 +50,14 @@ class RegisterWamp(object):
         super(RegisterWamp, self).__init__()
 
     def register(self):
-        """
 
-        :return:
         """
-        if type(self.__objects) is not tuple and type(self.__objects) is not list:
+        Will register API's from IUserWampComponent, IUserGlobalSubscriber, IWAMPComponent type
+        as subscription adapters
+
+        :return: void
+        """
+        if not isinstance(self.__objects, tuple) and not isinstance(self.__objects, list):
             raise TypeError('objects have to be tuple or list')
 
         __ignore_list = [
@@ -67,16 +78,17 @@ class RegisterWamp(object):
 
 class FileWampLoader(BaseLoader):
 
+    """
+    A helper class that is used during our loading process
+    """
+
     def __init__(self, **kwargs):
+
         """
-        Load all classes ending with kwargs['prefix'] eg. 'Wamp', default is 'Adapter"
+        Just call a super
         :param kwargs:
-        :return:
+        :return: void
         """
         super(FileWampLoader, self).__init__(**kwargs)
 
-
-gsm = getGlobalSiteManager()
-
-factory_ = Factory(RegisterWamp, RegisterWamp.__name__)
-gsm.registerUtility(factory_, IFactory, RegisterWamp.__name__.lower())
+RegisterAsFactory(RegisterWamp).register()

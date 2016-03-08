@@ -1,7 +1,10 @@
+"""
+An Interfaces that represents our protocols actions or our main API
+"""
+
+from zope.interface import Interface
+
 __author__ = 'dimd'
-
-
-from zope.interface import Interface, Attribute
 
 
 class IBaseProtocolActionsInterface(Interface):

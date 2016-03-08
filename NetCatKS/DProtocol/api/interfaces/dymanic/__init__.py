@@ -1,6 +1,9 @@
-__author__ = 'dimd'
+"""
+An interface which represent a protocols that using a id inside it
+"""
 
 from zope.interface import Interface, Attribute
+__author__ = 'dimd'
 
 
 class IDynamicProtocolInterface(Interface):

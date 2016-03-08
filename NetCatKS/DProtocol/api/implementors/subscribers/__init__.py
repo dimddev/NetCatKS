@@ -1,7 +1,10 @@
-__author__ = 'dimd'
+"""
+Base subscribers for a Dynamic Protocols implementations
+"""
 
-import xmltodict
+import traceback
 import json
+import xmltodict
 
 from zope.component import adapts
 from zope.interface import implementer, classImplementsOnly
@@ -11,9 +14,16 @@ from NetCatKS.DProtocol.api.interfaces.subscribers import IXMLResourceSubscriber
 from NetCatKS.Validators import IValidatorResponse
 from NetCatKS.Logger import Logger
 
+__author__ = 'dimd'
+
 
 @implementer(IBaseResourceSubscriber)
 class BaseProtocolSubscriber(object):
+
+    """
+    This class providing a functionality that will compare the candidate request against
+    the selected candidate protocol
+    """
 
     def __init__(self, adapter):
         """
@@ -30,11 +40,24 @@ class BaseProtocolSubscriber(object):
 
         else:
 
+            self.protocol = getattr(self, 'protocol')
             self.adapter = adapter
 
         super(BaseProtocolSubscriber, self).__init__()
 
-    def compare_debug(self, level, in_dict, host_proto):
+    @staticmethod
+    def compare_debug(level, in_dict, host_proto):
+
+        """
+        For debug usage only
+
+        :param level:
+        :param in_dict:
+        :param host_proto:
+
+        :return: void
+
+        """
 
         logger = Logger()
         logger.debug('COMPARE LEVEL {}'.format(level))
@@ -44,19 +67,30 @@ class BaseProtocolSubscriber(object):
 
     def compare(self):
 
+        """
+        Will compare the protocol against adapter
+
+        :return: dynamic created protocol from the request or False
+
+        """
+
+        # NETODO - to be refactored as two methods
+
         # xml
 
-        if type(self.adapter) is tuple:
+        if isinstance(self.adapter, tuple):
 
             try:
+
                 self.adapter = self.adapter[0]
 
-            except IndexError as e:
+            except IndexError as i_error:
 
-                print e.message
-                pass
+                print i_error.message
+                print traceback.format_exc()
+                return False
 
-        if type(self.adapter.response) is str:
+        if isinstance(self.adapter.response, str):
 
             try:
 
@@ -69,8 +103,12 @@ class BaseProtocolSubscriber(object):
                 self.adapter.response = json.dumps(self.adapter.response)
                 self.adapter.response = json.loads(self.adapter.response)
 
-            except Exception as e:
-                print e.message
+            except Exception as c_error:
+
+                print c_error.message
+                print traceback.format_exc()
+
+                return False
 
         # normal case
 
@@ -87,34 +125,36 @@ class BaseProtocolSubscriber(object):
         if ''.join(in_dict) == ''.join(host_proto):
             return self.protocol.to_object(self.adapter.response)
 
-        else:
-
-            in_dict = self.adapter.response.keys()
-            host_proto = self.protocol.to_dict().keys()
-
-            in_dict.sort()
-            host_proto.sort()
-
-            # self.compare_debug(2, in_dict, host_proto)
-
-            if ''.join(in_dict) == ''.join(host_proto):
-                return self.protocol.to_object(self.adapter.response)
-
-            return False
+        # else:
+        #
+        #     in_dict = self.adapter.response.keys()
+        #     host_proto = self.protocol.to_dict().keys()
+        #
+        #     in_dict.sort()
+        #     host_proto.sort()
+        #
+        #     # self.compare_debug(2, in_dict, host_proto)
+        #
+        #     if ''.join(in_dict) == ''.join(host_proto):
+        #         return self.protocol.to_object(self.adapter.response)
+        #
+        #     return False
 
 
 class DProtocolSubscriber(BaseProtocolSubscriber):
 
     """
-    This class is designed to be subclassed not for directly usage
+    This class is designed to be sub classed not for directly usage
     """
 
     adapts(IValidatorResponse)
 
     def __init__(self, adapter):
+
         """
         :param adapter IJSONResource
         """
+
         super(DProtocolSubscriber, self).__init__(adapter)
 
 
@@ -123,11 +163,18 @@ classImplementsOnly(DProtocolSubscriber, IJSONResourceSubscriber)
 
 class DProtocolXMLSubscriber(BaseProtocolSubscriber):
 
+    """
+    This class is designed to be sub classed not for directly usage
+    """
+
     adapts(IValidatorResponse)
 
     def __init__(self, adapter):
+
+        """
+        :param adapter IJSONResource
+        """
+
         super(DProtocolXMLSubscriber, self).__init__(adapter)
 
 classImplementsOnly(DProtocolXMLSubscriber, IXMLResourceSubscriber)
-
-

@@ -1,10 +1,16 @@
+"""
+A module that contains an interfaces for all default factories
+"""
+from zope.interface import Interface, Attribute
+
 __author__ = 'dimd'
 
 
-from zope.interface import Interface, Attribute
-
-
 class IDefaultAutobahnFactory(Interface):
+
+    """
+    An interface for a DefaultAutobahnFactory implementation aka a WAMP component
+    """
 
     protocol = Attribute('WAMP protocol can be ws or wss')
     name = Attribute('Service name')
@@ -16,6 +22,10 @@ class IDefaultAutobahnFactory(Interface):
 
 class IDefaultWSFactory(Interface):
 
+    """
+    An interface for a DefaultWSFactory implementation
+    """
+
     protocol = Attribute('WS protocol can be ws or wss')
     name = Attribute('Service name')
     port = Attribute('WS port usually crossbar WS')
@@ -23,12 +33,3 @@ class IDefaultWSFactory(Interface):
     path = Attribute('WS path for example: ws://localhost/path')
     realm = Attribute('WS Realm')
 
-
-class IDefaultUserWSFactory(Interface):
-
-    protocol = Attribute('A User WS protocol can be ws or wss')
-    name = Attribute('A User Service name')
-    port = Attribute('A User WS port usually crossbar WS')
-    host = Attribute('A User WS host')
-    path = Attribute('A User WS path for example: ws://localhost/path')
-    realm = Attribute('A User WS Realm')

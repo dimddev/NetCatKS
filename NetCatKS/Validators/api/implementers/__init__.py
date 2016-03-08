@@ -1,4 +1,7 @@
-__author__ = 'dimd'
+"""
+A module container
+"""
+from NetCatKS.Validators.api.implementers.message import Message
+from NetCatKS.Validators.api.implementers.validators import *
 
-from message import Message
-from validators import *
+__author__ = 'dimd'

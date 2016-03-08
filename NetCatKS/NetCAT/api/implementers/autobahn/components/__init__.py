@@ -1,6 +1,14 @@
+"""
+A module that contains a WAMP functionality
+"""
 from zope.interface import implementer
 from zope.component import getGlobalSiteManager
 from zope.component import subscribers, createObject
+
+from autobahn.wamp import auth
+from autobahn.twisted.wamp import ApplicationSession
+from twisted.internet.defer import inlineCallbacks
+from twisted.internet import reactor
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
@@ -10,17 +18,17 @@ from NetCatKS.Config import Config
 from NetCatKS.Dispatcher import IDispatcher
 from NetCatKS.Validators import Validator, IValidator
 
-from autobahn.wamp import auth
-from autobahn.twisted.wamp import ApplicationSession
-from twisted.internet.defer import inlineCallbacks
-from twisted.internet import reactor
-
 
 __author__ = 'dimd'
 
 
-def onConnect(self):
-
+def on_connect(self):
+    """
+    A function that is called when we got connected to a WAMP router.
+    This function is attached to our WampDefaultComponent only if protocol is WSS
+    :param self:
+    :return: void
+    """
     cfg = Config().get_wamp()
     log = Logger()
 
@@ -29,7 +37,17 @@ def onConnect(self):
     self.join(self.config.realm, [u'wampcra'], cfg.user)
 
 
-def onChallenge(self, challenge):
+def on_challenge(self, challenge):
+
+    """
+    A function that is called when we got onChallenge event aka authentication to a WAMP router.
+    This function is attached to our WampDefaultComponent only if protocol is WSS
+
+    :param self:
+    :param challenge:
+
+    :return: digital signature decode in ascii
+    """
 
     log = Logger()
     log.info('On Challenge...')
@@ -45,15 +63,16 @@ def onChallenge(self, challenge):
         if u'salt' in challenge.extra:
 
             key = auth.derive_key(
-                cfg.user.encode('utf8'),
+                password[cfg.user].encode('utf8'),
                 challenge.extra['salt'].encode('utf8'),
                 challenge.extra.get('iterations', None),
                 challenge.extra.get('keylen', None)
             )
 
         else:
-            key = cfg.user.encode('utf8')
 
+            key = password[cfg.user].encode('utf8')
+        
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
 
         return signature.decode('ascii')
@@ -62,11 +81,22 @@ def onChallenge(self, challenge):
 
         raise Exception("don't know how to compute challenge for authmethod {}".format(challenge.method))
 
+
 @implementer(IWampDefaultComponent)
 class WampDefaultComponent(ApplicationSession):
 
-    def __init__(self, **kwargs):
+    """
+    Class that represent our default WAMP component we inherit from
+    autobahn.twisted.wamp.ApplicationSession
+    """
 
+    def __init__(self, **kwargs):
+        """
+        The constructor will init self.cfg self.__gsm and if the protocol is wss,
+        will attach on_connect and on_challenge to this object as methods
+        :param kwargs: we looking for key 'config'
+        :return: void
+        """
         config = kwargs.get('config')
 
         super(WampDefaultComponent, self).__init__(config)
@@ -80,8 +110,8 @@ class WampDefaultComponent(ApplicationSession):
 
             self.__logger.info('WAMP is secure, switch to wss...')
 
-            WampDefaultComponent.onConnect = onConnect
-            WampDefaultComponent.onChallenge = onChallenge
+            WampDefaultComponent.onConnect = on_connect
+            WampDefaultComponent.onChallenge = on_challenge
 
     def subscriber_dispatcher(self, sub_data):
 
@@ -100,10 +130,11 @@ class WampDefaultComponent(ApplicationSession):
 
             result = IDispatcher(Validator(sub_data)).dispatch()
 
+        # NETODO what exception can happen here?
         except Exception as e:
 
-            # import traceback
-            # print(traceback.format_exc())
+            import traceback
+            print traceback.format_exc()
 
             log.warning('subscriber_dispatcher exception: {}'.format(
                 e.message
@@ -132,8 +163,31 @@ class WampDefaultComponent(ApplicationSession):
 
     @inlineCallbacks
     def onJoin(self, details):
+        """
+        Autobahn callback function that fired when onJoin happens (we join to our realm)
 
+        Here all components recognized as WAMP we will registering on the fly.
+
+        The global subscriber will be started too, its name is formed by
+        netcatks_global_subscriber_ + WAMP Service name.
+
+        Also inside our Storage register will be saved the current WAMP session object
+        in __wamp_session__ namespace.
+
+        If there an API which providing a IWAMPLoadOnRunTime implementation will be started on
+        run time
+
+        :param details:
+        :return:
+        """
         self.__logger.info('WAMP Session is ready')
+
+        sub_topic = 'netcatks_global_subscriber_{}'.format(
+            self.cfg.service_name.lower().replace(' ', '_')
+        )
+
+        yield self.subscribe(self.subscriber_dispatcher, sub_topic)
+        self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
 
         # registration of all classes which ends with Wamp into shared wamp session
         for x in list(self.__gsm.registeredSubscriptionAdapters()):
@@ -158,21 +212,13 @@ class WampDefaultComponent(ApplicationSession):
 
                     f.set_session(self)
 
-            else:
-
-                if x.provided is IWAMPLoadOnRunTime:
-                    x.factory('init').load()
-
-        sub_topic = 'netcatks_global_subscriber_{}'.format(
-            self.cfg.service_name.lower().replace(' ', '_')
-        )
-
-        yield self.subscribe(self.subscriber_dispatcher, sub_topic)
-        self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
+            if x.provided is IWAMPLoadOnRunTime:
+                x.factory('init').load()
 
     def onDisconnect(self):
-        """
 
+        """
+        Will be fired when we go a disconnecting from a WAMP router
         :return:
         """
         self.__logger.warning('Disconnected...')
@@ -190,6 +236,7 @@ class WampDefaultComponent(ApplicationSession):
                 reconnect.start,
             )
 
+        # NETODO what exception trow here?
         except Exception as e:
             self.__logger.warning('disconnect warn: {}'.format(e.message))
 

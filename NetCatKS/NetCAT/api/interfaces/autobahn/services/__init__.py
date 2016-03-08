@@ -1,9 +1,16 @@
-__author__ = 'dimd'
-
+"""
+A module service interface
+"""
 from zope.interface import Interface
+
+__author__ = 'dimd'
 
 
 class IDefaultAutobahnService(Interface):
+
+    """
+    An interface represent a default WAMP service
+    """
 
     def start():
         """
@@ -13,6 +20,10 @@ class IDefaultAutobahnService(Interface):
 
 
 class IDefaultWSService(Interface):
+
+    """
+    An interface represent a default WS service
+    """
 
     def start():
         """
@@ -24,4 +35,3 @@ __all__ = [
     'IDefaultAutobahnService',
     'IDefaultWSService'
 ]
-

@@ -1,7 +1,10 @@
-__author__ = 'dimd'
-
+"""
+Interface that represent our storage
+"""
 
 from zope.interface import Interface, Attribute
+
+__author__ = 'dimd'
 
 
 class IProtocolStogareInterface(Interface):

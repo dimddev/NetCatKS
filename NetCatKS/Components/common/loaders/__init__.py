@@ -1,4 +1,7 @@
-__author__ = 'dimd'
+"""
+A module that provide a base functionality for loading files and all objects inside it
+on run time. All loaded object will be filtering by interfaces
+"""
 
 import imp
 import os
@@ -9,11 +12,15 @@ from zope.interface import implementedBy
 
 from NetCatKS.Components.api.interfaces import IBaseLoader
 
+__author__ = 'dimd'
+
 
 @implementer(IBaseLoader)
 class BaseLoader(object):
-
-    def __init__(self, **kwargs):
+    """
+    A base class used from all loaders
+    """
+    def __init__(self):
         """
 
         :param kwargs:
@@ -21,8 +28,14 @@ class BaseLoader(object):
         """
         self.__storage = createObject('storageregister')
 
-    def is_register(self, obj, filter_interfaces):
-
+    @staticmethod
+    def is_register(obj, filter_interfaces):
+        """
+        Will trying to match object to its interface implementation
+        :param obj:
+        :param filter_interfaces:
+        :return: tuple
+        """
         try:
 
             is_reg = [
@@ -35,9 +48,36 @@ class BaseLoader(object):
         else:
             return is_reg
 
+    def __filter(self, klasses, load, filter_interface, ignore):
+        """
+        A object filtering base on filter interface and ignore list
+        :param klasses:
+        :param load:
+        :param filter_interface:
+        :param ignore:
+        :return:
+        """
+        for klass in dir(load):
+
+            try:
+
+                klass_obj = getattr(load, klass)
+                candidate = self.is_register(klass_obj, filter_interface)
+
+            except TypeError:
+                pass
+
+            else:
+
+                if candidate and klass not in ignore:
+                    klasses.append(candidate)
+
+        return klasses
+
     def load(self, factories_source, filter_interface):
 
         """
+        Load a modules
 
         :param factories_source:
         :type factories_source: str
@@ -51,7 +91,7 @@ class BaseLoader(object):
         __klasses = []
         __ignore = ['DefaultAdapter']
 
-        for root, subdirs, files in os.walk(factories_source):
+        for root, _, files in os.walk(factories_source):
 
             if files:
 
@@ -64,30 +104,8 @@ class BaseLoader(object):
 
                     load = imp.load_source(mod_path, root + '/' + f)
 
-                    for klass in dir(load):
-
-                        try:
-
-                            klass_obj = getattr(load, klass)
-                            candidate = self.is_register(klass_obj, filter_interface)
-
-                        except TypeError:
-                            pass
-
-                        else:
-
-                            if candidate and klass not in __ignore:
-
-                                __klasses.append(candidate)
-
-                        if klass.startswith('I'):
-
-                            if klass in __klasses or klass == 'Interface':
-                                continue
-
-                            self.__storage.interfaces[klass_obj.__name__.lower()] = {
-                                'interface': klass_obj,
-                                'origin_name': klass_obj.__name__
-                            }
+                    __klasses = self.__filter(
+                        __klasses, load, filter_interface, __ignore
+                    )
 
         return __klasses

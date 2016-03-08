@@ -1,8 +1,7 @@
-__author__ = 'dimd'
-
+"""
+A module that care about creating of Web Socket servers
+"""
 from zope.interface import implementer
-
-from twisted.internet.protocol import Factory
 from autobahn.twisted.websocket import WebSocketServerFactory
 
 from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultWSFactory
@@ -11,17 +10,41 @@ from NetCatKS.Config.api.implementers.configuration.ws import WS
 from NetCatKS.Logger import Logger
 
 
+__author__ = 'dimd'
+
+
 class DefaultWSFactoryRunner(WebSocketServerFactory):
+
+    """
+    A Proxy class for a WS Factory
+    """
+
     def __init__(self, *args, **kwargs):
+        """
+
+        Just call a super
+
+        :param args:
+        :param kwargs:
+
+        :return:
+        """
         super(DefaultWSFactoryRunner, self).__init__(*args, **kwargs)
+
 
 @implementer(IDefaultWSFactory)
 class DefaultWSFactory(object):
 
+    """
+    A class that represent a default WS Factory
+    """
+
     def __init__(self, **kwargs):
+
         """
         Default factory, used for TCP servers, implements IDefaultFactory
         :param kwargs:
+
         :return:
         """
         self.__logger = Logger()
