@@ -13,7 +13,6 @@ __all__ = [
     'IValidatorResponse',
     'BaseValidator',
     'JSONValidator',
-    'XMLValidator',
     'IMessage',
     'IValidator'
 ]

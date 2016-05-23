@@ -158,9 +158,3 @@ class IJSONResourceAPI(Interface):
             def event(self):
                 # works here with self.adapter
     """
-
-
-class IXMLResourceAPI(Interface):
-    """
-    marker for API's which support IXMLResource
-    """

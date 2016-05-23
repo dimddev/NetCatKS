@@ -46,11 +46,9 @@ setup(
     install_requires=[
         'Twisted==15.5.0',              # MIT license
         'autobahn>=0.12.1',             # MIT license
-        'lxml==3.5.0',                  # BSD license
         'zope.component==4.2.2',        # Zope Public license
         'zope.event==4.0.3',            # Zope Public license
         'zope.interface==4.1.2',        # Zope Public license
-        'xmltodict',                    # ???
         'colorama',                     # BSD 3-Clause license
         'cryptography>=0.9.3',          # Apache license
         'pyOpenSSL>=0.15.1',            # Apache license

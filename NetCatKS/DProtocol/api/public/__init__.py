@@ -1,7 +1,7 @@
 """
 A public API for DProtocol
 """
-from NetCatKS.DProtocol.api.implementors.subscribers import DProtocolSubscriber, DProtocolXMLSubscriber
+from NetCatKS.DProtocol.api.implementors.subscribers import DProtocolSubscriber
 
 from NetCatKS.DProtocol.api.public.dynamic import DynamicProtocol
 from NetCatKS.DProtocol.api.public.storage import ProtocolStorage
@@ -14,6 +14,5 @@ __all__ = [
     'DynamicProtocol',
     'ProtocolStorage',
     'BaseProtocolActions',
-    'DProtocolXMLSubscriber',
     'DProtocolSubscriber'
 ]

@@ -38,9 +38,3 @@ class IJSONResourceSubscriber(Interface):
     """
     Used when we having a request from a IJSONResource type
     """
-
-
-class IXMLResourceSubscriber(Interface):
-    """
-    Used when we having a request from a IXMLResource type
-    """

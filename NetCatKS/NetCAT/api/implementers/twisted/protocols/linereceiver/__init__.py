@@ -47,7 +47,7 @@ class DefaultLineReceiver(LineReceiver):
         A callback method that is fired when live is received.
         Will validate, dispatch and choose the right API on the fly
         :param line: user input
-        :type line: JSON or XML
+        :type line: JSON
         :return: void
         """
         self.__logger.info('Received line: {}'.format(line))

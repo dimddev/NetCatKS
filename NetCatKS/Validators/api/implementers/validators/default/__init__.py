@@ -25,7 +25,7 @@ class BaseValidator(object):
 
         """
         Our constructor will setup is_valid to False, message_type and message to None
-        :param validate_msg: can be anything: xml, json, html, binary etc..
+        :param validate_msg: can be anything: json, binary etc..
         """
 
         super(BaseValidator, self).__init__()

@@ -10,7 +10,6 @@ from NetCatKS.Validators.api.implementers.message import Message
 
 from NetCatKS.Validators.api.implementers.validators.default import BaseValidator
 from NetCatKS.Validators.api.implementers.validators.json import JSONValidator
-from NetCatKS.Validators.api.implementers.validators.xml import XMLValidator
 
 from NetCatKS.Logger import Logger
 
@@ -28,7 +27,7 @@ class Validator(BaseValidator):
         """
         Accept message that have to be validated
 
-        :param validate_msg: currently we support json, xml and html validators
+        :param validate_msg: currently we supporting only a json validators
         """
         super(Validator, self).__init__(validate_msg)
 
@@ -80,6 +79,5 @@ __all__ = [
     'Validator',
     'ValidatorResponse',
     'BaseValidator',
-    'JSONValidator',
-    'XMLValidator'
+    'JSONValidator'
 ]
