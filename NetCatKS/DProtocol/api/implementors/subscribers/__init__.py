@@ -2,15 +2,10 @@
 Base subscribers for a Dynamic Protocols implementations
 """
 
-import traceback
-import json
-import xmltodict
-
 from zope.component import adapts
 from zope.interface import implementer, classImplementsOnly
 
 from NetCatKS.DProtocol.api.interfaces.subscribers import IBaseResourceSubscriber, IJSONResourceSubscriber
-from NetCatKS.DProtocol.api.interfaces.subscribers import IXMLResourceSubscriber
 from NetCatKS.Validators import IValidatorResponse
 from NetCatKS.Logger import Logger
 
@@ -46,74 +41,77 @@ class BaseProtocolSubscriber(object):
         super(BaseProtocolSubscriber, self).__init__()
 
     @staticmethod
-    def compare_debug(level, in_dict, host_proto):
+    def _get_all_keys_helper(req, temp, key, counter):
+
+        if not req:
+            temp.append('-{}'.format(key))
+
+        else:
+            temp.append('{}{}'.format(counter * '-', key))
+
+        return temp
+
+    def _get_all_keys(self, data=None, **kwargs):
 
         """
-        For debug usage only
+        This function gets all keys from dict recursively
+        :param data:
+        :type data: dict
 
-        :param level:
-        :param in_dict:
-        :param host_proto:
-
-        :return: void
-
+        :return: list of keys
         """
 
-        logger = Logger()
-        logger.debug('COMPARE LEVEL {}'.format(level))
-        logger.debug('IN_DICT: {}'.format(in_dict))
-        logger.debug('HOST_PROTO: {}'.format(host_proto))
-        logger.debug('END COMPARE LEVEL {}'.format(level))
+        counter = kwargs.get('counter', False)
+
+        # if data is set means recursion or external dict
+        if data and isinstance(data, dict):
+
+            _req = True
+            in_data = data
+
+        else:
+
+            _req = False
+
+            validate = kwargs.get('validate', True)
+            in_data = self.to_dict(validate=validate)
+
+        temp = []
+
+        if in_data:
+
+            for key in in_data.keys():
+
+                j = counter or 1
+
+                if isinstance(in_data[key], dict):
+
+                    temp = BaseProtocolSubscriber._get_all_keys_helper(_req, temp, key, j)
+                    j += 1
+
+                    # recursion
+                    temp += self._get_all_keys(in_data[key], counter=j)
+
+                else:
+                    temp = BaseProtocolSubscriber._get_all_keys_helper(_req, temp, key, j)
+
+        return temp
 
     def compare(self):
 
-        """
-        Will compare the protocol against adapter
+        if isinstance(self.adapter.response, dict):
 
-        :return: dynamic created protocol from the request or False
+            _self = self._get_all_keys(self.protocol.to_dict(), validate=False)
+            _self.sort()
 
-        """
+            other = self._get_all_keys(self.adapter.response, validate=False)
+            other.sort()
 
-        # NETODO - to be refactored as two methods
-
-        # xml
-
-        if isinstance(self.adapter.response, str):
-
-            try:
-
-                self.adapter.response = xmltodict.parse(self.adapter.response)
-
-                # this dirty trick will make convert OrderedDict to normal
-                # because our DProtocol API currently does not support OrderDict
-                # when we starting to support XML with name spaces have to be extended
-
-                self.adapter.response = json.dumps(self.adapter.response)
-                self.adapter.response = json.loads(self.adapter.response)
-
-            except Exception as c_error:
-
-                print c_error.message
-                print traceback.format_exc()
-
-                return False
-
-        # normal case
-
-        self.protocol.__init__()
-
-        in_dict = self.protocol.get_all_keys(self.adapter.response)
-        host_proto = self.protocol.get_all_keys(self.protocol.to_dict())
-
-        in_dict.sort()
-        host_proto.sort()
-
-        # self.compare_debug(1, in_dict, host_proto)
-
-        if in_dict == host_proto:
-            return self.protocol.to_object(self.adapter.response)
+            if _self == other:
+                return self.protocol.to_object(self.adapter.response)
 
         else:
+
             return False
 
 
@@ -135,22 +133,3 @@ class DProtocolSubscriber(BaseProtocolSubscriber):
 
 
 classImplementsOnly(DProtocolSubscriber, IJSONResourceSubscriber)
-
-
-class DProtocolXMLSubscriber(BaseProtocolSubscriber):
-
-    """
-    This class is designed to be sub classed not for directly usage
-    """
-
-    adapts(IValidatorResponse)
-
-    def __init__(self, adapter):
-
-        """
-        :param adapter IJSONResource
-        """
-
-        super(DProtocolXMLSubscriber, self).__init__(adapter)
-
-classImplementsOnly(DProtocolXMLSubscriber, IXMLResourceSubscriber)

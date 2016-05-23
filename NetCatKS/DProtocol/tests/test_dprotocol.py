@@ -348,21 +348,6 @@ class TestDprotocol(unittest.TestCase):
 
         self.assertDictEqual(d, d1.to_dict())
 
-    def test_to_xml(self):
-
-        with self.assertRaises(ValueError):
-            self.user.to_xml()
-
-        with self.assertRaises(ValueError):
-            self.user.to_xml([])
-
-        root = {'root': {'id': 4, 'username': 'user'}}
-
-        xml_output = '<?xml version="1.0" encoding="utf-8"?><root><username>user</username><id>4</id></root>'
-
-        xml = self.user.to_xml(root).replace('\n', '')
-        self.assertEquals(xml, xml_output)
-
     def test_if_list_auto_append(self):
 
         over = range(0, 3500)

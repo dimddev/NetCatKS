@@ -61,9 +61,3 @@ class IJSONResource(Interface):
     Marker for JSON Resource.
 
     """
-
-
-class IXMLResource(Interface):
-    """
-    XML Resource marker
-    """

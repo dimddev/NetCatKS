@@ -6,10 +6,7 @@ import traceback
 
 from autobahn.wamp.types import ComponentConfig
 
-try:
-    from autobahn.websocket.protocol import parseWsUrl
-except RuntimeError:
-    print traceback.format_exc()
+from autobahn.websocket.util import parse_url
 
 from autobahn.twisted.websocket import WampWebSocketClientFactory
 
@@ -156,7 +153,7 @@ class AutobahnDefaultFactory(service.Service):
         :type make: callable
         """
 
-        is_secure, host, port, resource, path, params = parseWsUrl(self.url)
+        is_secure, host, port, resource, path, params = parse_url(self.url)
 
         # start logging to console
         if self.debug or self.debug_wamp or self.debug_app:
@@ -187,8 +184,7 @@ class AutobahnDefaultFactory(service.Service):
         # create a WAMP-over-WebSocket transport client factory
         transport_factory = WampWebSocketClientFactory(
             create,
-            url=self.url,
-            debug=self.debug
+            url=self.url
         )
 
         if is_secure:

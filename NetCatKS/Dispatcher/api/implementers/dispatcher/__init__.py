@@ -12,10 +12,9 @@ from zope.interface.exceptions import DoesNotImplement
 from NetCatKS.Dispatcher.api.interfaces.dispatcher import IDispatcher
 from NetCatKS.Dispatcher.api.interfaces.dispatcher import IDispathcherResultHelper
 
-from NetCatKS.Components import IXMLResource
 from NetCatKS.Components import IJSONResource, IJSONResourceAPI, IJSONResourceRootAPI
 
-from NetCatKS.DProtocol.api.interfaces.subscribers import IJSONResourceSubscriber, IXMLResourceSubscriber
+from NetCatKS.DProtocol.api.interfaces.subscribers import IJSONResourceSubscriber
 
 from NetCatKS.Validators.api.public import IValidator, ValidatorResponse
 
@@ -193,7 +192,7 @@ class Dispatcher(object):
 
                 comp = sub.compare()
 
-                if comp is not False and (IXMLResource.providedBy(comp) or IJSONResource.providedBy(comp)):
+                if comp is not False and IJSONResource.providedBy(comp):
 
                     self.__logger.debug('Signature compare to {}'.format(comp.__class__.__name__))
 
@@ -249,14 +248,6 @@ class Dispatcher(object):
                     valid_dispatch,
                     valid_response,
                     IJSONResourceSubscriber
-                )
-
-            elif valid_dispatch.message_type == 'XML':
-
-                return self.__api_processor(
-                    valid_dispatch,
-                    valid_response,
-                    IXMLResourceSubscriber
                 )
 
 
@@ -340,14 +331,6 @@ class DispathcherResultHelper(object):
 
                     else:
                         return self.factory.to_json()
-
-                elif IXMLResource.providedBy(self.factory):
-
-                    if sender is not None:
-                        sender(str(self.factory.to_xml()))
-
-                    else:
-                        return str(self.factory.to_xml())
 
                 elif isinstance(self.factory, Deferred):
 

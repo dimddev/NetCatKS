@@ -4,7 +4,6 @@ this as base class
 """
 
 import json
-import xmltodict
 
 from zope.interface import implementer
 from zope.interface.exceptions import DoesNotImplement
@@ -263,27 +262,6 @@ class BaseProtocolActionsImplementor(ProtocolFiltersImplementor):
 
         else:
             return json.dumps(self.to_dict())
-
-    def to_xml(self, in_dict=None):
-
-        """
-
-        Convert dict to xml
-
-        :param in_dict:
-
-        :return: xml
-        """
-
-        try:
-
-            xml = xmltodict.unparse(in_dict or self.to_dict())
-
-        except ValueError as error:
-            raise ValueError(error.message)
-
-        else:
-            return xml
 
     def get_session(self, **kwargs):
 
