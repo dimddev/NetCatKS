@@ -47,7 +47,7 @@ class DefaultWebFactory(Factory):
 
             self.config = web.to_object(self.config)
 
-        self.name = kwargs.get('name', self.config.service_name)
+        self.name = kwargs.get('name', self.config.service.name)
         self.port = kwargs.get('port', self.config.port)
         self.methods = kwargs.get('http_methods', self.config.http_methods)
         self.belong_to = kwargs.get('belong_to', False)

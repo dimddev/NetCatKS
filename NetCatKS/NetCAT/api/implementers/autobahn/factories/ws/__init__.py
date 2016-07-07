@@ -8,7 +8,7 @@ from NetCatKS.NetCAT.api.interfaces.autobahn.factories import IDefaultWSFactory
 from NetCatKS.NetCAT.api.implementers.autobahn.protocols import DefaultWSProtocol
 from NetCatKS.Config.api.implementers.configuration.ws import WS
 from NetCatKS.Logger import Logger
-
+from autobahn.websocket.util import parse_url
 
 __author__ = 'dimd'
 
@@ -59,29 +59,27 @@ class DefaultWSFactory(object):
 
             self.config = {
                 'url': 'ws://localhost:8585',
-                'port': 8585,
-                'hostname': 'localhost',
-                'protocol': 'ws'
+                "service": {
+                    "name": "DefaultWsServiceName"
+                }
             }
 
             self.config = ws.to_object(self.config)
 
-        self.ws_protocol = self.config.protocol
+        self.is_secure, self.host, self.port, self.resource, self.path, self.params = parse_url(self.config.url)
 
-        self.name = kwargs.get('name', 'DefaultWSFactory')
+        self.name = self.config.service.name
 
-        self.port = kwargs.get('port', self.config.port)
-
-        self.url = kwargs.get('port', self.config.url)
+        self.url = self.config.url
 
         self.belong_to = kwargs.get('belong_to', False)
 
         self.ws_server_factory = DefaultWSFactoryRunner
 
-        if self.ws_protocol == 'wss':
+        if self.is_secure == 'wss':
 
-            key = self.config.keys.key
-            crt = self.config.keys.crt
+            key = self.config.ssl.key
+            crt = self.config.ssl.crt
 
             if key is None or crt is None:
                 raise AttributeError('WS over SSL required attribute a key and a crt')

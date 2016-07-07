@@ -30,9 +30,7 @@ class WEB(MixinSharedConfig):
         :return: void
         """
         super(WEB, self).__init__()
-
-        self.service_name = 'Default WEB Server'
-        self.port = 8000
+        self.service = 'DefaultWEBService'
         self.__http_methods = ['GET']
         self.__www_root = ''
 

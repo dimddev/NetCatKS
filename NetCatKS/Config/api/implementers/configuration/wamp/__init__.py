@@ -3,35 +3,19 @@ This module is written in a DynamicProtocol style and caring for our WAMP client
 """
 from zope.interface import implementer
 from NetCatKS.Components.common.factory import RegisterAsFactory
-from NetCatKS.Config.api.interfaces import IWamp
-from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig, MixinWamp
+from NetCatKS.Config.api.interfaces import IWamp, IWampCra
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedServiceName, MixinWamp, KeysImplementer
+from NetCatKS.DProtocol import BaseProtocolActions
 __author__ = 'dimd'
 
 
-@implementer(IWamp)
-class WAMP(MixinSharedConfig, MixinWamp):
-
-    """
-    An implementation of IWamp
-    """
+@implementer(IWampCra)
+class WampCra(BaseProtocolActions):
 
     def __init__(self):
 
-        """
-        In the constructor we providing a default for all properties
-
-        :return: void
-        """
-
-        super(WAMP, self).__init__()
-
         self.__user = 'wamp_cra_username'
         self.__password = 'wamp_cra_password'
-        self.__realm = 'realm1'
-        self.__retry_interval = 2
-        self.__path = 'ws'
-        self.url = 'ws://localhost:8080'
-        self.port = 8080
 
     @property
     def user(self):
@@ -76,6 +60,39 @@ class WAMP(MixinSharedConfig, MixinWamp):
         :return: void
         """
         self.__password = password
+
+
+@implementer(IWamp)
+class WAMP(MixinWamp):
+
+    """
+    An implementation of IWamp
+    """
+
+    def __init__(self):
+
+        """
+        In the constructor we providing a default for all properties
+
+        :return: void
+        """
+
+        super(WAMP, self).__init__()
+
+        self.__realm = 'realm1'
+        self.__retry_interval = 2
+        self.__wamp_cra = WampCra()
+        self.__service = MixinSharedServiceName()
+        self.service = 'DefaultWAMPService'
+        self.__ssl = KeysImplementer()
+
+    @property
+    def wamp_cra(self):
+        return self.__wamp_cra
+
+    @wamp_cra.setter
+    def wamp_cra(self, wamp_cra):
+        self.__wamp_cra = wamp_cra
 
     @property
     def realm(self):
@@ -122,27 +139,19 @@ class WAMP(MixinSharedConfig, MixinWamp):
         self.__retry_interval = interval
 
     @property
-    def path(self):
-        """
-        A getter for a Wamp Web Socket path
+    def service(self):
+        return self.__service
 
-        :return: str
-        """
+    @service.setter
+    def service(self, service_name):
+        self.__service.name = service_name
 
-        return self.__path
+    @property
+    def ssl(self):
+        return self.__ssl
 
-    @path.setter
-    def path(self, path):
-
-        """
-        A setter for our wamp ws path
-        :param path:
-        :type path: str
-
-        :return: void
-        """
-
-        self.__path = path
-
+    @ssl.setter
+    def ssl(self, ssl):
+        self.__ssl = ssl
 
 RegisterAsFactory(WAMP).register()

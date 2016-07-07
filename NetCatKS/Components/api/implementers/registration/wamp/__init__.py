@@ -69,11 +69,12 @@ class RegisterWamp(object):
             if obj.__name__ in __ignore_list:
                 continue
 
-            print('{} [ RegisterWamp ] Loading Wamp Component: {}, filter interface: {}'.format(
-                datetime.now(), obj.__name__, obj_interface.__name__
+            print('{} [ RegisterWamp ] Loading Wamp Component: id: {}, {}, filter interface: {}'.format(
+                datetime.now(), id(obj), obj.__name__, obj_interface.__name__
             ))
 
             self.__gsm.registerSubscriptionAdapter(obj)
+            # RegisterAsFactory(obj).register()
 
 
 class FileWampLoader(BaseLoader):

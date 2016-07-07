@@ -3,88 +3,13 @@ This module is written in a DynamicProtocol style and caring for our WEB Socket 
 """
 from __future__ import absolute_import
 
-from zope.interface import Interface, Attribute, implementer
 from NetCatKS.Components.common.factory import RegisterAsFactory
-from NetCatKS.DProtocol.api.public.actions import BaseProtocolActions
-from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedConfig, MixinWamp
+from NetCatKS.Config.api.implementers.configuration.mixin import MixinSharedServiceName, MixinWamp, KeysImplementer
 
 __author__ = 'dimd'
 
 
-class IKeysInterface(Interface):
-    """
-    Interface representing SSL keys. This keys are used when we creating a Secure WEB Socket server
-    or knowing as WSS. This Interface is a child of our actual object
-    """
-    crt = Attribute("A SSL CRT key")
-
-    key = Attribute("A SSL Private key")
-
-
-@implementer(IKeysInterface)
-class KeysImplementer(BaseProtocolActions):
-
-    """
-    Implementation of IKeysInterface
-    """
-
-    def __init__(self, **kwargs):
-        """
-        We providing a default place for our keys - inside a key directory
-        eg on the same level where is located a app.py - project_root/keys/
-
-        :param kwargs:
-
-        :return: void
-        """
-        self.__crt = 'keys/server.crt'
-
-        self.__key = 'keys/server.key'
-
-    @property
-    def crt(self):
-        """
-        A getter for a CRT key
-        :return: str
-        """
-        return self.__crt
-
-    @crt.setter
-    def crt(self, crt):
-
-        """
-        A setter for a CRT key
-        :param crt:
-        :type crt: str
-
-        :return: void
-
-        """
-
-        self.__crt = crt
-
-    @property
-    def key(self):
-        """
-        A getter for a prive key
-        :return: str
-        """
-        return self.__key
-
-    @key.setter
-    def key(self, key):
-
-        """
-        A setter for a private key
-        :param key:
-        :type key: str
-
-        :return: void
-        """
-        self.__key = key
-
-
-class WSImplementer(MixinSharedConfig, MixinWamp):
+class WSImplementer(MixinWamp):
 
     """
     Implementation of IWSInterface
@@ -101,39 +26,25 @@ class WSImplementer(MixinSharedConfig, MixinWamp):
 
         super(WSImplementer, self).__init__()
 
-        self.port = 8585
-
-        self.service_name = 'Default Web Socket server'
-
-        self.url = 'ws://localhost:8585'
-
-        self.protocol = 'ws'
-
-        self.__keys = KeysImplementer()
+        self.__service = MixinSharedServiceName()
+        self.service = 'DefaultWSService'
+        self.__ssl = KeysImplementer()
 
     @property
-    def keys(self):
+    def service(self):
+        return self.__service
 
-        """
-        A keys getter
+    @service.setter
+    def service(self, service_name):
+        self.__service.name = service_name
 
-        :return: KeysImplementer
-        """
+    @property
+    def ssl(self):
+        return self.__ssl
 
-        return self.__keys
-
-    @keys.setter
-    def keys(self, keys):
-
-        """
-        A key setter
-        :param keys:
-        :type keys: KeysImplementer
-
-        :return: void
-        """
-
-        self.__keys = keys
+    @ssl.setter
+    def ssl(self, ssl):
+        self.__ssl = ssl
 
 
 class WS(WSImplementer):

@@ -33,8 +33,10 @@ class TCP(MixinSharedConfig):
         super(TCP, self).__init__()
 
         self.port = 8484
-        self.__service_name = 'Default TCP Server'
+        self.service = 'Default TCP Server'
+
         self.__tcp_back_log = 50
+        self.__type = 'server'
 
     @property
     def tcp_back_log(self):
@@ -62,5 +64,12 @@ class TCP(MixinSharedConfig):
 
         self.__tcp_back_log = back_log
 
+    @property
+    def type(self):
+        return self.__type
+
+    @type.setter
+    def type(self, t):
+        self.__type = t
 
 RegisterAsFactory(TCP).register()

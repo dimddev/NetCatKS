@@ -23,5 +23,6 @@ __all__ = [
     'IWAMPResource',
     'IJSONResourceRootAPI',
     'IJSONResourceAPI',
-    'IJSONResource'
+    'IJSONResource',
+    'get_factory'
 ]

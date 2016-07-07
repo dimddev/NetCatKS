@@ -79,19 +79,8 @@ class AutobahnDefaultFactory(service.Service):
     def __init__(self, **kwargs):
         """
 
-        :param url: The WebSocket URL of the WAMP router to connect to (e.g. `ws://somehost.com:8090/somepath`)
-        :type url: unicode
-        :param realm: The WAMP realm to join the application session to.
-        :type realm: unicode
-        :param extra: Optional extra configuration to forward to the application component.
-        :type extra: dict
-        :param debug: Turn on low-level debugging.
-        :type debug: bool
-        :param debug_wamp: Turn on WAMP-level debugging.
-        :type debug_wamp: bool
-        :param debug_app: Turn on app-level debugging.
-        :type debug_app: bool
-
+        :param kwargs:
+        :type kwargs:
         """
 
         self.logger = Logger()
@@ -106,11 +95,7 @@ class AutobahnDefaultFactory(service.Service):
             self.logger.warning('Config is not provided failback to defaults')
 
             self.config.update({
-                'protocol': 'wss',
-                'hostname': 'localhost',
-                'port': 8080, # integer
                 'realm': 'realm1',
-                'path': 'ws',
                 'retry_interval': 2,  # in seconds
                 'url': u'ws://localhost:8080/ws',
                 'service_name': 'A Default WAMP Service name"'
@@ -120,29 +105,43 @@ class AutobahnDefaultFactory(service.Service):
 
         self.url = kwargs.get('url', self.config.url)
 
+        self.ssl = kwargs.get('ssl', None)
+
+        self.is_secure, self.host, self.port, self.resource, self.path, self.params = parse_url(self.url)
+
+        if self.is_secure and self.ssl is None:
+
+            from twisted.internet._sslverify import OpenSSLCertificateAuthorities
+            from twisted.internet.ssl import CertificateOptions
+            from OpenSSL import crypto
+
+            cert = crypto.load_certificate(
+                crypto.FILETYPE_PEM,
+                open(self.config.ssl.crt, 'r').read()
+            )
+
+            # tell Twisted to use just the one certificate we loaded to verify connections
+            self.ssl = CertificateOptions(
+                trustRoot=OpenSSLCertificateAuthorities([cert]),
+            )
+
         self.realm = u'{}'.format(kwargs.get('realm', self.config.realm))
 
         self.extra = kwargs.get('extra', dict())
-
-        self.debug = kwargs.get('debug', False)
-
-        self.debug_wamp = kwargs.get('debug_wamp', False)
-
-        self.debug_app = kwargs.get('debug_app', False)
 
         self.belong_to = kwargs.get('belong_to', False)
 
         self.make = None
 
-        self.protocol = kwargs.get('protocol', self.config.protocol)
+        # self.protocol = kwargs.get('protocol', self.config.protocol)
 
-        self.name = kwargs.get('name', self.config.service_name)
+        self.name = kwargs.get('name', self.config.service.name)
 
-        self.port = kwargs.get('port', self.config.port)
+        self.port = kwargs.get('port', self.port or self.config.port)
 
-        self.host = kwargs.get('host', self.config.hostname)
+        self.host = kwargs.get('host', self.host or self.config.hostname)
 
-        self.path = kwargs.get('path', self.config.path)
+        self.path = kwargs.get('path', self.path or self.config.path)
 
     def run(self, make):
         """
@@ -152,13 +151,6 @@ class AutobahnDefaultFactory(service.Service):
            when called with an instance of :class:`autobahn.wamp.types.ComponentConfig`.
         :type make: callable
         """
-
-        is_secure, host, port, resource, path, params = parse_url(self.url)
-
-        # start logging to console
-        if self.debug or self.debug_wamp or self.debug_app:
-            pass
-            # log.startLogging(sys.stdout)
 
         # factory for use ApplicationSession
         def create():
@@ -178,34 +170,62 @@ class AutobahnDefaultFactory(service.Service):
 
             else:
 
-                session.debug_app = self.debug_app
                 return session
 
         # create a WAMP-over-WebSocket transport client factory
+
         transport_factory = WampWebSocketClientFactory(
             create,
-            url=self.url
+            url=self.url,
+            serializers=None,
+            proxy=None
         )
 
-        if is_secure:
-            endpoint_descriptor = "ssl:{0}:{1}".format(host, port)
+        # if user passed ssl= but isn't using isSecure, we'll never
+        # use the ssl argument which makes no sense.
+        context_factory = None
+        if self.ssl is not None:
+
+            if not self.is_secure:
+                raise RuntimeError(
+                    'ssl= argument value passed to %s conflicts with the "ws:" '
+                    'prefix of the url argument. Did you mean to use "wss:"?' %
+                    self.__class__.__name__)
+            context_factory = self.ssl
+
+        elif self.is_secure:
+
+            from twisted.internet.ssl import optionsForClientTLS
+            context_factory = optionsForClientTLS(self.host)
+
+        if self.is_secure:
+
+            from twisted.internet.endpoints import SSL4ClientEndpoint
+            assert context_factory is not None
+            client = SSL4ClientEndpoint(reactor, self.host, self.port, context_factory)
+
+            endpoint_descriptor = "ssl:{0}:{1}".format(self.host, self.port)
 
         else:
-            endpoint_descriptor = "tcp:{0}:{1}".format(host, port)
+
+            from twisted.internet.endpoints import TCP4ClientEndpoint
+            client = TCP4ClientEndpoint(reactor, self.host, self.port)
+
+            endpoint_descriptor = "tcp:{0}:{1}".format(self.host, self.port)
 
         try:
             self.logger.info('Trying to connect to: {}'.format(endpoint_descriptor))
-            self.connect(endpoint_descriptor, transport_factory, make)
+            self.connect(client, transport_factory, make)
 
             return self
 
         except Exception as e:
             self.logger.error('CLIENT CONNECT ERROR: {}'.format(e.message))
 
-    def connect(self, endpoint, transport, session):
+    def connect(self, client, transport, session):
         """
         Will make a connection to a WAMP router based on a Twisted endpoint
-        :param endpoint:
+        :param client:
         :param transport:
         :param session:
         :return:
@@ -214,7 +234,7 @@ class AutobahnDefaultFactory(service.Service):
 
             # start the client from a Twisted endpoint
 
-            client = clientFromString(reactor, endpoint)
+            # client = clientFromString(reactor, endpoint)
 
             res = client.connect(transport)
 

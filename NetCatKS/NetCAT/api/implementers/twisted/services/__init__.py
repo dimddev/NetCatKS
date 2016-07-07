@@ -34,7 +34,7 @@ class DefaultService(service.Service):
 
         if self.factory.belong_to is False:
 
-            self.__application = service.Application(self.factory.name, uid=1000, gid=1000)
+            self.__application = service.Application(self.factory.name)
             self.service_collection = service.IServiceCollection(self.__application)
 
         else:
@@ -48,11 +48,17 @@ class DefaultService(service.Service):
 
         :return:
         """
-        internet.TCPServer(
-            self.factory.port,
-            self.factory,
-            50
-        ).setServiceParent(self.service_collection)
+        if self.factory.type == 'server':
+
+            internet.TCPServer(
+                self.factory.port, self.factory, 50
+            ).setServiceParent(self.service_collection)
+
+        elif self.factory.type == 'client':
+
+            internet.TCPClient(
+                self.factory.hostname, self.factory.port, self.factory.protocol()
+            ).setServiceParent(self.service_collection)
 
         if self.factory.belong_to is False:
 

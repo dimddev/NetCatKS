@@ -15,13 +15,22 @@ class BaseWampComponent(object):
     """
     adapts(IWAMPResource)
 
+    __instance = None
+    session = None
+
+    def __new__(cls):
+
+        if not cls.__instance:
+            cls.__instance = super(BaseWampComponent, cls).__new__(cls)
+
+        return cls.__instance
+
     def __init__(self):
         """
         Class calling a super and set a session to None
         :return:
         """
         super(BaseWampComponent, self).__init__()
-        self.session = None
 
     def set_session(self, sesison):
 
@@ -33,3 +42,6 @@ class BaseWampComponent(object):
         :return: void
         """
         self.session = sesison
+
+    def get_session(self):
+        return self.session

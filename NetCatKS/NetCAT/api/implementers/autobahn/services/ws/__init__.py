@@ -38,7 +38,7 @@ class DefaultWSService(service.Service):
 
         self.listener = None
 
-        if self.factory.ws_protocol == 'wss':
+        if self.factory.is_secure:
 
             self.__ssl_context = ssl.DefaultOpenSSLContextFactory(
                 self.factory.crt_keys.get('key'),
@@ -63,7 +63,7 @@ class DefaultWSService(service.Service):
 
         :return:
         """
-        if self.factory.ws_protocol == 'ws':
+        if not self.factory.is_secure:
 
             factory = self.factory.ws_server_factory(self.factory.url)
             factory.protocol = self.factory.ws_msg_protocol

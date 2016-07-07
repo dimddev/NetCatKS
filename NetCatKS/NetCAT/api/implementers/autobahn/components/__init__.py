@@ -9,6 +9,7 @@ from autobahn.wamp import auth
 from autobahn.twisted.wamp import ApplicationSession
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet import reactor
+from autobahn.websocket.util import parse_url
 
 from NetCatKS.NetCAT.api.implementers.autobahn.factories import AutobahnDefaultFactory, Reconnect
 from NetCatKS.NetCAT.api.interfaces.autobahn.components import IWampDefaultComponent
@@ -34,7 +35,7 @@ def on_connect(self):
 
     log.info('Connecting to router...')
 
-    self.join(self.config.realm, [u'wampcra'], cfg.user)
+    self.join(self.config.realm, [u'wampcra'], cfg.wamp_cra.user)
 
 
 def on_challenge(self, challenge):
@@ -57,13 +58,13 @@ def on_challenge(self, challenge):
         cfg = Config().get_wamp()
 
         password = {
-            u'%s' % cfg.user: u'%s' % cfg.password
+            u'%s' % cfg.wamp_cra.user: u'%s' % cfg.wamp_cra.password
         }
 
         if u'salt' in challenge.extra:
 
             key = auth.derive_key(
-                password[cfg.user].encode('utf8'),
+                password[cfg.wamp_cra.user].encode('utf8'),
                 challenge.extra['salt'].encode('utf8'),
                 challenge.extra.get('iterations', None),
                 challenge.extra.get('keylen', None)
@@ -71,7 +72,7 @@ def on_challenge(self, challenge):
 
         else:
 
-            key = password[cfg.user].encode('utf8')
+            key = password[cfg.wamp_cra.user].encode('utf8')
         
         signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
 
@@ -102,11 +103,16 @@ class WampDefaultComponent(ApplicationSession):
         super(WampDefaultComponent, self).__init__(config)
 
         self.__logger = Logger()
+
         self.cfg = Config().get_wamp()
+
+        self.is_secure, self.host, self.port, self.resource, self.path, self.params = parse_url(
+            self.cfg.url
+        )
 
         self.__gsm = getGlobalSiteManager()
 
-        if self.cfg.protocol == 'wss':
+        if self.is_secure:
 
             self.__logger.info('WAMP is secure, switch to wss...')
 
@@ -159,8 +165,6 @@ class WampDefaultComponent(ApplicationSession):
                 if not fac:
                     log.warning('There are no user definition for IUserGlobalSubscriber, message was skipped')
 
-
-
     @inlineCallbacks
     def onJoin(self, details):
         """
@@ -183,9 +187,8 @@ class WampDefaultComponent(ApplicationSession):
         self.__logger.info('WAMP Session is ready')
 
         sub_topic = 'netcatks_global_subscriber_{}'.format(
-            self.cfg.service_name.lower().replace(' ', '_')
+            self.cfg.service.name.lower().replace(' ', '_')
         )
-
         yield self.subscribe(self.subscriber_dispatcher, sub_topic)
         self.__logger.info('Starting global subscriber: {}'.format(sub_topic))
 

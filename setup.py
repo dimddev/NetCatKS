@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 from setuptools import setup, find_packages
 
 
@@ -14,7 +15,7 @@ netcatks_dev = [
 
 setup(
     name='NetCatKS',
-    version='0.1.5',
+    version='0.1.5.1',
     description='Networking with Crossbar, Autobahn and Twisted - Kick Starter',
     author='Dimitar Dimitrov',
     author_email='targolini@gmail.com',
@@ -44,17 +45,16 @@ setup(
         'dev': netcatks_dev,
     },
     install_requires=[
-        'Twisted==15.5.0',              # MIT license
+        'setuptools>=11.3',
+        'Twisted>=16.2.0',              # MIT license
         'autobahn>=0.12.1',             # MIT license
-        'zope.component==4.2.2',        # Zope Public license
-        'zope.event==4.0.3',            # Zope Public license
-        'zope.interface==4.1.2',        # Zope Public license
         'colorama',                     # BSD 3-Clause license
         'cryptography>=0.9.3',          # Apache license
         'pyOpenSSL>=0.15.1',            # Apache license
         'pyasn1>=0.1.8',                # BSD license
         'pyasn1-modules>=0.0.7',        # BSD license
         'service_identity>=14.0.0',     # MIT license
+        'zope.component>=4.2.2',        # Zope Public license
     ],
     scripts=['bin/netcatks']
 )
